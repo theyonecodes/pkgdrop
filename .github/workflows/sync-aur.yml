@@ -31,19 +31,25 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
+      - name: Test SSH
+        run: ssh -vT git@aur.archlinux.org 2>&1 || true
+
       - name: Sync to AUR
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
 
-          git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
+          GIT_SSH_COMMAND="ssh -v" git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur 2>&1 || {
+            echo "::error::Clone failed"
+            exit 1
+          }
+          
           cd /tmp/aur
-
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           git diff --cached --quiet && echo "No changes to push" && exit 0
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
           git push
         env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+          GIT_SSH_COMMAND: "ssh -v -o StrictHostKeyChecking=no"
