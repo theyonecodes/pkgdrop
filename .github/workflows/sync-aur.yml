@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug secrets
+        run: |
+          echo "Checking if AUR_SSH_KEY exists..."
+          if [ -n "${{ secrets.AUR_SSH_KEY }}" ]; then
+            echo "AUR_SSH_KEY is set (length: ${{ secrets.AUR_SSH_KEY }})"
+          else
+            echo "AUR_SSH_KEY is NOT set"
+          fi
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.4
         with:
