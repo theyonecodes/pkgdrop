@@ -12,18 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify secret exists
+      - name: Write and verify SSH key
         run: |
-          if [ -z "${{ secrets.AUR_SSH_KEY }}" ]; then
-            echo "::error::AUR_SSH_KEY secret is empty or not set"
-            exit 1
-          fi
-          echo "Secret is set"
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          printenv AUR_SSH_KEY > ~/.ssh/aur_deploy
+          chmod 600 ~/.ssh/aur_deploy
+          
+          echo "Key file created. Checking format..."
+          head -1 ~/.ssh/aur_deploy
+          wc -l ~/.ssh/aur_deploy
+          
+          echo "Validating key..."
+          ssh-keygen -l -f ~/.ssh/aur_deploy || echo "INVALID KEY FORMAT"
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
 
       - name: Get version
         id: ver
@@ -31,11 +35,14 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
-      - name: Test SSH
-        run: ssh -T git@aur.archlinux.org || true
-
       - name: Sync to AUR
         run: |
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/aur_deploy
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
 
           git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
@@ -46,5 +53,3 @@ jobs:
           git diff --cached --quiet && echo "No changes to push" && exit 0
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
           git push
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
