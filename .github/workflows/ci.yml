@@ -6,7 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
@@ -15,6 +15,9 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats
           sudo /tmp/bats/install.sh /usr/local
+
+      - name: Make scripts executable
+        run: chmod +x src/pkgdrop install.sh uninstall.sh push-aur.sh
 
       - name: Syntax check
         run: |
