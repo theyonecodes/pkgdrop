@@ -12,46 +12,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Add AUR to known hosts
+        run: ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
+
+      - name: Get version
+        id: ver
+        run: |
+          VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
+          echo "v=$VER" >> $GITHUB_OUTPUT
+
       - name: Sync to AUR
         run: |
-          # 1. Setup SSH Agent
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur_deploy
-          chmod 600 ~/.ssh/aur_deploy
-          ssh-keygen -l -f ~/.ssh/aur_deploy
-          
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/aur_deploy
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-
-          # 2. Get version
-          VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
-          echo "Version: $VER"
-
-          # 3. Git operations
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
-
-          echo "Cloning AUR repo..."
-          git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur || {
-            echo "Clone failed, checking SSH connectivity..."
-            ssh -vT git@aur.archlinux.org
-            exit 1
-          }
           
+          git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
           cd /tmp/aur
+          
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           
           if git diff --cached --quiet; then
             echo "No changes to push"
           else
-            git commit -m "pkgdrop $VER"
+            git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
             git push
-            echo "Successfully pushed pkgdrop $VER to AUR"
           fi
-        env:
-          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
