@@ -12,19 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug secret
-        run: |
-          echo "Secret length: ${{ secrets.AUR_SSH_KEY }}"
-          echo "First 20 chars: $(echo '${{ secrets.AUR_SSH_KEY }}' | head -c 20)"
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           echo '${{ secrets.AUR_SSH_KEY }}' > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
-          cat ~/.ssh/aur_deploy | head -1
-          ssh-keygen -lf ~/.ssh/aur_deploy || echo "Key format error"
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/aur_deploy
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Get version
         id: ver
@@ -32,21 +28,29 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
+      - name: Test SSH connection
+        run: ssh -T git@aur.archlinux.org || true
+
       - name: Sync to AUR
         run: |
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/aur_deploy
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
 
+          echo "Cloning AUR repo..."
           git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
+          
           cd /tmp/aur
+          echo "Current directory: $(pwd)"
+          echo "Files:"
+          ls -la
 
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
+          
+          echo "Changes:"
+          git status
+          
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
           git push
