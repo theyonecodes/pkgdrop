@@ -12,19 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug secrets
+      - name: Setup SSH agent
         run: |
-          echo "Checking if AUR_SSH_KEY exists..."
-          if [ -n "${{ secrets.AUR_SSH_KEY }}" ]; then
-            echo "AUR_SSH_KEY is set (length: ${{ secrets.AUR_SSH_KEY }})"
-          else
-            echo "AUR_SSH_KEY is NOT set"
-          fi
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur_deploy
+          chmod 600 ~/.ssh/aur_deploy
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/aur_deploy
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Get version
         id: ver
