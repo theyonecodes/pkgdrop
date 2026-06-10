@@ -39,7 +39,7 @@ setup() {
 }
 
 @test "unknown format fails" {
-    touch "$BATS_TEST_TMPDIR/test.xyz"
+    echo "not a real package" > "$BATS_TEST_TMPDIR/test.xyz"
     run pkgdrop "$BATS_TEST_TMPDIR/test.xyz"
     [ "$status" -eq 1 ]
     [[ "$output" == *"Unknown format"* ]]
