@@ -1,0 +1,21 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate archive
+        run: |
+          git archive --format=tar.gz --prefix=pkgdrop-$GITHUB_REF_NAME/ -o pkgdrop-$GITHUB_REF_NAME.tar.gz HEAD
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: pkgdrop-$GITHUB_REF_NAME.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
