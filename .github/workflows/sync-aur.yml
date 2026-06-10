@@ -12,9 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Add AUR to known hosts
-        run: ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
-
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -31,9 +28,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
-          cd /tmp/aur
+          git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur || {
+            echo "Clone failed, retrying with StrictHostKeyChecking=no..."
+            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
+          }
           
+          cd /tmp/aur
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           
