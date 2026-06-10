@@ -11,31 +11,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get package version
-        id: version
+      - name: Get version
+        id: ver
         run: |
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
-          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "v=$VER" >> $GITHUB_OUTPUT
 
+      - name: Debug
+        run: |
+          echo "Version is ${{ steps.ver.outputs.v }}"
+          echo "AUR_TOKEN is: ${{ secrets.AUR_TOKEN }}"
+          echo "Token length: ${{ secrets.AUR_TOKEN }}"
+          
       - name: Sync to AUR
+        if: secrets.AUR_TOKEN != ''
         env:
           AUR_TOKEN: ${{ secrets.AUR_TOKEN }}
         run: |
           git config --global user.name "pkgdrop-bot"
           git config --global user.email "bot@users.noreply.github.com"
           
-          # Clone AUR repo
           git clone https:${AUR_TOKEN}@aur.archlinux.org/pkgdrop.git /tmp/aur-pkgdrop
           cd /tmp/aur-pkgdrop
           
-          # Copy files
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
-          
-          # Update and push
           git add -A
-          git commit -m "pkgdrop ${VER}" || echo "No changes"
+          git commit -m "pkgdrop ${{ steps.ver.outputs.v }}" || echo "No changes"
           git push
-
-      - name: Show status
-        if: failure()
-        run: echo "AUR sync failed - check AUR_TOKEN secret"
+        continue-on-error: true
