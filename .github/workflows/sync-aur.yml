@@ -10,15 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Get package version
         id: version
         run: |
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "version=$VER" >> $GITHUB_OUTPUT
-          echo "Version: $VER"
 
       - name: Sync to AUR
         env:
@@ -32,9 +29,13 @@ jobs:
           cd /tmp/aur-pkgdrop
           
           # Copy files
-          cp "$GITHUB.workspace/src/pkgdrop" .
+          cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           
           # Update and push
           git add -A
-          git commit -m "pkgdrop ${ github.event.repository.tags.version.name }" || echo "No changes"
+          git commit -m "pkgdrop ${VER}" || echo "No changes"
           git push
+
+      - name: Show status
+        if: failure()
+        run: echo "AUR sync failed - check AUR_TOKEN secret"
