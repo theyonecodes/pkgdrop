@@ -65,7 +65,7 @@ EOF
 # --- Locking ---
 
 acquire_lock() {
-    local timeout="${1:-10}"
+    local timeout=10
     local elapsed=0
     while ! mkdir "$LOCK_FILE" 2>/dev/null; do
         if [[ ! -f "$LOCK_FILE/pid" ]] || ! kill -0 "$(cat "$LOCK_FILE/pid")" 2>/dev/null; then
@@ -480,7 +480,6 @@ create_desktop_entry() {
         local icon_dir="$HOME/.local/share/icons/hicolor/128x128/apps"
         mkdir -p "$icon_dir"
         cp "$icon" "$icon_dir/${icon_name}.${ext}"
-        icon_name="${icon_name}"
         verb "Installed icon: $icon_dir/${icon_name}.${ext}"
     fi
 
@@ -644,11 +643,11 @@ install_appimage() {
     local icon=""
     local tmpdir
     tmpdir=$(mktemp -d)
-    if "$file" --appimage-extract *.png >/dev/null 2>&1; then
+    if "$file" --appimage-extract ./*.png >/dev/null 2>&1; then
         icon=$(find . -maxdepth 1 -name "*.png" -type f 2>/dev/null | head -1)
         [[ -n "$icon" ]] && icon="$(pwd)/$icon"
     fi
-    if "$file" --appimage-extract *.svg >/dev/null 2>&1; then
+    if "$file" --appimage-extract ./*.svg >/dev/null 2>&1; then
         local svg
         svg=$(find . -maxdepth 1 -name "*.svg" -type f 2>/dev/null | head -1)
         [[ -n "$svg" ]] && icon="$(pwd)/$svg"
