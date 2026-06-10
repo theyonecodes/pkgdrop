@@ -148,7 +148,13 @@ install_tarportable() {
     [[ -d "$INSTALL_DIR" ]] || mkdir -p "$INSTALL_DIR"
 
     local target="$INSTALL_DIR/$name"
-    [[ -d "$target" ]] && rm -rf "$target"
+    if [[ -d "$target" ]]; then
+        warn "Already installed: $name"
+        read -p "Reinstall? [y/N] " -n 1 -r
+        echo
+        [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
+        rm -rf "$target"
+    fi
 
     mkdir -p "$target"
     tar -xf "$file" -C "$target"
@@ -197,14 +203,11 @@ install_appimage() {
 
 show_summary() {
     echo ""
-    info "================================"
-    info "pkgdrop $VERSION - Installation Summary"
-    info "================================"
-    info "Installed to: ~/.local/opt/"
-    info "Binaries in:  ~/.local/bin/"
-    info ""
-    info "Add ~/.local/bin to PATH if not already:"
-    info "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+    info "pkgdrop $VERSION - Installed"
+    if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+        info ""
+        info "Add to PATH: echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+    fi
 }
 
 main() {
