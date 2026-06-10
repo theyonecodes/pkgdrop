@@ -7,14 +7,29 @@ on:
 
 jobs:
   sync:
+    environment: pkgdrop-env
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printenv AUR_SSH_KEY > ~/.ssh/aur_deploy
+          chmod 600 ~/.ssh/aur_deploy
+          
+          echo "=== Key info ==="
+          head -1 ~/.ssh/aur_deploy
+          wc -c < ~/.ssh/aur_deploy
+          ssh-keygen -l -f ~/.ssh/aur_deploy
+          
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/aur_deploy
+          
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
 
       - name: Get version
         id: ver
