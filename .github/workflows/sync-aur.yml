@@ -12,17 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Verify secret exists
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printenv AUR_SSH_KEY > ~/.ssh/aur_deploy
-          chmod 600 ~/.ssh/aur_deploy
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/aur_deploy
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-        env:
-          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+          if [ -z "${{ secrets.AUR_SSH_KEY }}" ]; then
+            echo "::error::AUR_SSH_KEY secret is empty or not set"
+            exit 1
+          fi
+          echo "Secret is set"
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
       - name: Get version
         id: ver
@@ -30,29 +31,20 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
-      - name: Test SSH connection
+      - name: Test SSH
         run: ssh -T git@aur.archlinux.org || true
 
       - name: Sync to AUR
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
 
-          echo "Cloning AUR repo..."
           git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
-          
           cd /tmp/aur
-          echo "Current directory: $(pwd)"
-          echo "Files:"
-          ls -la
 
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
-          
-          echo "Changes:"
-          git status
-          
-          git diff --cached --quiet && echo "No changes" && exit 0
+          git diff --cached --quiet && echo "No changes to push" && exit 0
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
           git push
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
