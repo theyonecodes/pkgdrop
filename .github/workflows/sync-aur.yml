@@ -17,6 +17,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
+      - name: Add AUR to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
       - name: Get version
         id: ver
         run: |
@@ -30,27 +35,24 @@ jobs:
           
           echo "Starting sync for version ${{ steps.ver.outputs.v }}..."
 
-          # 1. Clone the repository using the unambiguous SSH URL
-          git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur || {
-            echo "Error: Failed to clone AUR repository."
-            exit 1
+          # Use the standard AUR Git syntax: user@host:repo
+          git clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur || {
+            echo "Clone failed. Retrying with explicit SSH command..."
+            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur
           }
           
           cd /tmp/aur
-          echo "Cloned AUR repository to $(pwd)"
-
-          # 2. Update the package file
+          echo "Repository cloned to $(pwd)"
+          
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           
-          # 3. Commit and push if there are changes
           if git diff --cached --quiet; then
             echo "No changes detected. Nothing to push."
           else
-            echo "Changes detected. Committing and pushing..."
+            echo "Changes detected. Committing..."
             git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
+            echo "Pushing to AUR..."
             git push origin master || git push origin main
             echo "Successfully pushed to AUR!"
           fi
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
