@@ -1,0 +1,22 @@
+post_install() {
+    echo ""
+    echo "pkgdrop installed successfully!"
+    echo ""
+    echo "Usage: pkgdrop <file>"
+    echo ""
+    echo "Supported formats:"
+    echo "  *.tar.xz, *.deb, *.AppImage, *.pkg.tar.*, *.rpm"
+    echo ""
+    echo "Add to PATH if needed:"
+    echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+    echo ""
+    echo "For bash completions:"
+    echo "  source /usr/share/bash-completion/completions/pkgdrop.bash"
+    echo ""
+}
+
+post_upgrade() {
+    echo ""
+    echo "pkgdrop upgraded to $(grep '^VERSION=' /usr/bin/pkgdrop | cut -d'\"' -f2)"
+    echo ""
+}

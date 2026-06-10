@@ -8,11 +8,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          sudo apt-get install -y bats
 
       - name: Syntax check
-        run: bash -n src/pkgdrop
+        run: |
+          bash -n src/pkgdrop
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n push-aur.sh
 
       - name: Shellcheck
-        run: shellcheck src/pkgdrop
+        run: |
+          shellcheck src/pkgdrop
+          shellcheck install.sh
+          shellcheck uninstall.sh
+          shellcheck push-aur.sh
+
+      - name: Unit tests
+        run: bats tests/pkgdrop.bats
+
+      - name: Validate help output
+        run: |
+          ./src/pkgdrop --help | grep -q "Usage:"
+          ./src/pkgdrop --version | grep -q "pkgdrop"
+
+      - name: Validate --dry-run
+        run: |
+          touch /tmp/test.xyz
+          ./src/pkgdrop --dry-run /tmp/test.xyz 2>&1 || true

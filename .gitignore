@@ -16,7 +16,6 @@ Thumbs.db
 *.tar.gz
 *.pkg.tar.*
 pkg/
-src/
 
 # AUR
 *.sig

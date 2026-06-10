@@ -1,0 +1,25 @@
+#compdef pkgdrop
+
+_pkgdrop() {
+    _arguments -s \
+        '(-h --help)'{-h,--help}'[Show help message]' \
+        '(-v --version)'{-v,--version}'[Show version]' \
+        '(-l --list)'{-l,--list}'[List installed packages]' \
+        '(-u --uninstall)'{-u,--uninstall}'[Uninstall a package]:package:_pkgdrop_installed' \
+        '(-c --clean)'{-c,--clean}'[Remove broken symlinks]' \
+        '(-n --dry-run)'{-n,--dry-run}'[Preview without changes]' \
+        '(-V --verbose)'{-V,--verbose}'[Show detailed output]' \
+        '(-y --yes)'{-y,--yes}'[Skip confirmation prompts]' \
+        '*:file:_files -g "*.(tar.xz|tar.gz|deb|rpm|pkg.tar.zst|pkg.tar.xz|pkg.tar.gz|AppImage)"'
+}
+
+_pkgdrop_installed() {
+    local install_dir="${PKGDROP_DIR:-$HOME/.local/opt}"
+    if [[ -d "$install_dir" ]]; then
+        local -a packages
+        packages=("${(@f)$(ls -1 "$install_dir" 2>/dev/null)}")
+        _describe 'installed package' packages
+    fi
+}
+
+_pkgdrop "$@"

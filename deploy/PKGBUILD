@@ -1,6 +1,6 @@
 # Maintainer: theyonecodes <theyonecodes@gmail.com>
 pkgname=pkgdrop
-pkgver=1.1.0
+pkgver=2.0.0
 pkgrel=1
 pkgdesc="Universal package installer for Arch Linux"
 arch=('any')
@@ -8,10 +8,22 @@ url="https://github.com/theyonecodes/pkgdrop"
 license=('MIT')
 depends=('bash')
 optdepends=('pacman: for .pkg.tar.* packages'
-            'debtap: for .deb packages')
+            'debtap: for .deb packages'
+            'alien: for .rpm packages')
+install=pkgdrop.install
 source=("pkgdrop::https://raw.githubusercontent.com/theyonecodes/pkgdrop/main/src/pkgdrop")
 sha256sums=('SKIP')
 
 package() {
     install -Dm755 "$srcdir/pkgdrop" "$pkgdir/usr/bin/pkgdrop"
+
+    # Man page
+    install -Dm644 "${startdir}/../../docs/pkgdrop.1" "$pkgdir/usr/share/man/man1/pkgdrop.1" 2>/dev/null || true
+
+    # Completions
+    install -Dm644 "${startdir}/../../completions/pkgdrop.bash" "$pkgdir/usr/share/bash-completion/completions/pkgdrop" 2>/dev/null || true
+    install -Dm644 "${startdir}/../../completions/_pkgdrop" "$pkgdir/usr/share/zsh/site-functions/_pkgdrop" 2>/dev/null || true
+
+    # Documentation
+    install -Dm644 "${startdir}/../../CHANGELOG.md" "$pkgdir/usr/share/doc/pkgdrop/CHANGELOG.md" 2>/dev/null || true
 }

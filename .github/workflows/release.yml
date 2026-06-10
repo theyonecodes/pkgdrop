@@ -11,12 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate scripts
+        run: |
+          bash -n src/pkgdrop
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n push-aur.sh
+
       - name: Generate archive
         run: |
           git archive --format=tar.gz --prefix=pkgdrop-$GITHUB_REF_NAME/ -o pkgdrop-$GITHUB_REF_NAME.tar.gz HEAD
 
+      - name: Generate checksums
+        run: |
+          sha256sum pkgdrop-$GITHUB_REF_NAME.tar.gz > pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
+          cat pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
+
       - name: Upload release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
-          files: pkgdrop-$GITHUB_REF_NAME.tar.gz
+          files: |
+            pkgdrop-$GITHUB_REF_NAME.tar.gz
+            pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
           generate_release_notes: true

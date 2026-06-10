@@ -11,7 +11,11 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 REAL_USER="${SUDO_USER:-$USER}"
-REAL_HOME=$(eval echo "~$REAL_USER")
+if [[ "$REAL_USER" == "root" ]]; then
+  REAL_HOME="/root"
+else
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+fi
 
 # Install main script
 install -Dm755 src/pkgdrop /usr/bin/pkgdrop

@@ -1,0 +1,103 @@
+.\" pkgdrop - Universal package installer for Arch Linux
+.TH PKGDROP 1 "2026-06-11" "pkgdrop 2.0.0" "User Commands"
+.SH NAME
+pkgdrop \- universal package installer for Arch Linux
+.SH SYNOPSIS
+.B pkgdrop
+.RI [ OPTIONS ]
+.IR file
+.SH DESCRIPTION
+.B pkgdrop
+installs packages from multiple formats (.tar.xz, .deb, .AppImage, .pkg.tar.*, .rpm) on Arch Linux with automatic dependency management.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show help message.
+.TP
+.BR \-v ", " \-\-version
+Show version.
+.TP
+.BR \-l ", " \-\-list
+List installed packages.
+.TP
+.BR \-u ", " \-\-uninstall " " \fIname\fR
+Uninstall a package by name.
+.TP
+.BR \-c ", " \-\-clean
+Remove broken symlinks and orphaned packages.
+.TP
+.BR \-n ", " \-\-dry-run
+Preview installation without making changes.
+.TP
+.BR \-V ", " \-\-verbose
+Show detailed output during installation.
+.TP
+.BR \-y ", " \-\-yes
+Skip all confirmation prompts.
+.SH ENVIRONMENT
+.TP
+.B DEBUG=1
+Enable debug output.
+.TP
+.B VERBOSE=1
+Enable verbose output.
+.TP
+.B ASK_DEPENDENCIES=0
+Skip dependency installation prompts.
+.TP
+.B PKGDROP_DIR=\fIpath\fR
+Override installation directory (default: ~/.local/opt).
+.TP
+.B PKGDROP_MAX_SIZE=\fIbytes\fR
+Maximum file size allowed (default: 1073741824).
+.TP
+.B PKGDROP_LOG=\fIpath\fR
+Log file path (default: ~/.local/share/pkgdrop/install.log).
+.SH FORMATS
+.TP
+.B *.pkg.tar.*
+Pacman package format. Requires sudo.
+.TP
+.B *.tar.xz
+Portable tarball. Extracted to ~/.local/opt/ with symlink in ~/.local/bin/.
+.TP
+.B *.deb
+Debian package. Converted via debtap (optional dependency).
+.TP
+.B *.AppImage
+AppImage binary. Copied to ~/.local/bin/.
+.TP
+.B *.rpm
+RPM package. Converted via alien (optional dependency).
+.SH FILES
+.TP
+.I ~/.local/opt/
+Default installation directory.
+.TP
+.I ~/.local/bin/
+Symlink directory for installed binaries.
+.TP
+.I ~/.config/pkgdrop/config
+Configuration file.
+.TP
+.I ~/.local/share/pkgdrop/install.log
+Installation log file.
+.SH EXAMPLES
+.PP
+Install a tarball:
+.B pkgdrop app.tar.xz
+.PP
+Preview installation:
+.B pkgdrop -n app.tar.xz
+.PP
+Uninstall a package:
+.B pkgdrop -u app
+.PP
+List installed packages:
+.B pkgdrop --list
+.SH AUTHOR
+theyonecodes <theyonecodes@gmail.com>
+.SH SEE ALSO
+.BR pacman (8),
+.BR debtap (1),
+.BR alien (1)

@@ -5,10 +5,10 @@
 all: src/pkgdrop
 
 install: src/pkgdrop
-	install -Dm755 src/pkgdrop /usr/bin/pkgdrop
+	sudo install -Dm755 src/pkgdrop /usr/bin/pkgdrop
 
 uninstall:
-	rm -f /usr/bin/pkgdrop
+	sudo rm -f /usr/bin/pkgdrop /usr/share/applications/pkgdrop.desktop /usr/share/kservices5/ServiceMenus/pkgdrop-servicemenu.xml
 
 test:
 	@echo "Running syntax check..."
