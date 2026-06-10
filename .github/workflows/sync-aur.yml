@@ -1,0 +1,40 @@
+name: Sync to AUR
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get package version
+        id: version
+        run: |
+          VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "Version: $VER"
+
+      - name: Sync to AUR
+        env:
+          AUR_TOKEN: ${{ secrets.AUR_TOKEN }}
+        run: |
+          git config --global user.name "pkgdrop-bot"
+          git config --global user.email "bot@users.noreply.github.com"
+          
+          # Clone AUR repo
+          git clone https:${AUR_TOKEN}@aur.archlinux.org/pkgdrop.git /tmp/aur-pkgdrop
+          cd /tmp/aur-pkgdrop
+          
+          # Copy files
+          cp "$GITHUB.workspace/src/pkgdrop" .
+          
+          # Update and push
+          git add -A
+          git commit -m "pkgdrop ${ github.event.repository.tags.version.name }" || echo "No changes"
+          git push
