@@ -17,10 +17,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
-      - name: Debug Key Fingerprint
-        run: |
-          ssh-add -l
-          
       - name: Get version
         id: ver
         run: |
@@ -31,10 +27,11 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur || {
+
+          # Standard AUR clone syntax: user@host:repo
+          git clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur || {
             echo "Clone failed, retrying with StrictHostKeyChecking=no..."
-            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
+            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur
           }
           
           cd /tmp/aur
@@ -46,5 +43,6 @@ jobs:
           else
             git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
             git push
+          fi
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
