@@ -1,5 +1,6 @@
 #!/bin/bash
 # pkgdrop installer
+# shellcheck shell=bash disable=SC2016
 set -e
 
 echo "Installing pkgdrop..."

@@ -226,7 +226,7 @@ uninstall_package() {
     if [[ -d "$INSTALL_DIR/$name" ]]; then
         if confirm "Remove $INSTALL_DIR/$name?"; then
             [[ "$DRY_RUN" == "1" ]] && { info "[DRY RUN] Would remove $INSTALL_DIR/$name"; return 0; }
-            rm -rf "$INSTALL_DIR/$name"
+            rm -rf "${INSTALL_DIR:?}/$name"
             info "Removed $INSTALL_DIR/$name"
             removed=1
         fi
@@ -415,7 +415,8 @@ quarantine_file() {
     mkdir -p "$qdir"
     local name
     name=$(basename "$file")
-    local dest="$qdir/$(date +%s)_$name"
+    local dest
+    dest="$qdir/$(date +%s)_$name"
     mv "$file" "$dest"
     warn "Quarantined: $file -> $dest"
     info "Inspect manually, then delete or restore"
