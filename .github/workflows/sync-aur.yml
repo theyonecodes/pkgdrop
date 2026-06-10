@@ -16,16 +16,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          
           printenv AUR_SSH_KEY > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
-          
-          echo "Key file created. Checking format..."
-          head -1 ~/.ssh/aur_deploy
-          wc -l ~/.ssh/aur_deploy
-          
-          echo "Validating key..."
-          ssh-keygen -l -f ~/.ssh/aur_deploy || echo "INVALID KEY FORMAT"
+          ssh-keygen -l -f ~/.ssh/aur_deploy
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
 
@@ -40,16 +33,25 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/aur_deploy
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          
+
+          echo "Testing SSH connection..."
+          ssh -T git@aur.archlinux.org || true
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
 
-          git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
+          echo "Cloning AUR repo..."
+          git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur || {
+            echo "Clone failed, trying with verbose SSH..."
+            GIT_SSH_COMMAND="ssh -v" git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur
+          }
+          
           cd /tmp/aur
-
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           git diff --cached --quiet && echo "No changes to push" && exit 0
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
           git push
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
