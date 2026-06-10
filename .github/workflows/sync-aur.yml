@@ -17,6 +17,10 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
+      - name: Debug Key Fingerprint
+        run: |
+          ssh-add -l
+          
       - name: Get version
         id: ver
         run: |
@@ -42,4 +46,5 @@ jobs:
           else
             git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
             git push
-          fi
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
