@@ -16,11 +16,13 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          echo '${{ secrets.AUR_SSH_KEY }}' > ~/.ssh/aur_deploy
+          printenv AUR_SSH_KEY > ~/.ssh/aur_deploy
           chmod 600 ~/.ssh/aur_deploy
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/aur_deploy
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
 
       - name: Get version
         id: ver
