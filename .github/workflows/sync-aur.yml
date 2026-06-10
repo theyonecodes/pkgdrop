@@ -22,6 +22,11 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/aur_deploy
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+          cat >> ~/.ssh/config << 'SSHEOF'
+Host aur.archlinux.org
+  IdentityFile ~/.ssh/aur_deploy
+  User aur
+SSHEOF
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
 
