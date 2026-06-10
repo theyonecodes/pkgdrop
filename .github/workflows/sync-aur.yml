@@ -11,31 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
+
       - name: Get version
         id: ver
         run: |
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
-      - name: Debug
-        run: |
-          echo "Version is ${{ steps.ver.outputs.v }}"
-          echo "AUR_TOKEN is: ${{ secrets.AUR_TOKEN }}"
-          echo "Token length: ${{ secrets.AUR_TOKEN }}"
-          
       - name: Sync to AUR
-        if: secrets.AUR_TOKEN != ''
-        env:
-          AUR_TOKEN: ${{ secrets.AUR_TOKEN }}
         run: |
-          git config --global user.name "pkgdrop-bot"
-          git config --global user.email "bot@users.noreply.github.com"
+          eval "$(ssh-agent -s)"
+          git config --global url."git@aur.archlinux.org:".insteadOf "https://aur.archlinux.org/"
           
-          git clone https:${AUR_TOKEN}@aur.archlinux.org/pkgdrop.git /tmp/aur-pkgdrop
+          git clone git@aur.archlinux.org:pkgdrop.git /tmp/aur-pkgdrop
           cd /tmp/aur-pkgdrop
           
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
           git commit -m "pkgdrop ${{ steps.ver.outputs.v }}" || echo "No changes"
           git push
-        continue-on-error: true
