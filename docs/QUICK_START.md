@@ -18,7 +18,7 @@ yay -S pkgdrop
 ```bash
 pkgdrop ~/Downloads/zen.linux-x86_64.tar.xz
 ```
-**Result:** Zen browser installed to `~/.local/opt/zen.linux-x86_64/`
+**Result:** Zen browser installed to `~/.local/opt/zen/`
 
 ### Example 2: Install an AppImage
 ```bash

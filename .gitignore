@@ -1,1 +1,22 @@
+# Environment
 .env
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tar.gz
+*.pkg.tar.*
+pkg/
+src/
+
+# AUR
+*.sig

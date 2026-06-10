@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jobs>
-  <job name="installWithPkgdrop" program="/usr/bin/env" path="/usr/local/bin/pkgdrop">
+  <job name="installWithPkgdrop" program="/usr/bin/env" path="/usr/bin/pkgdrop">
     <argument>%u</argument>
     <name>Install with pkgdrop</name>
     <icon>application-x-executable</icon>
