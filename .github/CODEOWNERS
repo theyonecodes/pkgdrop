@@ -1,0 +1,11 @@
+# CODEOWNERS - pkgdrop
+# These owners will be automatically requested for review
+
+# Default owner for everything
+* @theyonecodes
+
+# CI/CD changes
+.github/ @theyonecodes
+
+# AUR packaging
+deploy/ @theyonecodes
