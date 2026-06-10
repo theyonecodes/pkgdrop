@@ -429,8 +429,8 @@ sanitize_name() {
     name="${name%.deb}"
     name="${name%.rpm}"
     name="${name%.AppImage}"
-    name=$(echo "$name" | sed -E 's/[-_]?(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
-    name=$(echo "$name" | sed -E 's/[-_]?(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
+    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
+    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
     [[ -z "$name" ]] && name="unknown"
     echo "$name"
 }
