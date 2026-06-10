@@ -445,15 +445,21 @@ sanitize_name() {
 find_icon() {
     local dir="$1"
     local name="$2"
-    local icon=""
 
-    # Priority: named icons > generic icons
+    # Search priority: named > common names > any icon
+    local icon=""
     icon=$(find "$dir" -maxdepth 4 -type f \( -name "${name}.png" -o -name "${name}.svg" \) 2>/dev/null | head -1)
-    [[ -z "$icon" ]] && icon=$(find "$dir" -maxdepth 4 -type f \( -name "logo.png" -o -name "logo.svg" -o -name "icon.png" -o -name "icon.svg" \) 2>/dev/null | head -1)
-    [[ -z "$icon" ]] && icon=$(find "$dir" -maxdepth 4 -type f -name "*.png" ! -name "changelog*" ! -name "README*" 2>/dev/null | head -1)
+    [[ -z "$icon" ]] && icon=$(find "$dir" -maxdepth 4 -type f \( -name "logo.png" -o -name "logo.svg" -o -name "icon.png" -o -name "icon.svg" -o -name "app.png" -o -name "app.svg" \) 2>/dev/null | head -1)
+    [[ -z "$icon" ]] && icon=$(find "$dir" -maxdepth 4 -type f -name "*.png" ! -path "*/changelog*" ! -path "*/README*" ! -path "*/LICENSE*" 2>/dev/null | head -1)
     [[ -z "$icon" ]] && icon=$(find "$dir" -maxdepth 4 -type f -name "*.svg" 2>/dev/null | head -1)
 
     echo "$icon"
+}
+
+humanize_name() {
+    local name="$1"
+    # Capitalize first letter of each word, replace - _ . with spaces
+    echo "$name" | sed 's/[-_.]/ /g' | sed 's/\b\(.\)/\u\1/g'
 }
 
 create_desktop_entry() {
@@ -466,30 +472,34 @@ create_desktop_entry() {
     mkdir -p "$desktop_dir"
 
     local desktop_file="$desktop_dir/pkgdrop-${name}.desktop"
+    local icon_name="pkgdrop-${name}"
 
-    # Install icon
-    local icon_path="$icon"
+    # Install icon to hicolor theme (name only, no path)
     if [[ -n "$icon" ]] && [[ -f "$icon" ]]; then
+        local ext="${icon##*.}"
         local icon_dir="$HOME/.local/share/icons/hicolor/128x128/apps"
         mkdir -p "$icon_dir"
-        local ext="${icon##*.}"
-        icon_path="$icon_dir/pkgdrop-${name}.${ext}"
-        cp "$icon" "$icon_path"
-        verb "Installed icon: $icon_path"
+        cp "$icon" "$icon_dir/${icon_name}.${ext}"
+        icon_name="${icon_name}"
+        verb "Installed icon: $icon_dir/${icon_name}.${ext}"
     fi
+
+    local display_name
+    display_name=$(humanize_name "$name")
 
     cat > "$desktop_file" << DESKTOP
 [Desktop Entry]
-Name=$name
-Exec=$bin %u
-Terminal=false
+Version=1.0
 Type=Application
-Categories=$category;
+Name=${display_name}
+Exec=${bin} %u
+Icon=${icon_name}
+Terminal=false
+StartupWMClass=${name}
+Categories=${category};
 MimeType=text/html;text/plain;application/xhtml+xml;
 StartupNotify=true
 DESKTOP
-
-    [[ -n "$icon_path" ]] && [[ -f "$icon_path" ]] && sed -i "s|^Exec=|Icon=$icon_path\nExec=|" "$desktop_file"
 
     verb "Created: $desktop_file"
 }
@@ -677,12 +687,27 @@ install_alien() {
 }
 
 show_summary() {
+    local name="${1:-}"
     if [[ "$DRY_RUN" == "1" ]]; then
         info "[DRY RUN] No changes made"
         return 0
     fi
+
+    echo ""
+    info "================================"
+    info "pkgdrop $VERSION - Installed"
+    info "================================"
+
+    if [[ -n "$name" ]]; then
+        [[ -d "$INSTALL_DIR/$name" ]] && info "Installed to: $INSTALL_DIR/$name/"
+        [[ -L "$HOME/.local/bin/$name" ]] && info "Binary:        $HOME/.local/bin/$name"
+        [[ -f "$HOME/.local/share/applications/pkgdrop-${name}.desktop" ]] && info "Desktop entry: Yes"
+    fi
+
     if ! echo ":$PATH:" | grep -q ":$HOME/.local/bin:"; then
-        info "Add to PATH: echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+        info ""
+        info "Add to PATH:"
+        info "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
     fi
 }
 
@@ -743,11 +768,19 @@ main() {
     local handler="install_$pkgtype"
     declare -F "$handler" >/dev/null || fail "No handler for: $pkgtype"
 
+    # Compute package name for summary
+    local pkgname="${file##*/}"
+    case "$pkgtype" in
+        tarportable) pkgname="${pkgname%.tar.xz}"; pkgname=$(sanitize_name "$pkgname") ;;
+        appimage)    pkgname="${pkgname%.AppImage}"; pkgname=$(sanitize_name "$pkgname") ;;
+        *)           pkgname="${pkgname%%.*}" ;;
+    esac
+
     info "Installing: $(basename "$file")"
     estimate_size "$file" 2>/dev/null || true
     "$handler" "$file"
     info "Done"
-    show_summary
+    show_summary "$pkgname"
 }
 
 main "$@"
