@@ -3,104 +3,848 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pkgdrop - Project Documentation</title>
+    <title>pkgdrop - Sprint Board</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-               max-width: 1200px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
-        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-        h2 { color: #34495e; margin-top: 30px; }
-        h3 { color: #3498db; }
-        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
-        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .docs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .doc-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; transition: box-shadow 0.2s; }
-        .doc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .doc-card h3 { margin-top: 0; }
-        a { color: #3498db; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; margin-left: 8px; }
-        .badge-done { background: #d4edda; color: #155724; }
-        .badge-progress { background: #fff3cd; color: #856404; }
-        .badge-todo { background: #f8d7da; color: #721c24; }
-        .version { color: #666; font-size: 0.9em; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+        
+        /* Header */
+        .header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h1 { color: #58a6ff; font-size: 1.4em; display: flex; align-items: center; gap: 8px; }
+        .header h1 span { font-size: 0.6em; color: #8b949e; font-weight: normal; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .btn { padding: 6px 14px; border: 1px solid #30363d; border-radius: 6px; background: #21262d; color: #c9d1d9; cursor: pointer; font-size: 0.85em; transition: all 0.15s; }
+        .btn:hover { border-color: #58a6ff; background: #161b22; }
+        .btn-primary { background: #238636; border-color: #238636; color: white; }
+        .btn-primary:hover { background: #2ea043; }
+        .btn-danger { background: #da3633; border-color: #da3633; color: white; }
+        .btn-danger:hover { background: #f85149; }
+        .btn-sm { padding: 4px 10px; font-size: 0.75em; }
+        .btn-icon { width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center; }
+        
+        /* Sprint Stats Bar */
+        .sprint-bar { display: flex; gap: 16px; padding: 10px 24px; background: #161b22; border-bottom: 1px solid #30363d; align-items: center; flex-wrap: wrap; }
+        .sprint-stat { text-align: center; min-width: 50px; }
+        .sprint-stat .num { font-size: 1.3em; font-weight: bold; }
+        .sprint-stat .label { font-size: 0.7em; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+        .progress-bar { flex: 1; min-width: 150px; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #238636, #3fb950); transition: width 0.3s; border-radius: 4px; }
+        .progress-text { color: #8b949e; font-size: 0.8em; min-width: 40px; text-align: right; }
+        
+        /* Filters */
+        .filters { padding: 10px 24px; background: #0d1117; border-bottom: 1px solid #21262d; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .filter-input { padding: 6px 12px; border: 1px solid #30363d; border-radius: 6px; background: #161b22; color: #c9d1d9; font-size: 0.85em; min-width: 200px; }
+        .filter-input:focus { outline: none; border-color: #58a6ff; }
+        .filter-group { display: flex; gap: 4px; margin-left: 12px; }
+        .filter-tag { padding: 4px 10px; border-radius: 4px; font-size: 0.75em; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
+        .filter-tag:hover, .filter-tag.active { border-color: #58a6ff; background: #161b22; }
+        .filter-tag.active { background: #58a6ff22; }
+        
+        /* Board Layout */
+        .board-container { display: flex; gap: 16px; padding: 16px 24px; overflow-x: auto; min-height: calc(100vh - 180px); }
+        .column { min-width: 320px; max-width: 380px; flex: 1; display: flex; flex-direction: column; }
+        .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
+        .column-header h3 { font-size: 0.95em; display: flex; align-items: center; gap: 6px; }
+        .column-count { background: #30363d; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; }
+        .column-body { flex: 1; min-height: 100px; padding: 4px; border-radius: 8px; background: #0d1117; border: 1px dashed #21262d; }
+        .column-body.drag-over { border-color: #58a6ff; background: #58a6ff11; }
+        
+        /* Task Cards */
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: grab; transition: all 0.15s; position: relative; }
+        .card:hover { border-color: #58a6ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .card.dragging { opacity: 0.4; border-style: dashed; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+        .card-id { color: #58a6ff; font-size: 0.75em; font-weight: 600; }
+        .card-title { font-weight: 600; font-size: 0.9em; margin-bottom: 4px; line-height: 1.3; }
+        .card-desc { color: #8b949e; font-size: 0.8em; margin-bottom: 8px; line-height: 1.4; }
+        .card-meta { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.7em; }
+        .card-meta span { display: flex; align-items: center; gap: 3px; color: #8b949e; }
+        .card-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+        .tag { padding: 2px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .tag-p0 { background: #da363333; color: #f85149; border: 1px solid #da363355; }
+        .tag-p1 { background: #d2992233; color: #d29922; border: 1px solid #d2992255; }
+        .tag-p2 { background: #30363d; color: #8b949e; border: 1px solid #30363d; }
+        .tag-feature { background: #23863633; color: #3fb950; border: 1px solid #23863655; }
+        .tag-bug { background: #d2992233; color: #d29922; border: 1px solid #d2992255; }
+        .tag-security { background: #da363333; color: #f85149; border: 1px solid #da363355; }
+        .tag-ci { background: #8b5cf633; color: #a78bfa; border: 1px solid #8b5cf655; }
+        .tag-docs { background: #58a6ff33; color: #58a6ff; border: 1px solid #58a6ff55; }
+        .card-actions { position: absolute; top: 8px; right: 8px; display: none; gap: 4px; }
+        .card:hover .card-actions { display: flex; }
+        .card-action { width: 24px; height: 24px; border: none; border-radius: 4px; background: #21262d; color: #8b949e; cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; }
+        .card-action:hover { background: #30363d; color: #c9d1d9; }
+        
+        /* Checklist Progress on Card */
+        .card-progress { margin-top: 8px; }
+        .card-progress-bar { height: 4px; background: #21262d; border-radius: 2px; overflow: hidden; }
+        .card-progress-fill { height: 100%; background: #3fb950; transition: width 0.2s; }
+        .card-progress-text { font-size: 0.65em; color: #8b949e; margin-top: 2px; display: flex; justify-content: space-between; }
+        
+        /* User Story Badge */
+        .story-badge { background: #58a6ff22; border: 1px solid #58a6ff44; border-radius: 4px; padding: 4px 8px; margin-top: 6px; font-size: 0.7em; color: #58a6ff; font-style: italic; }
+        
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: #161b22; border: 1px solid #30363d; border-radius: 12px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #30363d; position: sticky; top: 0; background: #161b22; z-index: 10; }
+        .modal-header h2 { font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 1.5em; padding: 4px 8px; border-radius: 4px; }
+        .modal-close:hover { color: #c9d1d9; background: #21262d; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 12px 20px; border-top: 1px solid #30363d; display: flex; justify-content: flex-end; gap: 10px; position: sticky; bottom: 0; background: #161b22; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 0.85em; color: #8b949e; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #30363d; border-radius: 6px; background: #0d1117; color: #c9d1d9; font-size: 0.9em; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #58a6ff; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        
+        /* Checklist Sections in Modal */
+        .checklist-section { margin-top: 16px; padding: 12px; background: #0d1117; border-radius: 8px; border: 1px solid #21262d; }
+        .checklist-section h4 { font-size: 0.85em; color: #58a6ff; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .checklist-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.85em; border-radius: 4px; transition: background 0.15s; }
+        .checklist-item:hover { background: #161b22; }
+        .checklist-item input[type="checkbox"] { accent-color: #238636; width: 16px; height: 16px; }
+        .checklist-item.done { color: #8b949e; text-decoration: line-through; }
+        .checklist-progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+        .checklist-progress-bar { flex: 1; height: 4px; background: #21262d; border-radius: 2px; overflow: hidden; }
+        .checklist-progress-fill { height: 100%; background: #3fb950; }
+        .checklist-progress-text { font-size: 0.7em; color: #8b949e; }
+        
+        /* Steps Section */
+        .steps-section { margin-top: 12px; }
+        .step-item { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+        .step-item input { flex: 1; }
+        .step-num { color: #58a6ff; font-size: 0.85em; min-width: 20px; }
+        .step-remove { background: none; border: none; color: #da3633; cursor: pointer; font-size: 0.9em; padding: 2px 4px; }
+        
+        /* Comments */
+        .comment { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-top: 6px; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .comment-time { color: #8b949e; font-size: 0.7em; }
+        .comment-text { font-size: 0.85em; line-height: 1.4; }
+        
+        /* Log View */
+        .log-view { display: none; padding: 16px 24px; max-height: calc(100vh - 180px); overflow-y: auto; }
+        .log-view.active { display: block; }
+        .log-entry { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.85em; border-left: 3px solid #58a6ff; }
+        .log-entry.created { border-left-color: #3fb950; }
+        .log-entry.moved { border-left-color: #d29922; }
+        .log-entry.updated { border-left-color: #58a6ff; }
+        .log-entry.deleted { border-left-color: #da3633; }
+        .log-time { color: #8b949e; font-size: 0.75em; margin-right: 8px; }
+        .log-action { font-weight: 500; }
+        .log-files { color: #79c0ff; font-size: 0.8em; margin-top: 4px; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #238636; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.85em; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { background: #da3633; }
+        
+        /* Keyboard Shortcuts Help */
+        .shortcuts { position: fixed; bottom: 20px; left: 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; font-size: 0.75em; color: #8b949e; z-index: 50; }
+        .shortcuts kbd { background: #21262d; border: 1px solid #30363d; border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 0.9em; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #484f58; }
     </style>
 </head>
 <body>
-    <h1>pkgdrop Documentation</h1>
-    <p>Universal package installer for Arch Linux <span class="version">v2.0.0</span></p>
-
-    <h2>User Documentation</h2>
-    <div class="docs-grid">
-        <div class="doc-card">
-            <h3>Quick Start</h3>
-            <p>Beginner-friendly guide to install your first package</p>
-            <code>docs/QUICK_START.md</code>
-        </div>
-        <div class="doc-card">
-            <h3>Man Page</h3>
-            <p>Complete CLI reference with all flags and options</p>
-            <code>docs/pkgdrop.1</code>
+    <div class="header">
+        <h1>pkgdrop Sprint Board <span>v2.0.0</span></h1>
+        <div class="header-actions">
+            <button class="btn" onclick="showView('board')">Board</button>
+            <button class="btn" onclick="showView('log')">Work Log</button>
+            <button class="btn" onclick="exportData()">Export</button>
+            <button class="btn" onclick="importData()">Import</button>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ New Task</button>
         </div>
     </div>
-
-    <h2>Technical Documentation</h2>
-    <div class="docs-grid">
-        <div class="doc-card">
-            <h3>Architecture</h3>
-            <p>System design, data flows, module reference</p>
-            <code>docs/ARCHITECTURE.md</code>
+    
+    <div class="sprint-bar">
+        <div class="sprint-stat"><div class="num" style="color:#3fb950" id="stat-done">0</div><div class="label">Done</div></div>
+        <div class="sprint-stat"><div class="num" style="color:#d29922" id="stat-active">0</div><div class="label">Active</div></div>
+        <div class="sprint-stat"><div class="num" id="stat-todo">0</div><div class="label">Todo</div></div>
+        <div class="sprint-stat"><div class="num" style="color:#da3633" id="stat-blocked">0</div><div class="label">Blocked</div></div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="progress-text" id="progress-text">0%</div>
+        <button class="btn btn-danger btn-sm" onclick="resetBoard()">Reset</button>
+    </div>
+    
+    <div class="filters">
+        <input type="text" class="filter-input" placeholder="Search tasks... (press /)" id="search-input" oninput="filterTasks()">
+        <div class="filter-group">
+            <span class="filter-tag active" onclick="toggleFilter(this, 'all')">All</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'p0')">P0</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'p1')">P1</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'p2')">P2</span>
         </div>
-        <div class="doc-card">
-            <h3>Technical Roadmap</h3>
-            <p>Release milestones, architecture decisions, success metrics</p>
-            <code>docs/TECH_ROADMAP.md</code>
-        </div>
-        <div class="doc-card">
-            <h3>Implementation Log</h3>
-            <p>What we built, how, and what we learned</p>
-            <code>docs/IMPLEMENTATION.md</code>
-        </div>
-        <div class="doc-card">
-            <h3>Active TODO</h3>
-            <p>Current sprint tasks, priorities, and blockers</p>
-            <code>docs/TODO.md</code>
+        <div class="filter-group">
+            <span class="filter-tag" onclick="toggleFilter(this, 'feature')">Feature</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'bug')">Bug</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'security')">Security</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'ci')">CI</span>
+            <span class="filter-tag" onclick="toggleFilter(this, 'docs')">Docs</span>
         </div>
     </div>
-
-    <h2>Feature Specs</h2>
-    <div class="docs-grid">
-        <div class="doc-card">
-            <h3>Desktop Integration <span class="badge badge-done">Done</span></h3>
-            <p>Auto-create .desktop entries, icon extraction, hicolor theme</p>
-            <code>docs/specs/desktop-integration.md</code>
+    
+    <div class="board-container" id="board-view">
+        <div class="column" data-status="blocked">
+            <div class="column-header" style="border-color:#da3633"><h3 style="color:#da3633">Blocked</h3><span class="column-count" id="count-blocked">0</span></div>
+            <div class="column-body" id="col-blocked"></div>
+        </div>
+        <div class="column" data-status="todo">
+            <div class="column-header" style="border-color:#8b949e"><h3>Todo</h3><span class="column-count" id="count-todo">0</span></div>
+            <div class="column-body" id="col-todo"></div>
+        </div>
+        <div class="column" data-status="active">
+            <div class="column-header" style="border-color:#d29922"><h3 style="color:#d29922">Active</h3><span class="column-count" id="count-active">0</span></div>
+            <div class="column-body" id="col-active"></div>
+        </div>
+        <div class="column" data-status="review">
+            <div class="column-header" style="border-color:#8b5cf6"><h3 style="color:#8b5cf6">Review</h3><span class="column-count" id="count-review">0</span></div>
+            <div class="column-body" id="col-review"></div>
+        </div>
+        <div class="column" data-status="done">
+            <div class="column-header" style="border-color:#3fb950"><h3 style="color:#3fb950">Done</h3><span class="column-count" id="count-done">0</span></div>
+            <div class="column-body" id="col-done"></div>
         </div>
     </div>
-
-    <h2>Project</h2>
-    <div class="docs-grid">
-        <div class="doc-card">
-            <h3>Contributing</h3>
-            <p>How to contribute, code standards, PR process</p>
-            <code>CONTRIBUTING.md</code>
-        </div>
-        <div class="doc-card">
-            <h3>Security</h3>
-            <p>Vulnerability reporting, security features</p>
-            <code>SECURITY.md</code>
-        </div>
-        <div class="doc-card">
-            <h3>Changelog</h3>
-            <p>Version history and release notes</p>
-            <code>CHANGELOG.md</code>
+    
+    <div class="log-view" id="log-view"></div>
+    
+    <!-- Task Modal -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">New Task</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="task-id">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="task-title" placeholder="Task title">
+                </div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="task-priority">
+                            <option value="p0">P0 - Critical</option>
+                            <option value="p1" selected>P1 - High</option>
+                            <option value="p2">P2 - Medium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="task-type">
+                            <option value="feature">Feature</option>
+                            <option value="bug">Bug</option>
+                            <option value="security">Security</option>
+                            <option value="ci">CI/CD</option>
+                            <option value="docs">Documentation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="task-status">
+                            <option value="todo">Todo</option>
+                            <option value="active">Active</option>
+                            <option value="review">Review</option>
+                            <option value="done">Done</option>
+                            <option value="blocked">Blocked</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="task-desc" placeholder="What needs to be done and why"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>User Story</label>
+                    <input type="text" id="task-story" placeholder="As a [user], I want [feature], so that [benefit]">
+                </div>
+                <div class="form-group">
+                    <label>Acceptance Criteria (one per line)</label>
+                    <textarea id="task-ac" placeholder="- Criterion 1&#10;- Criterion 2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Files</label>
+                        <input type="text" id="task-files" placeholder="src/pkgdrop, ci.yml">
+                    </div>
+                    <div class="form-group">
+                        <label>Estimate</label>
+                        <input type="text" id="task-estimate" placeholder="30min, 2h">
+                    </div>
+                </div>
+                
+                <!-- Definition of Done -->
+                <div class="checklist-section">
+                    <h4>✓ Definition of Done</h4>
+                    <div id="dod-container"></div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dod')" style="margin-top:6px">+ Add Item</button>
+                </div>
+                
+                <!-- Definition of Ready -->
+                <div class="checklist-section">
+                    <h4>✓ Definition of Ready</h4>
+                    <div id="dor-container"></div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dor')" style="margin-top:6px">+ Add Item</button>
+                </div>
+                
+                <!-- QA Checklist -->
+                <div class="checklist-section">
+                    <h4>✓ QA Checklist</h4>
+                    <div id="qa-container"></div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('qa')" style="margin-top:6px">+ Add Item</button>
+                </div>
+                
+                <!-- Dev Checklist -->
+                <div class="checklist-section">
+                    <h4>✓ Dev Checklist</h4>
+                    <div id="dev-container"></div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dev')" style="margin-top:6px">+ Add Item</button>
+                </div>
+                
+                <!-- Implementation Steps -->
+                <div class="checklist-section">
+                    <h4>→ Implementation Steps</h4>
+                    <div id="steps-container"></div>
+                    <button class="btn btn-sm" onclick="addStep()" style="margin-top:6px">+ Add Step</button>
+                </div>
+                
+                <!-- Subtasks -->
+                <div class="checklist-section">
+                    <h4>→ Subtasks</h4>
+                    <div id="subtasks-container"></div>
+                    <button class="btn btn-sm" onclick="addSubtask()" style="margin-top:6px">+ Add Subtask</button>
+                </div>
+                
+                <!-- Comments -->
+                <div class="form-group" style="margin-top:16px">
+                    <label>Comments</label>
+                    <div id="comments-container"></div>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <input type="text" id="comment-input" placeholder="Add comment..." style="flex:1">
+                        <button class="btn btn-sm" onclick="addComment()">Add</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="delete-btn" onclick="deleteTask()" style="margin-right:auto;display:none">Delete</button>
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTask()">Save</button>
+            </div>
         </div>
     </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
+    
+    <div class="shortcuts">
+        <kbd>n</kbd> New task &nbsp; <kbd>/</kbd> Search &nbsp; <kbd>Esc</kbd> Close
+    </div>
 
-    <h2>Links</h2>
-    <ul>
-        <li><a href="https://github.com/theyonecodes/pkgdrop">GitHub Repository</a></li>
-        <li><a href="https://aur.archlinux.org/packages/pkgdrop/">AUR Package</a></li>
-        <li><a href="https://github.com/theyonecodes/pkgdrop/actions">CI/CD Status</a></li>
-        <li><a href="https://github.com/theyonecodes/pkgdrop/issues">Report Issues</a></li>
-    </ul>
+<script>
+// State
+let tasks = JSON.parse(localStorage.getItem('pkgdrop-tasks') || '[]');
+let logs = JSON.parse(localStorage.getItem('pkgdrop-logs') || '[]');
+let currentFilter = 'all';
+let editingId = null;
+let draggedCard = null;
+
+// Init
+function init() {
+    if (tasks.length === 0) loadDefaultTasks();
+    renderAll();
+}
+
+function loadDefaultTasks() {
+    tasks = [
+        {id:'T-001',title:'AUR Auto-Sync in GitHub Actions',status:'blocked',priority:'p0',type:'ci',desc:'SSH key works locally, fails in CI runner.',files:'.github/workflows/sync-aur.yml',estimate:'2h debug',steps:['SSH key confirmed: ssh -T aur@aur.archlinux.org','CI uses webfactory/ssh-agent@v0.10.0','Fails at git clone aur@aur.archlinux.org:pkgdrop.git','Debug: add ssh -v step','Fallback: manual push via push-aur.sh'],ac:[],subtasks:[],comments:[],story:'',dod:['CI passes','No security warnings'],dor:['Root cause identified','Reproduction steps documented'],qa:['Manual test on CI','Verify SSH key works'],dev:['Add verbose logging','Test locally with CI-like env']},
+        {id:'T-002',title:'Capitalize Display Names',status:'active',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:['Code reviewed','Tests pass'],dor:['humanize_name() exists','create_desktop_entry() identified'],qa:['Install zen.tar.xz','Check launcher shows "Zen"','Test unknown app capitalization'],dev:['Add mapping for zen','Add fallback capitalize','Update unit tests']},
+        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[],comments:[],story:'As a user, I want installs to work reliably',dod:['All scenarios pass','No regressions'],dor:['Test fixtures available','Clean environment ready'],qa:['Test .tar.xz install','Test AppImage install','Test uninstall cleanup','Verify no leftover files'],dev:['Create test script','Run each format','Document results']},
+        {id:'T-004',title:'Detect Category from Archive',status:'todo',priority:'p0',type:'feature',desc:'Extract Categories from .desktop inside archive.',files:'src/pkgdrop',estimate:'1h',steps:['After extraction, find *.desktop','Parse Categories= line','Also extract Comment=, GenericName=','Use in generated .desktop','Fallback to Utility'],ac:['Category auto-detected','Fallback works'],subtasks:[],comments:[],story:'As a user, I want apps in correct category',dod:['Code reviewed','Tests pass'],dor:['Desktop file parsing understood','Archive structure documented'],qa:['Test with categorized app','Test fallback','Verify .desktop format'],dev:['Add find_desktop_file()','Parse Categories field','Add fallback logic']},
+        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'todo',priority:'p0',type:'ci',desc:'All checks green on GitHub.',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[],comments:[],story:'As a dev, I want CI green',dod:['All checks green','No warnings'],dor:['Local checks pass','CI logs reviewed'],qa:['Verify CI status badge','Check all workflows','Review Dependabot PRs'],dev:['Fix shellcheck warnings','Run bats tests','Merge PRs #1, #2']},
+        {id:'T-006',title:'Progress Indicator',status:'todo',priority:'p1',type:'feature',desc:'Show extraction progress for large files.',files:'src/pkgdrop',estimate:'1h',steps:['Pre-count files','Extract with --verbose, count lines','Show progress bar'],ac:['Progress shown for files >10MB'],subtasks:[],comments:[],story:'As a user, I want to see progress',dod:['Works for large files','No performance impact'],dor:['Test with 100MB+ archive','Terminal width detection'],qa:['Test with large archive','Verify progress updates','Test on slow disk'],dev:['Add file count','Parse tar output','Update display']},
+        {id:'T-007',title:'Handle Nested Archives',status:'todo',priority:'p1',type:'bug',desc:'Some tar.xz contain tar.xz inside.',files:'src/pkgdrop',estimate:'1h',steps:['Check for single dir after extract','Extract inner tar, flatten'],ac:['Nested archives work'],subtasks:[],comments:[],story:'As a user, I want nested archives to work',dod:['Nested archives handled','No data loss'],dor:['Test case available','Archive structure documented'],qa:['Test nested tar.xz','Verify extraction','Check file integrity'],dev:['Add nested detection','Add inner extraction','Flatten directory structure']},
+        {id:'T-008',title:'Verbose Mode',status:'todo',priority:'p2',type:'feature',desc:'--verbose shows each step.',files:'src/pkgdrop',estimate:'30min',steps:['Add verb calls before operations','Show size, extraction, binary, icon, desktop'],ac:['--verbose shows detailed output'],subtasks:[],comments:[],story:'As a user, I want to see what happens',dod:['Output is readable','No sensitive data'],dor:['Verb function exists','Output format decided'],qa:['Test --verbose flag','Verify all steps shown','Check output format'],dev:['Add verb calls','Format output','Add to help text']},
+        {id:'T-009',title:'Bash Completions for Uninstall',status:'todo',priority:'p2',type:'feature',desc:'Tab-complete --uninstall <tab>.',files:'completions/pkgdrop.bash',estimate:'15min',steps:['Complete from ls ~/.local/opt/','Test tab completion'],ac:['Tab completes package names'],subtasks:[],comments:[],story:'As a user, I want tab completion',dod:['Works in bash','Works in zsh'],dor:['Completion script exists','Package list available'],qa:['Test bash completion','Test zsh completion','Test with no packages'],dev:['Update bash completion','Update zsh completion','Test on clean env']},
+        {id:'T-010',title:'Desktop Entry Auto-Creation',status:'done',priority:'p0',type:'feature',desc:'.desktop with icon, StartupWMClass, categories',files:'src/pkgdrop',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-011',title:'Icon Extraction',status:'done',priority:'p0',type:'feature',desc:'find_icon() installs to hicolor theme',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-012',title:'Name Sanitization',status:'done',priority:'p0',type:'bug',desc:'Handles dots, dashes, underscores',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-013',title:'Uninstall Removes Everything',status:'done',priority:'p0',type:'feature',desc:'Removes dir, symlink, .desktop, icon',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-014',title:'GitHub Features',status:'done',priority:'p1',type:'ci',desc:'Dependabot, templates, CODEOWNERS, stale bot',files:'.github/*',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-015',title:'CI Pipeline',status:'done',priority:'p0',type:'ci',desc:'Shellcheck, bats tests, syntax check',files:'.github/workflows/ci.yml',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-016',title:'Man Page + Completions',status:'done',priority:'p1',type:'docs',desc:'pkgdrop.1, bash + zsh completions',files:'docs/, completions/',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-017',title:'Dry-Run Mode',status:'done',priority:'p0',type:'feature',desc:'--dry-run shows what would happen',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-018',title:'Security Features',status:'done',priority:'p0',type:'security',desc:'Locking, symlink validation, setuid strip',files:'src/pkgdrop',estimate:'3h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-019',title:'Config File Support',status:'done',priority:'p1',type:'feature',desc:'~/.config/pkgdrop/config',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-020',title:'Summary Output',status:'done',priority:'p1',type:'feature',desc:'Shows install paths and status',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+    ];
+    save();
+}
+
+function save() {
+    localStorage.setItem('pkgdrop-tasks', JSON.stringify(tasks));
+    localStorage.setItem('pkgdrop-logs', JSON.stringify(logs));
+}
+
+function renderAll() {
+    renderBoard();
+    updateStats();
+    renderLog();
+}
+
+function renderBoard() {
+    const statuses = ['blocked','todo','active','review','done'];
+    const search = document.getElementById('search-input').value.toLowerCase();
+    
+    statuses.forEach(status => {
+        const col = document.getElementById('col-' + status);
+        if (!col) return;
+        col.innerHTML = '';
+        const filtered = tasks.filter(t => {
+            if (t.status !== status) return false;
+            if (currentFilter !== 'all') {
+                if (['p0','p1','p2'].includes(currentFilter) && t.priority !== currentFilter) return false;
+                if (['feature','bug','security','ci','docs'].includes(currentFilter) && t.type !== currentFilter) return false;
+            }
+            if (search && !t.title.toLowerCase().includes(search) && !(t.desc||'').toLowerCase().includes(search) && !(t.story||'').toLowerCase().includes(search)) return false;
+            return true;
+        });
+        filtered.forEach(t => col.appendChild(createCard(t)));
+        document.getElementById('count-' + status).textContent = filtered.length;
+    });
+}
+
+function createCard(task) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.draggable = true;
+    card.dataset.id = task.id;
+    card.ondragstart = e => { draggedCard = task.id; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
+    card.ondragend = e => { card.classList.remove('dragging'); draggedCard = null; document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over')); };
+    card.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+    card.ondragenter = e => { e.preventDefault(); card.closest('.column-body').classList.add('drag-over'); };
+    card.ondragleave = e => { card.closest('.column-body').classList.remove('drag-over'); };
+    card.ondrop = e => { e.preventDefault(); card.closest('.column-body').classList.remove('drag-over'); moveTask(task.id); };
+    
+    // Calculate checklist progress
+    const allChecks = [...(task.dod||[]),...(task.dor||[]),...(task.qa||[]),...(task.dev||[])];
+    const checkedCount = allChecks.filter(c => c.done).length;
+    const totalChecks = allChecks.length;
+    const checkPct = totalChecks > 0 ? Math.round((checkedCount / totalChecks) * 100) : 0;
+    
+    const ac = (task.ac || []).map(a => `<li>${a}</li>`).join('');
+    const subtasks = (task.subtasks || []).map((s,i) => 
+        `<div class="checklist-item ${s.done?'done':''}"><input type="checkbox" ${s.done?'checked':''} onchange="toggleSubtask('${task.id}', ${i}, this.checked)"> ${s.text}</div>`
+    ).join('');
+    
+    card.innerHTML = `
+        <div class="card-actions">
+            <button class="card-action" onclick="event.stopPropagation();editTask('${task.id}')" title="Edit">✏</button>
+            <button class="card-action" onclick="event.stopPropagation();quickMove('${task.id}')" title="Move forward">→</button>
+        </div>
+        <div class="card-header">
+            <span class="card-id">${task.id}</span>
+            <span class="tag tag-${task.priority}">${task.priority.toUpperCase()}</span>
+        </div>
+        <div class="card-title">${task.title}</div>
+        <div class="card-desc">${task.desc || ''}</div>
+        <div class="card-tags">
+            <span class="tag tag-${task.type}">${task.type}</span>
+            ${task.files ? `<span class="tag" style="background:#21262d;color:#79c0ff">${task.files.split(',')[0].trim()}</span>` : ''}
+            ${task.estimate ? `<span class="tag" style="background:#21262d;color:#8b949e">⏱ ${task.estimate}</span>` : ''}
+        </div>
+        ${task.story ? `<div class="story-badge">📋 ${task.story}</div>` : ''}
+        ${ac ? `<ul style="margin-top:6px;padding-left:16px;font-size:0.8em;color:#8b949e">${ac}</ul>` : ''}
+        ${subtasks ? `<div style="margin-top:6px">${subtasks}</div>` : ''}
+        ${totalChecks > 0 ? `
+            <div class="card-progress">
+                <div class="card-progress-bar"><div class="card-progress-fill" style="width:${checkPct}%"></div></div>
+                <div class="card-progress-text"><span>Checklists</span><span>${checkedCount}/${totalChecks} (${checkPct}%)</span></div>
+            </div>
+        ` : ''}
+        ${task.comments && task.comments.length ? `<div style="margin-top:6px;font-size:0.75em;color:#8b949e">💬 ${task.comments.length} comment${task.comments.length > 1 ? 's' : ''}</div>` : ''}
+    `;
+    card.onclick = () => editTask(task.id);
+    return card;
+}
+
+function moveTask(id) {
+    if (!draggedCard) return;
+    const task = tasks.find(t => t.id === draggedCard);
+    if (!task) return;
+    const col = document.querySelector('.column-body.drag-over');
+    if (col) {
+        const column = col.closest('.column');
+        const newStatus = column.dataset.status;
+        const oldStatus = task.status;
+        task.status = newStatus;
+        addLog(`Moved "${task.title}" from ${oldStatus} → ${newStatus}`, 'moved');
+        save(); renderAll();
+    }
+}
+
+function quickMove(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const order = ['blocked','todo','active','review','done'];
+    const idx = order.indexOf(task.status);
+    if (idx < order.length - 1) {
+        const old = task.status;
+        task.status = order[idx + 1];
+        addLog(`Moved "${task.title}" from ${old} → ${task.status}`, 'moved');
+        save(); renderAll();
+        showToast(`Moved to ${task.status}`);
+    }
+}
+
+function toggleSubtask(taskId, idx, checked) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !task.subtasks[idx]) return;
+    task.subtasks[idx].done = checked;
+    addLog(`Subtask "${task.subtasks[idx].text}" ${checked ? 'completed' : 'unchecked'} in "${task.title}"`, 'updated');
+    save(); renderBoard();
+}
+
+function toggleChecklistItem(type, taskId, idx, checked) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || !task[type] || !task[type][idx]) return;
+    task[type][idx].done = checked;
+    addLog(`Checklist item "${task[type][idx].text}" ${checked ? 'completed' : 'unchecked'} in "${task.title}"`, 'updated');
+    save(); renderBoard();
+    renderChecklistProgress(type, taskId);
+}
+
+function renderChecklistProgress(type, taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const items = task[type] || [];
+    const done = items.filter(i => i.done).length;
+    const total = items.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const container = document.getElementById(type + '-container');
+    const progressDiv = container.parentElement.querySelector('.checklist-progress');
+    if (progressDiv) {
+        progressDiv.querySelector('.checklist-progress-fill').style.width = pct + '%';
+        progressDiv.querySelector('.checklist-progress-text').textContent = `${done}/${total} (${pct}%)`;
+    }
+}
+
+function updateStats() {
+    const done = tasks.filter(t => t.status === 'done').length;
+    const active = tasks.filter(t => t.status === 'active').length;
+    const todo = tasks.filter(t => t.status === 'todo').length;
+    const blocked = tasks.filter(t => t.status === 'blocked').length;
+    const review = tasks.filter(t => t.status === 'review').length;
+    const total = tasks.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    
+    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-todo').textContent = todo;
+    document.getElementById('stat-blocked').textContent = blocked;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = pct + '%';
+}
+
+function renderLog() {
+    const view = document.getElementById('log-view');
+    view.innerHTML = '<h3 style="margin-bottom:16px;color:#58a6ff">Work Log</h3>' + logs.slice().reverse().map(l => 
+        `<div class="log-entry ${l.type || ''}"><span class="log-time">${l.time}</span><span class="log-action">${l.msg}</span>${l.files ? `<div class="log-files">📁 ${l.files}</div>` : ''}</div>`
+    ).join('');
+}
+
+function addLog(msg, type) {
+    logs.push({time: new Date().toISOString().slice(0,16).replace('T',' '), msg, type: type || 'updated'});
+    save();
+}
+
+// Modal
+function openCreateModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'New Task';
+    document.getElementById('delete-btn').style.display = 'none';
+    document.getElementById('task-id').value = '';
+    document.getElementById('task-title').value = '';
+    document.getElementById('task-priority').value = 'p1';
+    document.getElementById('task-type').value = 'feature';
+    document.getElementById('task-status').value = 'todo';
+    document.getElementById('task-desc').value = '';
+    document.getElementById('task-ac').value = '';
+    document.getElementById('task-files').value = '';
+    document.getElementById('task-estimate').value = '';
+    document.getElementById('task-story').value = '';
+    document.getElementById('steps-container').innerHTML = '';
+    document.getElementById('subtasks-container').innerHTML = '';
+    document.getElementById('comments-container').innerHTML = '';
+    document.getElementById('dod-container').innerHTML = '';
+    document.getElementById('dor-container').innerHTML = '';
+    document.getElementById('qa-container').innerHTML = '';
+    document.getElementById('dev-container').innerHTML = '';
+    addStep();
+    addDefaultChecklists();
+    document.getElementById('task-modal').classList.add('active');
+    document.getElementById('task-title').focus();
+}
+
+function addDefaultChecklists() {
+    const defaults = {
+        dod: ['Code reviewed and approved','All tests passing','No security warnings','Documentation updated'],
+        dor: ['Requirements clear','Dependencies identified','Test plan ready','Acceptance criteria defined'],
+        qa: ['Manual testing complete','Edge cases covered','Performance acceptable','Regression tested'],
+        dev: ['Code compiles/runs','No lint warnings','Type checking passes','Code style consistent']
+    };
+    Object.entries(defaults).forEach(([type, items]) => {
+        const container = document.getElementById(type + '-container');
+        items.forEach(text => {
+            addChecklistItem(type, text, false);
+        });
+        renderChecklistProgress(type, 'new');
+    });
+}
+
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    editingId = id;
+    document.getElementById('modal-title').textContent = 'Edit Task ' + task.id;
+    document.getElementById('delete-btn').style.display = 'block';
+    document.getElementById('task-id').value = task.id;
+    document.getElementById('task-title').value = task.title;
+    document.getElementById('task-priority').value = task.priority;
+    document.getElementById('task-type').value = task.type;
+    document.getElementById('task-status').value = task.status;
+    document.getElementById('task-desc').value = task.desc || '';
+    document.getElementById('task-ac').value = (task.ac || []).join('\n');
+    document.getElementById('task-files').value = task.files || '';
+    document.getElementById('task-estimate').value = task.estimate || '';
+    document.getElementById('task-story').value = task.story || '';
+    
+    document.getElementById('steps-container').innerHTML = '';
+    (task.steps || []).forEach(s => { addStep(); document.querySelector('#steps-container .step-item:last-child input').value = s; });
+    if (!task.steps || !task.steps.length) addStep();
+    
+    document.getElementById('subtasks-container').innerHTML = '';
+    (task.subtasks || []).forEach((s,i) => { addSubtask(); const items = document.querySelectorAll('#subtasks-container .step-item'); const last = items[items.length-1]; last.querySelector('input[type="text"]').value = s.text; last.querySelector('input[type="checkbox"]').checked = s.done; });
+    
+    document.getElementById('comments-container').innerHTML = '';
+    (task.comments || []).forEach(c => {
+        document.getElementById('comments-container').innerHTML += `<div class="comment"><div class="comment-header"><span class="comment-time">${c.time}</span></div><div class="comment-text">${c.text}</div></div>`;
+    });
+    
+    ['dod','dor','qa','dev'].forEach(type => {
+        document.getElementById(type + '-container').innerHTML = '';
+        (task[type] || []).forEach(item => {
+            addChecklistItem(type, item.text, item.done);
+        });
+        renderChecklistProgress(type, id);
+    });
+    
+    document.getElementById('task-modal').classList.add('active');
+}
+
+function closeModal() { document.getElementById('task-modal').classList.remove('active'); }
+
+function saveTask() {
+    const title = document.getElementById('task-title').value.trim();
+    if (!title) { showToast('Title required', 'error'); return; }
+    
+    const steps = Array.from(document.querySelectorAll('#steps-container input')).map(i => i.value.trim()).filter(Boolean);
+    const subtasks = Array.from(document.querySelectorAll('#subtasks-container .step-item')).map(el => ({
+        text: el.querySelector('input[type="text"]').value.trim(),
+        done: el.querySelector('input[type="checkbox"]').checked
+    })).filter(s => s.text);
+    const ac = document.getElementById('task-ac').value.split('\n').map(l => l.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
+    
+    const checklists = {};
+    ['dod','dor','qa','dev'].forEach(type => {
+        checklists[type] = Array.from(document.querySelectorAll(`#${type}-container .checklist-item`)).map(el => ({
+            text: el.querySelector('span') ? el.querySelector('span').textContent : el.textContent.replace('✓','').trim(),
+            done: el.querySelector('input[type="checkbox"]').checked
+        })).filter(c => c.text);
+    });
+    
+    if (editingId) {
+        const task = tasks.find(t => t.id === editingId);
+        task.title = title;
+        task.priority = document.getElementById('task-priority').value;
+        task.type = document.getElementById('task-type').value;
+        task.status = document.getElementById('task-status').value;
+        task.desc = document.getElementById('task-desc').value;
+        task.files = document.getElementById('task-files').value;
+        task.estimate = document.getElementById('task-estimate').value;
+        task.story = document.getElementById('task-story').value;
+        task.steps = steps;
+        task.subtasks = subtasks;
+        task.ac = ac;
+        Object.assign(task, checklists);
+        addLog(`Updated "${title}"`, 'updated');
+    } else {
+        const id = 'T-' + String(tasks.length + 1).padStart(3, '0');
+        tasks.push({
+            id, title, status: document.getElementById('task-status').value,
+            priority: document.getElementById('task-priority').value,
+            type: document.getElementById('task-type').value,
+            desc: document.getElementById('task-desc').value,
+            files: document.getElementById('task-files').value,
+            estimate: document.getElementById('task-estimate').value,
+            story: document.getElementById('task-story').value,
+            steps, subtasks, ac, ...checklists,
+            comments: []
+        });
+        addLog(`Created "${title}"`, 'created');
+    }
+    save(); closeModal(); renderAll();
+    showToast(editingId ? 'Task updated' : 'Task created');
+}
+
+function deleteTask() {
+    if (!editingId) return;
+    const task = tasks.find(t => t.id === editingId);
+    if (!confirm(`Delete "${task.title}"?`)) return;
+    tasks = tasks.filter(t => t.id !== editingId);
+    addLog(`Deleted "${task.title}"`, 'deleted');
+    save(); closeModal(); renderAll();
+    showToast('Task deleted');
+}
+
+function addStep() {
+    const container = document.getElementById('steps-container');
+    const num = container.children.length + 1;
+    const div = document.createElement('div');
+    div.className = 'step-item';
+    div.innerHTML = `<span class="step-num">${num}.</span><input type="text" placeholder="Step ${num}"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
+    container.appendChild(div);
+}
+
+function addSubtask() {
+    const container = document.getElementById('subtasks-container');
+    const div = document.createElement('div');
+    div.className = 'step-item';
+    div.innerHTML = `<input type="checkbox"><input type="text" placeholder="Subtask"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
+    container.appendChild(div);
+}
+
+function addChecklistItem(type, text, done) {
+    const container = document.getElementById(type + '-container');
+    const div = document.createElement('div');
+    div.className = 'checklist-item' + (done ? ' done' : '');
+    const id = editingId || 'new-' + Date.now();
+    div.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''} onchange="toggleChecklistItem('${type}','${id}',${container.children.length},this.checked)"><span>${text || ''}</span>`;
+    if (!text) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Checklist item';
+        input.style.cssText = 'flex:1;padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#161b22;color:#c9d1d9;font-size:0.85em';
+        div.appendChild(input);
+        div.querySelector('span').remove();
+    }
+    container.appendChild(div);
+}
+
+function addComment() {
+    const input = document.getElementById('comment-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const time = new Date().toISOString().slice(0,16).replace('T',' ');
+    const div = document.createElement('div');
+    div.className = 'comment';
+    div.innerHTML = `<div class="comment-header"><span class="comment-time">${time}</span></div><div class="comment-text">${text}</div>`;
+    document.getElementById('comments-container').appendChild(div);
+    if (editingId) {
+        const task = tasks.find(t => t.id === editingId);
+        task.comments = task.comments || [];
+        task.comments.push({time, text});
+        addLog(`Comment on "${task.title}": "${text.slice(0, 50)}${text.length > 50 ? '...' : ''}"`, 'updated');
+        save();
+    }
+    input.value = '';
+}
+
+// Filters
+function toggleFilter(el, filter) {
+    document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = filter;
+    renderBoard();
+}
+
+function filterTasks() { renderBoard(); }
+
+// Views
+function showView(view) {
+    document.getElementById('board-view').classList.toggle('active', view === 'board');
+    document.getElementById('log-view').classList.toggle('active', view === 'log');
+}
+
+// Export/Import
+function exportData() {
+    const data = {tasks, logs, exported: new Date().toISOString(), version: '2.0.0'};
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `pkgdrop-sprint-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Exported');
+}
+
+function importData() { document.getElementById('import-input').click(); }
+function handleImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const data = JSON.parse(ev.target.result);
+            tasks = data.tasks || [];
+            logs = data.logs || [];
+            save(); renderAll();
+            showToast('Imported ' + tasks.length + ' tasks');
+        } catch(err) { showToast('Invalid file', 'error'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+function resetBoard() {
+    if (!confirm('Reset to default tasks? All changes will be lost.')) return;
+    localStorage.removeItem('pkgdrop-tasks');
+    localStorage.removeItem('pkgdrop-logs');
+    logs = [];
+    loadDefaultTasks();
+    renderAll();
+    showToast('Board reset');
+}
+
+// Toast
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (type === 'error' ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !document.querySelector('.modal.active')) { e.preventDefault(); openCreateModal(); }
+    if (e.key === '/' && !document.querySelector('.modal.active')) { e.preventDefault(); document.getElementById('search-input').focus(); }
+});
+
+init();
+</script>
 </body>
 </html>
