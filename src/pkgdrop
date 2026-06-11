@@ -603,6 +603,35 @@ install_tarportable() {
         fail "Failed to extract archive (corrupted or invalid)"
     fi
 
+    # Handle nested archives (e.g., tar.xz inside tar.xz)
+    local inner_count
+    inner_count=$(find "$target" -maxdepth 1 -type d | wc -l)
+    if [[ "$inner_count" -eq 2 ]]; then
+        # Only root + one subdirectory = likely nested
+        local inner_dir
+        inner_dir=$(find "$target" -maxdepth 1 -type d ! -path "$target" | head -1)
+        if [[ -n "$inner_dir" ]]; then
+            local inner_archive
+            inner_archive=$(find "$inner_dir" -maxdepth 1 -type f \( -name "*.tar.xz" -o -name "*.tar.gz" -o -name "*.tar.zst" \) 2>/dev/null | head -1)
+            if [[ -n "$inner_archive" ]]; then
+                verb "Found nested archive: $(basename "$inner_archive")"
+                info "Extracting nested archive..."
+                mkdir -p "$target/tmp_extract"
+                if tar -xf "$inner_archive" -C "$target/tmp_extract" 2>/dev/null; then
+                    # Move contents up and remove the wrapper directory
+                    rm -rf "$inner_dir"
+                    mv "$target/tmp_extract/"* "$target/" 2>/dev/null
+                    mv "$target/tmp_extract/".* "$target/" 2>/dev/null
+                    rm -rf "$target/tmp_extract"
+                    verb "Flattened nested archive structure"
+                else
+                    rm -rf "$target/tmp_extract"
+                    warn "Failed to extract nested archive, keeping original structure"
+                fi
+            fi
+        fi
+    fi
+
     validate_symlinks "$target" || warn "Suspicious symlinks found and removed"
     find "$target" -type f \( -perm -4000 -o -perm -2000 \) -exec chmod ug-s {} + 2>/dev/null || true
     verb "Stripped setuid/setgid bits"
