@@ -5,6 +5,12 @@ set -e
 VERSION=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
 echo "Pushing pkgdrop $VERSION to AUR..."
 
+# Check if AUR clone exists
+if [[ ! -d "/tmp/pkgdrop" ]]; then
+  echo "Cloning AUR repo..."
+  git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/pkgdrop
+fi
+
 cd /tmp/pkgdrop
 
 # Update PKGBUILD version

@@ -1,21 +1,45 @@
 #!/bin/bash
-# pkgdrop uninstaller
+# pkgdrop uninstaller - uses polkit for elevation
 set -e
 
 echo "Uninstalling pkgdrop..."
 
-if [ "$EUID" -ne 0 ]; then
-  echo "Error: Run with sudo: sudo ./uninstall.sh"
-  exit 1
+# Get real user (not root)
+REAL_USER="${SUDO_USER:-$USER}"
+if [[ "$REAL_USER" == "root" ]]; then
+  IS_ROOT=1
+else
+  IS_ROOT=0
 fi
 
-rm -f /usr/bin/pkgdrop
+# Check if polkit is available
+has_polkit() {
+  command -v pkexec &>/dev/null && command -v polkit-agent-helper-1 &>/dev/null
+}
+
+# Run command with elevation
+elevate() {
+  if [[ "$IS_ROOT" -eq 1 ]]; then
+    "$@"
+  elif has_polkit; then
+    pkexec "$@"
+  else
+    echo "Error: Need root. Run with sudo: sudo ./uninstall.sh"
+    exit 1
+  fi
+}
+
+# Remove files
+echo "[..] Removing /usr/bin/pkgdrop"
+elevate rm -f /usr/bin/pkgdrop
 echo "[OK] Removed /usr/bin/pkgdrop"
 
-rm -f /usr/share/applications/pkgdrop.desktop
+echo "[..] Removing desktop entry"
+elevate rm -f /usr/share/applications/pkgdrop.desktop
 echo "[OK] Removed desktop entry"
 
-rm -f /usr/share/kservices5/ServiceMenus/pkgdrop-servicemenu.xml
+echo "[..] Removing Dolphin service menu"
+elevate rm -f /usr/share/kservices5/ServiceMenus/pkgdrop-servicemenu.xml
 echo "[OK] Removed Dolphin service menu"
 
 echo ""
