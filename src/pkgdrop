@@ -456,6 +456,26 @@ find_icon() {
     echo "$icon"
 }
 
+detect_category_from_archive() {
+    local dir="$1"
+    # Find .desktop file and extract Categories
+    local desktop_file
+    desktop_file=$(find "$dir" -maxdepth 3 -name "*.desktop" -type f ! -path "*/share/doc/*" ! -path "*/README*" 2>/dev/null | head -1)
+    
+    if [[ -n "$desktop_file" ]] && [[ -f "$desktop_file" ]]; then
+        local categories
+        categories=$(grep -E "^Categories=" "$desktop_file" 2>/dev/null | head -1 | sed 's/^Categories=//' | sed 's/;$//')
+        if [[ -n "$categories" ]]; then
+            # Take first category if multiple
+            categories="${categories%%;*}"
+            verb "Detected category from .desktop: $categories"
+            echo "$categories"
+            return 0
+        fi
+    fi
+    echo "Utility"
+}
+
 humanize_name() {
     local name="$1"
     # Capitalize first letter of each word, replace - _ . with spaces
@@ -587,8 +607,12 @@ install_tarportable() {
     local icon
     icon=$(find_icon "$target" "$name")
 
+    # Detect category from .desktop file in archive
+    local category
+    category=$(detect_category_from_archive "$target")
+
     # Create desktop entry
-    create_desktop_entry "$name" "$HOME/.local/bin/$name" "$icon" "Utility"
+    create_desktop_entry "$name" "$HOME/.local/bin/$name" "$icon" "$category"
     refresh_desktop
 
     info "Desktop entry created"
@@ -639,10 +663,12 @@ install_appimage() {
     cp "$file" "$HOME/.local/bin/$name" || fail "Failed to copy AppImage"
     chmod +x "$HOME/.local/bin/$name" || fail "Failed to set permissions"
 
-    # Try to extract icon from AppImage
+    # Try to extract icon and .desktop from AppImage
     local icon=""
+    local category="Utility"
     local tmpdir
     tmpdir=$(mktemp -d)
+    cd "$tmpdir"
     if "$file" --appimage-extract ./*.png >/dev/null 2>&1; then
         icon=$(find . -maxdepth 1 -name "*.png" -type f 2>/dev/null | head -1)
         [[ -n "$icon" ]] && icon="$(pwd)/$icon"
@@ -652,10 +678,14 @@ install_appimage() {
         svg=$(find . -maxdepth 1 -name "*.svg" -type f 2>/dev/null | head -1)
         [[ -n "$svg" ]] && icon="$(pwd)/$svg"
     fi
+    # Try to extract .desktop file for category detection
+    if "$file" --appimage-extract ./*.desktop >/dev/null 2>&1; then
+        category=$(detect_category_from_archive "$tmpdir")
+    fi
     cd /tmp && rm -rf "$tmpdir"
 
     # Create desktop entry
-    create_desktop_entry "$name" "$HOME/.local/bin/$name" "$icon" "Utility"
+    create_desktop_entry "$name" "$HOME/.local/bin/$name" "$icon" "$category"
     refresh_desktop
 
     info "Installed: $HOME/.local/bin/$name"
