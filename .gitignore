@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.*
 
 # Editor
 *.swp
@@ -7,15 +8,41 @@
 *~
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # Build artifacts
 *.tar.gz
 *.pkg.tar.*
 pkg/
+src/
 
 # AUR
 *.sig
+*.SRCINFO
+
+# Testing
+*.bats
+tests/fixtures/
+
+# Logs
+*.log
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Node (if used for tooling)
+node_modules/
+package-lock.json
+
+# Python (if used for tooling)
+__pycache__/
+*.pyc
+venv/

@@ -4,6 +4,18 @@
 
 ## 2026-06-11
 
+### v2.2.0 Features
+
+| Change | Files | Impact |
+|--------|-------|--------|
+| Category detection | src/pkgdrop (detect_category_from_archive) | Apps appear in correct category |
+| Nested archive handling | src/pkgdrop (install_tarportable) | Flattens tar.xz inside tar.xz |
+| Progress indicator | src/pkgdrop (humanize_size, install_tarportable) | Shows file count for >10MB |
+| Verbose mode | src/pkgdrop (verb calls) | Detailed step-by-step output |
+| Polkit elevation | install.sh, uninstall.sh | GUI password dialog |
+| Fix argument parsing | src/pkgdrop (main) | --yes works with --uninstall |
+| Category fallback | src/pkgdrop (detect_category_from_archive) | Browsers detected from MimeType |
+
 ### v2.0.0 Release
 
 | Change | Files | Impact |
@@ -20,9 +32,10 @@
 
 ### Files Modified
 ```
-src/pkgdrop          - Main script (v2.0.0 → v2.1.0)
-install.sh           - Fixed eval, added sudo warning
-push-aur.sh          - Now updates PKGBUILD/SRCINFO
+src/pkgdrop          - Main script (v2.0.0 → v2.2.0)
+install.sh           - Polkit elevation, no sudo required
+uninstall.sh         - Polkit elevation, no sudo required
+push-aur.sh          - Auto-clone AUR if missing
 deploy/PKGBUILD      - v2.0.0, .install hook, completions
 deploy/.SRCINFO      - v2.0.0
 deploy/pkgdrop.desktop - Added StartupNotify
@@ -45,6 +58,7 @@ docs/TECH_ROADMAP.md  - Technical roadmap
 docs/ARCHITECTURE.md  - System architecture
 docs/TODO.md          - Active tasks
 docs/IMPLEMENTATION.md - This file
+.gitignore            - Comprehensive ignores
 ```
 
 ### Key Decisions
@@ -53,6 +67,9 @@ docs/IMPLEMENTATION.md - This file
 3. **Names must be clean** - strip platform suffixes, capitalize for display
 4. **Summary must show paths** - user needs to know where things went
 5. **Uninstall must be clean** - remove everything including desktop entries
+6. **Use polkit for elevation** - GUI password dialog, no terminal sudo required
+7. **Category detection from .desktop** - apps appear in correct launcher category
+8. **Nested archives auto-flatten** - handle tar.xz inside tar.xz
 
 ### Lessons Learned
 1. `sanitize_name` needs to handle all separators (., -, _)
@@ -60,3 +77,5 @@ docs/IMPLEMENTATION.md - This file
 3. Icons go in `hicolor/128x128/apps/` with theme name, not full path
 4. CI needs `chmod +x` step for scripts
 5. `actions/checkout@v6` required for Node.js 24 compatibility
+6. Argument parsing must handle flags before commands (--yes before --uninstall)
+7. Category fallback should check MimeType for browsers
