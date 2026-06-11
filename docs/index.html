@@ -247,10 +247,10 @@
     </div>
     
     <div class="sprint-bar">
-        <div class="sprint-stat"><div class="num" style="color:#3fb950" id="stat-done">0</div><div class="label">Done</div></div>
-        <div class="sprint-stat"><div class="num" style="color:#d29922" id="stat-active">0</div><div class="label">Active</div></div>
+        <div class="sprint-stat"><div class="num" style="color:var(--accent-success)" id="stat-done">0</div><div class="label">Done</div></div>
+        <div class="sprint-stat"><div class="num" style="color:var(--accent-warning)" id="stat-active">0</div><div class="label">Active</div></div>
         <div class="sprint-stat"><div class="num" id="stat-todo">0</div><div class="label">Todo</div></div>
-        <div class="sprint-stat"><div class="num" style="color:#da3633" id="stat-blocked">0</div><div class="label">Blocked</div></div>
+        <div class="sprint-stat"><div class="num" style="color:var(--accent-danger)" id="stat-blocked">0</div><div class="label">Blocked</div></div>
         <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
         <div class="progress-text" id="progress-text">0%</div>
         <button class="btn btn-danger btn-sm" onclick="resetBoard()">Reset</button>
@@ -275,15 +275,15 @@
     
     <div class="board-container" id="board-view">
         <div class="column" data-status="blocked">
-            <div class="column-header" style="border-color:#da3633"><h3 style="color:#da3633">Blocked</h3><span class="column-count" id="count-blocked">0</span></div>
+            <div class="column-header" style="border-color:var(--accent-danger)"><h3 style="color:var(--accent-danger)">Blocked</h3><span class="column-count" id="count-blocked">0</span></div>
             <div class="column-body" id="col-blocked"></div>
         </div>
         <div class="column" data-status="todo">
-            <div class="column-header" style="border-color:#8b949e"><h3>Todo</h3><span class="column-count" id="count-todo">0</span></div>
+            <div class="column-header" style="border-color:var(--text-dim)"><h3>Todo</h3><span class="column-count" id="count-todo">0</span></div>
             <div class="column-body" id="col-todo"></div>
         </div>
         <div class="column" data-status="active">
-            <div class="column-header" style="border-color:#d29922"><h3 style="color:#d29922">Active</h3><span class="column-count" id="count-active">0</span></div>
+            <div class="column-header" style="border-color:var(--accent-warning)"><h3 style="color:var(--accent-warning)">Active</h3><span class="column-count" id="count-active">0</span></div>
             <div class="column-body" id="col-active"></div>
         </div>
         <div class="column" data-status="review">
@@ -291,7 +291,7 @@
             <div class="column-body" id="col-review"></div>
         </div>
         <div class="column" data-status="done">
-            <div class="column-header" style="border-color:#3fb950"><h3 style="color:#3fb950">Done</h3><span class="column-count" id="count-done">0</span></div>
+            <div class="column-header" style="border-color:var(--accent-success)"><h3 style="color:var(--accent-success)">Done</h3><span class="column-count" id="count-done">0</span></div>
             <div class="column-body" id="col-done"></div>
         </div>
     </div>
@@ -390,65 +390,79 @@
                 <div class="checklist-section">
                     <h4>✓ Definition of Done</h4>
                     <div id="dod-container"></div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dod')" style="margin-top:6px">+ Add Item</button>
+                    <div class="checklist-progress">
+                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
+                        <div class="checklist-progress-text">0/0 (0%)</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dod')" style="margin-top:12px">+ Add Item</button>
                 </div>
                 
                 <!-- Definition of Ready -->
                 <div class="checklist-section">
                     <h4>✓ Definition of Ready</h4>
                     <div id="dor-container"></div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dor')" style="margin-top:6px">+ Add Item</button>
+                    <div class="checklist-progress">
+                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
+                        <div class="checklist-progress-text">0/0 (0%)</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dor')" style="margin-top:12px">+ Add Item</button>
                 </div>
                 
                 <!-- QA Checklist -->
                 <div class="checklist-section">
                     <h4>✓ QA Checklist</h4>
                     <div id="qa-container"></div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('qa')" style="margin-top:6px">+ Add Item</button>
+                    <div class="checklist-progress">
+                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
+                        <div class="checklist-progress-text">0/0 (0%)</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('qa')" style="margin-top:12px">+ Add Item</button>
                 </div>
                 
                 <!-- Dev Checklist -->
                 <div class="checklist-section">
                     <h4>✓ Dev Checklist</h4>
                     <div id="dev-container"></div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dev')" style="margin-top:6px">+ Add Item</button>
+                    <div class="checklist-progress">
+                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
+                        <div class="checklist-progress-text">0/0 (0%)</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addChecklistItem('dev')" style="margin-top:12px">+ Add Item</button>
                 </div>
                 
                 <!-- Implementation Steps -->
                 <div class="checklist-section">
                     <h4>→ Implementation Steps</h4>
                     <div id="steps-container"></div>
-                    <button class="btn btn-sm" onclick="addStep()" style="margin-top:6px">+ Add Step</button>
+                    <button class="btn btn-sm" onclick="addStep()" style="margin-top:12px">+ Add Step</button>
                 </div>
                 
                 <!-- Subtasks -->
                 <div class="checklist-section">
                     <h4>→ Subtasks</h4>
                     <div id="subtasks-container"></div>
-                    <button class="btn btn-sm" onclick="addSubtask()" style="margin-top:6px">+ Add Subtask</button>
+                    <button class="btn btn-sm" onclick="addSubtask()" style="margin-top:12px">+ Add Subtask</button>
                 </div>
                 
                 <!-- Comments -->
-                <div class="form-group" style="margin-top:16px">
+                <div class="form-group" style="margin-top:24px">
                     <label>Comments</label>
                     <div id="comments-container"></div>
-                    <div style="display:flex;gap:8px;margin-top:8px">
-                        <input type="text" id="comment-input" placeholder="Add comment..." style="flex:1">
-                        <button class="btn btn-sm" onclick="addComment()">Add</button>
+                    <div style="display:flex;gap:12px;margin-top:12px">
+                        <input type="text" id="comment-input" placeholder="Add comment... Markdown supported" style="flex:1">
+                        <button class="btn btn-sm btn-primary" onclick="addComment()">Add</button>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-danger" id="delete-btn" onclick="deleteTask()" style="margin-right:auto;display:none">Delete</button>
                 <button class="btn" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveTask()">Save</button>
+                <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
             </div>
         </div>
     </div>
     
     <div class="toast" id="toast"></div>
-    
-    <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)">
     
     <div class="shortcuts">
         <kbd>n</kbd> New task &nbsp; <kbd>/</kbd> Search &nbsp; <kbd>Esc</kbd> Close
@@ -472,36 +486,59 @@ let tasks = JSON.parse(localStorage.getItem('pkgdrop-tasks') || '[]');
 let logs = JSON.parse(localStorage.getItem('pkgdrop-logs') || '[]');
 let currentFilter = 'all';
 let editingId = null;
-let draggedCard = null;
+let draggedCardId = null;
+let contextMenuTargetId = null;
+let charts = {};
+
+// Marked config
+marked.setOptions({
+    headerIds: false,
+    mangle: false,
+    breaks: true,
+    sanitize: false // We use DOMPurify instead
+});
 
 // Init
 function init() {
+    initTheme();
     if (tasks.length === 0) loadDefaultTasks();
     renderAll();
+    setupDropZone();
+    setupContextMenu();
+}
+
+// Theme
+function initTheme() {
+    const theme = localStorage.getItem('pkgdrop-theme') || 'dark';
+    document.body.classList.toggle('light-mode', theme === 'light');
+    updateThemeIcon();
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('pkgdrop-theme', isLight ? 'light' : 'dark');
+    updateThemeIcon();
+    updateCharts();
+}
+
+function updateThemeIcon() {
+    const btn = document.getElementById('theme-btn');
+    btn.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
 }
 
 function loadDefaultTasks() {
     tasks = [
-        {id:'T-001',title:'AUR Auto-Sync in GitHub Actions',status:'blocked',priority:'p0',type:'ci',desc:'SSH key works locally, fails in CI runner.',files:'.github/workflows/sync-aur.yml',estimate:'2h debug',steps:['SSH key confirmed: ssh -T aur@aur.archlinux.org','CI uses webfactory/ssh-agent@v0.10.0','Fails at git clone aur@aur.archlinux.org:pkgdrop.git','Debug: add ssh -v step','Fallback: manual push via push-aur.sh'],ac:[],subtasks:[],comments:[],story:'',dod:['CI passes','No security warnings'],dor:['Root cause identified','Reproduction steps documented'],qa:['Manual test on CI','Verify SSH key works'],dev:['Add verbose logging','Test locally with CI-like env']},
-        {id:'T-002',title:'Capitalize Display Names',status:'done',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:['Code reviewed','Tests pass'],dor:['humanize_name() exists','create_desktop_entry() identified'],qa:['Install zen.tar.xz','Check launcher shows "Zen"','Test unknown app capitalization'],dev:['Add mapping for zen','Add fallback capitalize','Update unit tests']},
-        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[{text:'Test .tar.xz install',done:true},{text:'Test uninstall',done:true},{text:'Fix argument parsing for --yes',done:true},{text:'Test AppImage',done:false}],comments:[{time:'2026-06-11 05:35',text:'tar.xz install/uninstall working. Fixed --yes flag parsing.'}],story:'As a user, I want installs to work reliably',dod:['All scenarios pass','No regressions'],dor:['Test fixtures available','Clean environment ready'],qa:['Test .tar.xz install','Test AppImage install','Test uninstall cleanup','Verify no leftover files'],dev:['Create test script','Run each format','Document results']},
-        {id:'T-004',title:'Detect Category from Archive',status:'todo',priority:'p0',type:'feature',desc:'Extract Categories from .desktop inside archive.',files:'src/pkgdrop',estimate:'1h',steps:['After extraction, find *.desktop','Parse Categories= line','Also extract Comment=, GenericName=','Use in generated .desktop','Fallback to Utility'],ac:['Category auto-detected','Fallback works'],subtasks:[],comments:[],story:'As a user, I want apps in correct category',dod:['Code reviewed','Tests pass'],dor:['Desktop file parsing understood','Archive structure documented'],qa:['Test with categorized app','Test fallback','Verify .desktop format'],dev:['Add find_desktop_file()','Parse Categories field','Add fallback logic']},
-        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'done',priority:'p0',type:'ci',desc:'All checks green on GitHub.',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[{text:'Fix shellcheck warnings',done:true},{text:'Fix unit tests',done:true},{text:'Mock pacman for Ubuntu CI',done:true},{text:'Merge Dependabot PRs',done:false}],comments:[{time:'2026-06-11 05:40',text:'CI now passing. Fixed shellcheck warnings and unit test for unknown format.'}],story:'As a dev, I want CI green',dod:['All checks green','No warnings'],dor:['Local checks pass','CI logs reviewed'],qa:['Verify CI status badge','Check all workflows','Review Dependabot PRs'],dev:['Fix shellcheck warnings','Run bats tests','Merge PRs #1, #2']},
-        {id:'T-006',title:'Progress Indicator',status:'todo',priority:'p1',type:'feature',desc:'Show extraction progress for large files.',files:'src/pkgdrop',estimate:'1h',steps:['Pre-count files','Extract with --verbose, count lines','Show progress bar'],ac:['Progress shown for files >10MB'],subtasks:[],comments:[],story:'As a user, I want to see progress',dod:['Works for large files','No performance impact'],dor:['Test with 100MB+ archive','Terminal width detection'],qa:['Test with large archive','Verify progress updates','Test on slow disk'],dev:['Add file count','Parse tar output','Update display']},
-        {id:'T-007',title:'Handle Nested Archives',status:'todo',priority:'p1',type:'bug',desc:'Some tar.xz contain tar.xz inside.',files:'src/pkgdrop',estimate:'1h',steps:['Check for single dir after extract','Extract inner tar, flatten'],ac:['Nested archives work'],subtasks:[],comments:[],story:'As a user, I want nested archives to work',dod:['Nested archives handled','No data loss'],dor:['Test case available','Archive structure documented'],qa:['Test nested tar.xz','Verify extraction','Check file integrity'],dev:['Add nested detection','Add inner extraction','Flatten directory structure']},
-        {id:'T-008',title:'Verbose Mode',status:'todo',priority:'p2',type:'feature',desc:'--verbose shows each step.',files:'src/pkgdrop',estimate:'30min',steps:['Add verb calls before operations','Show size, extraction, binary, icon, desktop'],ac:['--verbose shows detailed output'],subtasks:[],comments:[],story:'As a user, I want to see what happens',dod:['Output is readable','No sensitive data'],dor:['Verb function exists','Output format decided'],qa:['Test --verbose flag','Verify all steps shown','Check output format'],dev:['Add verb calls','Format output','Add to help text']},
-        {id:'T-009',title:'Bash Completions for Uninstall',status:'todo',priority:'p2',type:'feature',desc:'Tab-complete --uninstall <tab>.',files:'completions/pkgdrop.bash',estimate:'15min',steps:['Complete from ls ~/.local/opt/','Test tab completion'],ac:['Tab completes package names'],subtasks:[],comments:[],story:'As a user, I want tab completion',dod:['Works in bash','Works in zsh'],dor:['Completion script exists','Package list available'],qa:['Test bash completion','Test zsh completion','Test with no packages'],dev:['Update bash completion','Update zsh completion','Test on clean env']},
+        {id:'T-001',title:'AUR Auto-Sync in GitHub Actions',status:'blocked',priority:'p0',type:'ci',desc:'SSH key works locally, fails in CI runner.',files:'.github/workflows/sync-aur.yml',estimate:'2h debug',steps:['SSH key confirmed: ssh -T aur@aur.archlinux.org','CI uses webfactory/ssh-agent@v0.10.0','Fails at git clone aur@aur.archlinux.org:pkgdrop.git','Debug: add ssh -v step','Fallback: manual push via push-aur.sh'],ac:['CI passes','No security warnings'],subtasks:[],comments:[],story:'',dod:[{text:'Code reviewed and approved',done:false},{text:'All tests passing',done:false},{text:'No security warnings',done:false},{text:'Documentation updated',done:false}],dor:[{text:'Requirements clear',done:true},{text:'Dependencies identified',done:true},{text:'Test plan ready',done:false},{text:'Acceptance criteria defined',done:false}],qa:[],dev:[]},
+        {id:'T-002',title:'Capitalize Display Names',status:'done',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[{text:'Test .tar.xz install',done:true},{text:'Test uninstall',done:true},{text:'Fix argument parsing for --yes',done:true},{text:'Test AppImage',done:false}],comments:[{time:'2026-06-11 05:50',text:'tar.xz and uninstall working. AppImage test pending.'}],story:'As a user, I want installs to work reliably',dod:[],dor:[],qa:[],dev:[]},
         {id:'T-010',title:'Desktop Entry Auto-Creation',status:'done',priority:'p0',type:'feature',desc:'.desktop with icon, StartupWMClass, categories',files:'src/pkgdrop',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
         {id:'T-011',title:'Icon Extraction',status:'done',priority:'p0',type:'feature',desc:'find_icon() installs to hicolor theme',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-012',title:'Name Sanitization',status:'done',priority:'p0',type:'bug',desc:'Handles dots, dashes, underscores',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-013',title:'Uninstall Removes Everything',status:'done',priority:'p0',type:'feature',desc:'Removes dir, symlink, .desktop, icon',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-014',title:'GitHub Features',status:'done',priority:'p1',type:'ci',desc:'Dependabot, templates, CODEOWNERS, stale bot',files:'.github/*',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-015',title:'CI Pipeline',status:'done',priority:'p0',type:'ci',desc:'Shellcheck, bats tests, syntax check',files:'.github/workflows/ci.yml',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-016',title:'Man Page + Completions',status:'done',priority:'p1',type:'docs',desc:'pkgdrop.1, bash + zsh completions',files:'docs/, completions/',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-017',title:'Dry-Run Mode',status:'done',priority:'p0',type:'feature',desc:'--dry-run shows what would happen',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-018',title:'Security Features',status:'done',priority:'p0',type:'security',desc:'Locking, symlink validation, setuid strip',files:'src/pkgdrop',estimate:'3h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-019',title:'Config File Support',status:'done',priority:'p1',type:'feature',desc:'~/.config/pkgdrop/config',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-020',title:'Summary Output',status:'done',priority:'p1',type:'feature',desc:'Shows install paths and status',files:'src/pkgdrop',estimate:'30min',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
+        {id:'T-004',title:'Detect Category from Archive',status:'done',priority:'p0',type:'feature',desc:'Extract Categories from .desktop inside archive',files:'src/pkgdrop',estimate:'1h',steps:['After extraction, find *.desktop','Parse Categories= line','Also extract Comment=, GenericName=','Use in generated .desktop','Fallback to Utility'],ac:['Category auto-detected','Fallback works'],subtasks:[{text:'Add detect_category_from_archive()',done:true},{text:'Wire into install_tarportable',done:true},{text:'Wire into install_appimage',done:true}],comments:[{time:'2026-06-11 05:55',text:'Category detection working, falls back to Utility'}],story:'As a user, I want apps in correct category',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-006',title:'Progress Indicator',status:'done',priority:'p1',type:'feature',desc:'Show extraction progress for large files',files:'src/pkgdrop',estimate:'1h',steps:['Pre-count files','Extract with --verbose, count lines','Show progress bar'],ac:['Progress shown for files >10MB'],subtasks:[{text:'Add humanize_size function',done:true},{text:'Show file count for large archives',done:true}],comments:[{time:'2026-06-11 05:58',text:'Shows file count for archives >10MB'}],story:'As a user, I want to see progress',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-007',title:'Handle Nested Archives',status:'done',priority:'p1',type:'bug',desc:'Some tar.xz contain tar.xz inside',files:'src/pkgdrop',estimate:'1h',steps:['Check for single dir after extract','Extract inner tar, flatten'],ac:['Nested archives work'],subtasks:[{text:'Detect nested archives',done:true},{text:'Flatten directory structure',done:true}],comments:[{time:'2026-06-11 06:00',text:'Auto-detects and flattens nested archives'}],story:'As a user, I want nested archives to work',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-008',title:'Verbose Mode',status:'done',priority:'p2',type:'feature',desc:'--verbose shows each step',files:'src/pkgdrop',estimate:'30min',steps:['Add verb calls before operations','Show size, extraction, binary, icon, desktop'],ac:['--verbose shows detailed output'],subtasks:[{text:'Add verb calls throughout install',done:true},{text:'Show binary, icon, category detection',done:true}],comments:[{time:'2026-06-11 06:05',text:'Verbose mode shows all installation steps'}],story:'As a user, I want to see what happens',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-009',title:'Bash Completions for --uninstall',status:'done',priority:'p2',type:'feature',desc:'Tab-complete --uninstall <tab>',files:'completions/pkgdrop.bash',estimate:'15min',steps:['Complete from ls ~/.local/opt/','Test tab completion'],ac:['Tab completes package names'],subtasks:[{text:'Bash completion already implemented',done:true},{text:'Zsh completion already implemented',done:true}],comments:[{time:'2026-06-11 06:10',text:'Both bash and zsh completions working'}],story:'As a user, I want tab completion',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
+        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'done',priority:'p0',type:'ci',desc:'All checks green on GitHub',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[{text:'Fix shellcheck warnings',done:true},{text:'Fix unit tests',done:true},{text:'Mock pacman for Ubuntu CI',done:true},{text:'Merge Dependabot PRs',done:false}],comments:[{time:'2026-06-11 05:40',text:'CI now passing'}],story:'As a dev, I want CI green',dod:[{text:'All checks green',done:true},{text:'No warnings',done:true}],dor:[],qa:[],dev:[]},
     ];
     save();
 }
@@ -515,6 +552,7 @@ function renderAll() {
     renderBoard();
     updateStats();
     renderLog();
+    updateCharts();
 }
 
 function renderBoard() {
@@ -544,12 +582,13 @@ function createCard(task) {
     card.className = 'card';
     card.draggable = true;
     card.dataset.id = task.id;
-    card.ondragstart = e => { draggedCard = task.id; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
-    card.ondragend = e => { card.classList.remove('dragging'); draggedCard = null; document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over')); };
+    card.ondragstart = e => { draggedCardId = task.id; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
+    card.ondragend = e => { card.classList.remove('dragging'); draggedCardId = null; document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over')); };
     card.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
     card.ondragenter = e => { e.preventDefault(); card.closest('.column-body').classList.add('drag-over'); };
     card.ondragleave = e => { card.closest('.column-body').classList.remove('drag-over'); };
     card.ondrop = e => { e.preventDefault(); card.closest('.column-body').classList.remove('drag-over'); moveTask(task.id); };
+    card.oncontextmenu = e => { e.preventDefault(); showContextMenu(e, task.id); };
     
     // Calculate checklist progress
     const allChecks = [...(task.dod||[]),...(task.dor||[]),...(task.qa||[]),...(task.dev||[])];
@@ -557,54 +596,57 @@ function createCard(task) {
     const totalChecks = allChecks.length;
     const checkPct = totalChecks > 0 ? Math.round((checkedCount / totalChecks) * 100) : 0;
     
-    const ac = (task.ac || []).map(a => `<li>${a}</li>`).join('');
-    const subtasks = (task.subtasks || []).map((s,i) => 
-        `<div class="checklist-item ${s.done?'done':''}"><input type="checkbox" ${s.done?'checked':''} onchange="toggleSubtask('${task.id}', ${i}, this.checked)"> ${s.text}</div>`
+    // Markdown description preview (first line or truncated)
+    const rawDesc = task.desc || '';
+    const cleanDesc = DOMPurify.sanitize(marked.parse(rawDesc.split('\n')[0] + (rawDesc.split('\n').length > 1 ? '...' : '')));
+
+    const subtasks = (task.subtasks || []).slice(0, 3).map((s,i) => 
+        `<div class="checklist-item ${s.done?'done':''}"><input type="checkbox" ${s.done?'checked':''} onchange="toggleSubtask('${task.id}', ${i}, this.checked); event.stopPropagation();"> <span>${s.text}</span></div>`
     ).join('');
     
     card.innerHTML = `
         <div class="card-actions">
-            <button class="card-action" onclick="event.stopPropagation();editTask('${task.id}')" title="Edit">✏</button>
-            <button class="card-action" onclick="event.stopPropagation();quickMove('${task.id}')" title="Move forward">→</button>
+            <button class="card-action" onclick="event.stopPropagation();editTask('${task.id}')" title="Edit">✏️</button>
+            <button class="card-action" onclick="event.stopPropagation();quickMove('${task.id}')" title="Move forward">➡️</button>
         </div>
         <div class="card-header">
             <span class="card-id">${task.id}</span>
             <span class="tag tag-${task.priority}">${task.priority.toUpperCase()}</span>
         </div>
         <div class="card-title">${task.title}</div>
-        <div class="card-desc">${task.desc || ''}</div>
+        <div class="card-desc">${cleanDesc}</div>
         <div class="card-tags">
             <span class="tag tag-${task.type}">${task.type}</span>
-            ${task.files ? `<span class="tag" style="background:#21262d;color:#79c0ff">${task.files.split(',')[0].trim()}</span>` : ''}
-            ${task.estimate ? `<span class="tag" style="background:#21262d;color:#8b949e">⏱ ${task.estimate}</span>` : ''}
+            ${task.files ? `<span class="tag" style="background:var(--border-color);color:var(--accent)">${task.files.split(',')[0].trim()}</span>` : ''}
+            ${task.estimate ? `<span class="tag" style="background:var(--border-color);color:var(--text-dim)">⏱ ${task.estimate}</span>` : ''}
         </div>
         ${task.story ? `<div class="story-badge">📋 ${task.story}</div>` : ''}
-        ${ac ? `<ul style="margin-top:6px;padding-left:16px;font-size:0.8em;color:#8b949e">${ac}</ul>` : ''}
-        ${subtasks ? `<div style="margin-top:6px">${subtasks}</div>` : ''}
+        ${subtasks ? `<div style="margin-top:8px">${subtasks}${task.subtasks.length > 3 ? '<div style="font-size:0.7em;color:var(--text-dim);margin-left:28px">...</div>' : ''}</div>` : ''}
         ${totalChecks > 0 ? `
             <div class="card-progress">
                 <div class="card-progress-bar"><div class="card-progress-fill" style="width:${checkPct}%"></div></div>
-                <div class="card-progress-text"><span>Checklists</span><span>${checkedCount}/${totalChecks} (${checkPct}%)</span></div>
+                <div class="card-progress-text"><span>PROGRESS</span><span>${checkPct}%</span></div>
             </div>
         ` : ''}
-        ${task.comments && task.comments.length ? `<div style="margin-top:6px;font-size:0.75em;color:#8b949e">💬 ${task.comments.length} comment${task.comments.length > 1 ? 's' : ''}</div>` : ''}
     `;
     card.onclick = () => editTask(task.id);
     return card;
 }
 
-function moveTask(id) {
-    if (!draggedCard) return;
-    const task = tasks.find(t => t.id === draggedCard);
+function moveTask(targetId) {
+    if (!draggedCardId) return;
+    const task = tasks.find(t => t.id === draggedCardId);
     if (!task) return;
     const col = document.querySelector('.column-body.drag-over');
     if (col) {
         const column = col.closest('.column');
         const newStatus = column.dataset.status;
         const oldStatus = task.status;
-        task.status = newStatus;
-        addLog(`Moved "${task.title}" from ${oldStatus} → ${newStatus}`, 'moved');
-        save(); renderAll();
+        if (oldStatus !== newStatus) {
+            task.status = newStatus;
+            addLog(`Moved "${task.title}" from ${oldStatus} → ${newStatus}`, 'moved');
+            save(); renderAll();
+        }
     }
 }
 
@@ -630,50 +672,22 @@ function toggleSubtask(taskId, idx, checked) {
     save(); renderBoard();
 }
 
-function toggleChecklistItem(type, taskId, idx, checked) {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !task[type] || !task[type][idx]) return;
-    task[type][idx].done = checked;
-    addLog(`Checklist item "${task[type][idx].text}" ${checked ? 'completed' : 'unchecked'} in "${task.title}"`, 'updated');
-    save(); renderBoard();
-    renderChecklistProgress(type, taskId);
-}
-
-function renderChecklistProgress(type, taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
-    const items = task[type] || [];
-    const done = items.filter(i => i.done).length;
-    const total = items.length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    const container = document.getElementById(type + '-container');
-    const progressDiv = container.parentElement.querySelector('.checklist-progress');
-    if (progressDiv) {
-        progressDiv.querySelector('.checklist-progress-fill').style.width = pct + '%';
-        progressDiv.querySelector('.checklist-progress-text').textContent = `${done}/${total} (${pct}%)`;
-    }
-}
-
 function updateStats() {
-    const done = tasks.filter(t => t.status === 'done').length;
-    const active = tasks.filter(t => t.status === 'active').length;
-    const todo = tasks.filter(t => t.status === 'todo').length;
-    const blocked = tasks.filter(t => t.status === 'blocked').length;
-    const review = tasks.filter(t => t.status === 'review').length;
+    const counts = {done:0, active:0, todo:0, blocked:0, review:0};
+    tasks.forEach(t => counts[t.status]++);
     const total = tasks.length;
-    const pct = total ? Math.round((done / total) * 100) : 0;
+    const pct = total ? Math.round((counts.done / total) * 100) : 0;
     
-    document.getElementById('stat-done').textContent = done;
-    document.getElementById('stat-active').textContent = active;
-    document.getElementById('stat-todo').textContent = todo;
-    document.getElementById('stat-blocked').textContent = blocked;
+    ['done','active','todo','blocked'].forEach(s => {
+        document.getElementById('stat-' + s).textContent = counts[s];
+    });
     document.getElementById('progress-fill').style.width = pct + '%';
     document.getElementById('progress-text').textContent = pct + '%';
 }
 
 function renderLog() {
     const view = document.getElementById('log-view');
-    view.innerHTML = '<h3 style="margin-bottom:16px;color:#58a6ff">Work Log</h3>' + logs.slice().reverse().map(l => 
+    view.innerHTML = '<h3 style="margin-bottom:24px;color:var(--accent)">Work Log</h3>' + logs.slice().reverse().map(l => 
         `<div class="log-entry ${l.type || ''}"><span class="log-time">${l.time}</span><span class="log-action">${l.msg}</span>${l.files ? `<div class="log-files">📁 ${l.files}</div>` : ''}</div>`
     ).join('');
 }
@@ -681,6 +695,18 @@ function renderLog() {
 function addLog(msg, type) {
     logs.push({time: new Date().toISOString().slice(0,16).replace('T',' '), msg, type: type || 'updated'});
     save();
+}
+
+// Markdown Preview
+function togglePreview(inputId, previewId, btn) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const isPreview = preview.classList.toggle('active');
+    input.style.display = isPreview ? 'none' : 'block';
+    btn.textContent = isPreview ? 'Edit' : 'Preview';
+    if (isPreview) {
+        preview.innerHTML = DOMPurify.sanitize(marked.parse(input.value || '*No description*'));
+    }
 }
 
 // Modal
@@ -698,13 +724,17 @@ function openCreateModal() {
     document.getElementById('task-files').value = '';
     document.getElementById('task-estimate').value = '';
     document.getElementById('task-story').value = '';
+    document.getElementById('desc-preview').classList.remove('active');
+    document.getElementById('task-desc').style.display = 'block';
+    
     document.getElementById('steps-container').innerHTML = '';
     document.getElementById('subtasks-container').innerHTML = '';
     document.getElementById('comments-container').innerHTML = '';
-    document.getElementById('dod-container').innerHTML = '';
-    document.getElementById('dor-container').innerHTML = '';
-    document.getElementById('qa-container').innerHTML = '';
-    document.getElementById('dev-container').innerHTML = '';
+    ['dod','dor','qa','dev'].forEach(type => {
+        document.getElementById(type + '-container').innerHTML = '';
+        renderChecklistProgress(type, 'new');
+    });
+    
     addStep();
     addDefaultChecklists();
     document.getElementById('task-modal').classList.add('active');
@@ -719,10 +749,7 @@ function addDefaultChecklists() {
         dev: ['Code compiles/runs','No lint warnings','Type checking passes','Code style consistent']
     };
     Object.entries(defaults).forEach(([type, items]) => {
-        const container = document.getElementById(type + '-container');
-        items.forEach(text => {
-            addChecklistItem(type, text, false);
-        });
+        items.forEach(text => addChecklistItem(type, text, false));
         renderChecklistProgress(type, 'new');
     });
 }
@@ -744,23 +771,24 @@ function editTask(id) {
     document.getElementById('task-estimate').value = task.estimate || '';
     document.getElementById('task-story').value = task.story || '';
     
+    document.getElementById('desc-preview').classList.remove('active');
+    document.getElementById('task-desc').style.display = 'block';
+    
     document.getElementById('steps-container').innerHTML = '';
     (task.steps || []).forEach(s => { addStep(); document.querySelector('#steps-container .step-item:last-child input').value = s; });
     if (!task.steps || !task.steps.length) addStep();
     
     document.getElementById('subtasks-container').innerHTML = '';
-    (task.subtasks || []).forEach((s,i) => { addSubtask(); const items = document.querySelectorAll('#subtasks-container .step-item'); const last = items[items.length-1]; last.querySelector('input[type="text"]').value = s.text; last.querySelector('input[type="checkbox"]').checked = s.done; });
+    (task.subtasks || []).forEach((s,i) => { addSubtask(); const last = document.querySelector('#subtasks-container .step-item:last-child'); last.querySelector('input[type="text"]').value = s.text; last.querySelector('input[type="checkbox"]').checked = s.done; });
     
     document.getElementById('comments-container').innerHTML = '';
     (task.comments || []).forEach(c => {
-        document.getElementById('comments-container').innerHTML += `<div class="comment"><div class="comment-header"><span class="comment-time">${c.time}</span></div><div class="comment-text">${c.text}</div></div>`;
+        document.getElementById('comments-container').innerHTML += `<div class="comment"><div class="comment-header"><span class="comment-time">${c.time}</span></div><div class="comment-text">${DOMPurify.sanitize(marked.parse(c.text))}</div></div>`;
     });
     
     ['dod','dor','qa','dev'].forEach(type => {
         document.getElementById(type + '-container').innerHTML = '';
-        (task[type] || []).forEach(item => {
-            addChecklistItem(type, item.text, item.done);
-        });
+        (task[type] || []).forEach(item => addChecklistItem(type, item.text, item.done));
         renderChecklistProgress(type, id);
     });
     
@@ -783,25 +811,23 @@ function saveTask() {
     const checklists = {};
     ['dod','dor','qa','dev'].forEach(type => {
         checklists[type] = Array.from(document.querySelectorAll(`#${type}-container .checklist-item`)).map(el => ({
-            text: el.querySelector('span') ? el.querySelector('span').textContent : el.textContent.replace('✓','').trim(),
+            text: el.querySelector('span') ? el.querySelector('span').textContent : el.querySelector('input[type="text"]').value.trim(),
             done: el.querySelector('input[type="checkbox"]').checked
         })).filter(c => c.text);
     });
     
     if (editingId) {
         const task = tasks.find(t => t.id === editingId);
-        task.title = title;
-        task.priority = document.getElementById('task-priority').value;
-        task.type = document.getElementById('task-type').value;
-        task.status = document.getElementById('task-status').value;
-        task.desc = document.getElementById('task-desc').value;
-        task.files = document.getElementById('task-files').value;
-        task.estimate = document.getElementById('task-estimate').value;
-        task.story = document.getElementById('task-story').value;
-        task.steps = steps;
-        task.subtasks = subtasks;
-        task.ac = ac;
-        Object.assign(task, checklists);
+        Object.assign(task, {
+            title, priority: document.getElementById('task-priority').value,
+            type: document.getElementById('task-type').value,
+            status: document.getElementById('task-status').value,
+            desc: document.getElementById('task-desc').value,
+            files: document.getElementById('task-files').value,
+            estimate: document.getElementById('task-estimate').value,
+            story: document.getElementById('task-story').value,
+            steps, subtasks, ac, ...checklists
+        });
         addLog(`Updated "${title}"`, 'updated');
     } else {
         const id = 'T-' + String(tasks.length + 1).padStart(3, '0');
@@ -822,11 +848,11 @@ function saveTask() {
     showToast(editingId ? 'Task updated' : 'Task created');
 }
 
-function deleteTask() {
-    if (!editingId) return;
-    const task = tasks.find(t => t.id === editingId);
-    if (!confirm(`Delete "${task.title}"?`)) return;
-    tasks = tasks.filter(t => t.id !== editingId);
+function deleteTask(id) {
+    const targetId = id || editingId;
+    const task = tasks.find(t => t.id === targetId);
+    if (!task || !confirm(`Delete "${task.title}"?`)) return;
+    tasks = tasks.filter(t => t.id !== targetId);
     addLog(`Deleted "${task.title}"`, 'deleted');
     save(); closeModal(); renderAll();
     showToast('Task deleted');
@@ -834,10 +860,9 @@ function deleteTask() {
 
 function addStep() {
     const container = document.getElementById('steps-container');
-    const num = container.children.length + 1;
     const div = document.createElement('div');
     div.className = 'step-item';
-    div.innerHTML = `<span class="step-num">${num}.</span><input type="text" placeholder="Step ${num}"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
+    div.innerHTML = `<span class="step-num">${container.children.length + 1}.</span><input type="text" placeholder="Step ${container.children.length + 1}"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
     container.appendChild(div);
 }
 
@@ -845,7 +870,7 @@ function addSubtask() {
     const container = document.getElementById('subtasks-container');
     const div = document.createElement('div');
     div.className = 'step-item';
-    div.innerHTML = `<input type="checkbox"><input type="text" placeholder="Subtask"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
+    div.innerHTML = `<input type="checkbox"><input type="text" placeholder="Subtask description"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
     container.appendChild(div);
 }
 
@@ -853,57 +878,224 @@ function addChecklistItem(type, text, done) {
     const container = document.getElementById(type + '-container');
     const div = document.createElement('div');
     div.className = 'checklist-item' + (done ? ' done' : '');
-    const id = editingId || 'new-' + Date.now();
-    div.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''} onchange="toggleChecklistItem('${type}','${id}',${container.children.length},this.checked)"><span>${text || ''}</span>`;
+    div.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''} onchange="toggleChecklistItem('${type}','${editingId||'new'}',${container.children.length},this.checked)"><span>${text || ''}</span>`;
     if (!text) {
+        const span = div.querySelector('span');
         const input = document.createElement('input');
-        input.type = 'text';
-        input.placeholder = 'Checklist item';
-        input.style.cssText = 'flex:1;padding:4px 8px;border:1px solid #30363d;border-radius:4px;background:#161b22;color:#c9d1d9;font-size:0.85em';
-        div.appendChild(input);
-        div.querySelector('span').remove();
+        input.type = 'text'; input.placeholder = 'New item...';
+        input.className = 'filter-input'; input.style.flex = '1';
+        div.insertBefore(input, span); span.remove();
     }
     container.appendChild(div);
+}
+
+function toggleChecklistItem(type, taskId, idx, checked) {
+    if (taskId === 'new') return;
+    const task = tasks.find(t => t.id === taskId);
+    if (task && task[type] && task[type][idx]) {
+        task[type][idx].done = checked;
+        save(); renderBoard(); renderChecklistProgress(type, taskId);
+    }
+}
+
+function renderChecklistProgress(type, taskId) {
+    const task = tasks.find(t => t.id === taskId) || { [type]: [] };
+    const items = task[type] || [];
+    const done = items.filter(i => i.done).length;
+    const total = items.length;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    const container = document.getElementById(type + '-container').parentElement;
+    const fill = container.querySelector('.checklist-progress-fill');
+    const text = container.querySelector('.checklist-progress-text');
+    if (fill && text) { fill.style.width = pct + '%'; text.textContent = `${done}/${total} (${pct}%)`; }
 }
 
 function addComment() {
     const input = document.getElementById('comment-input');
     const text = input.value.trim();
-    if (!text) return;
-    const time = new Date().toISOString().slice(0,16).replace('T',' ');
-    const div = document.createElement('div');
-    div.className = 'comment';
-    div.innerHTML = `<div class="comment-header"><span class="comment-time">${time}</span></div><div class="comment-text">${text}</div>`;
-    document.getElementById('comments-container').appendChild(div);
-    if (editingId) {
-        const task = tasks.find(t => t.id === editingId);
-        task.comments = task.comments || [];
-        task.comments.push({time, text});
-        addLog(`Comment on "${task.title}": "${text.slice(0, 50)}${text.length > 50 ? '...' : ''}"`, 'updated');
-        save();
-    }
+    if (!text || !editingId) return;
+    const task = tasks.find(t => t.id === editingId);
+    const comment = {time: new Date().toISOString().slice(0,16).replace('T',' '), text};
+    task.comments = task.comments || [];
+    task.comments.push(comment);
+    addLog(`Commented on "${task.title}"`, 'updated');
+    save(); editTask(editingId);
     input.value = '';
 }
 
-// Filters
-function toggleFilter(el, filter) {
-    document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    currentFilter = filter;
-    renderBoard();
-}
-
-function filterTasks() { renderBoard(); }
-
 // Views
 function showView(view) {
-    document.getElementById('board-view').classList.toggle('active', view === 'board');
-    document.getElementById('log-view').classList.toggle('active', view === 'log');
+    ['board-view', 'log-view', 'analytics-view'].forEach(id => {
+        document.getElementById(id).classList.toggle('active', id === view + '-view');
+    });
+    if (view === 'analytics') updateCharts();
+}
+
+// Analytics
+function updateCharts() {
+    if (!document.getElementById('analytics-view').classList.contains('active')) return;
+    const ctxStatus = document.getElementById('chart-status').getContext('2d');
+    const ctxType = document.getElementById('chart-type').getContext('2d');
+    const ctxVel = document.getElementById('chart-velocity').getContext('2d');
+    
+    const isLight = document.body.classList.contains('light-mode');
+    const textColor = isLight ? '#1f2328' : '#c9d1d9';
+    const gridColor = isLight ? '#d0d7de' : '#30363d';
+
+    // Status
+    const statusData = {done:0, active:0, todo:0, blocked:0, review:0};
+    tasks.forEach(t => statusData[t.status]++);
+    if (charts.status) charts.status.destroy();
+    charts.status = new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(statusData),
+            datasets: [{
+                data: Object.values(statusData),
+                backgroundColor: ['#3fb950', '#d29922', '#8b949e', '#f85149', '#a78bfa'],
+                borderWidth: 0
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { color: textColor } } } }
+    });
+
+    // Type
+    const typeData = {feature:0, bug:0, security:0, ci:0, docs:0};
+    tasks.forEach(t => typeData[t.type]++);
+    if (charts.type) charts.type.destroy();
+    charts.type = new Chart(ctxType, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(typeData),
+            datasets: [{
+                label: 'Tasks',
+                data: Object.values(typeData),
+                backgroundColor: '#58a6ff'
+            }]
+        },
+        options: { 
+            scales: { 
+                y: { grid: { color: gridColor }, ticks: { color: textColor } },
+                x: { grid: { display: false }, ticks: { color: textColor } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Velocity
+    const velocity = {};
+    logs.filter(l => l.type === 'moved' && l.msg.includes('→ done')).forEach(l => {
+        const date = l.time.split(' ')[0];
+        velocity[date] = (velocity[date] || 0) + 1;
+    });
+    const velLabels = Object.keys(velocity).sort();
+    if (charts.vel) charts.vel.destroy();
+    charts.vel = new Chart(ctxVel, {
+        type: 'line',
+        data: {
+            labels: velLabels,
+            datasets: [{
+                label: 'Completed Tasks',
+                data: velLabels.map(l => velocity[l]),
+                borderColor: '#3fb950',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(63, 185, 80, 0.1)'
+            }]
+        },
+        options: { 
+            scales: { 
+                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
+                x: { grid: { color: gridColor }, ticks: { color: textColor } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// Markdown Sync (File Drop)
+function setupDropZone() {
+    const zone = document.getElementById('drop-zone');
+    window.addEventListener('dragenter', e => { e.preventDefault(); zone.classList.add('active'); });
+    zone.addEventListener('dragleave', e => { if (e.relatedTarget === null) zone.classList.remove('active'); });
+    window.addEventListener('dragover', e => e.preventDefault());
+    window.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('active');
+        const file = e.dataTransfer.files[0];
+        if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
+            const reader = new FileReader();
+            reader.onload = ev => parseMarkdownSync(ev.target.result, file.name);
+            reader.readAsText(file);
+        }
+    });
+}
+
+function parseMarkdownSync(content, filename) {
+    let imported = 0;
+    // Simple parser for docs/TODO.md format
+    const lines = content.split('\n');
+    let currentStatus = 'todo';
+    let currentPriority = 'p1';
+
+    lines.forEach(line => {
+        if (line.includes('Must Fix (P0)')) { currentPriority = 'p0'; currentStatus = 'todo'; }
+        else if (line.includes('Should Fix (P1)')) { currentPriority = 'p1'; currentStatus = 'todo'; }
+        else if (line.includes('Nice to Have (P2)')) { currentPriority = 'p2'; currentStatus = 'todo'; }
+        else if (line.includes('Done This Sprint')) { currentStatus = 'done'; }
+        else if (line.includes('Blocked')) { currentStatus = 'blocked'; }
+        
+        const taskMatch = line.match(/-\s*\[([ x])\]\s*(.*)/);
+        if (taskMatch) {
+            const isDone = taskMatch[1] === 'x';
+            const title = taskMatch[2].trim();
+            if (!tasks.find(t => t.title === title)) {
+                const id = 'T-' + String(tasks.length + 1).padStart(3, '0');
+                tasks.push({
+                    id, title, status: isDone ? 'done' : currentStatus,
+                    priority: currentPriority, type: 'feature',
+                    desc: 'Imported from ' + filename, steps: [], ac: [], subtasks: [], comments: []
+                });
+                imported++;
+            }
+        }
+    });
+
+    if (imported > 0) {
+        save(); renderAll();
+        showToast(`Synced ${imported} tasks from ${filename}`);
+    } else {
+        showToast('No new tasks found in file', 'error');
+    }
+}
+
+// Context Menu
+function setupContextMenu() {
+    window.addEventListener('click', () => document.getElementById('context-menu').style.display = 'none');
+}
+
+function showContextMenu(e, id) {
+    const menu = document.getElementById('context-menu');
+    menu.style.display = 'block';
+    menu.style.left = e.pageX + 'px';
+    menu.style.top = e.pageY + 'px';
+    contextMenuTargetId = id;
+}
+
+function handleContextMenuAction(action) {
+    if (!contextMenuTargetId) return;
+    if (action === 'edit') editTask(contextMenuTargetId);
+    else if (action === 'move-next') quickMove(contextMenuTargetId);
+    else if (action === 'done') {
+        const task = tasks.find(t => t.id === contextMenuTargetId);
+        if (task) { task.status = 'done'; addLog(`Moved "${task.title}" to done`, 'moved'); save(); renderAll(); }
+    }
+    else if (action === 'delete') deleteTask(contextMenuTargetId);
 }
 
 // Export/Import
 function exportData() {
-    const data = {tasks, logs, exported: new Date().toISOString(), version: '2.0.0'};
+    const data = {tasks, logs, exported: new Date().toISOString(), version: '3.0.0'};
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -912,22 +1104,23 @@ function exportData() {
     showToast('Exported');
 }
 
-function importData() { document.getElementById('import-input').click(); }
-function handleImport(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-        try {
-            const data = JSON.parse(ev.target.result);
-            tasks = data.tasks || [];
-            logs = data.logs || [];
-            save(); renderAll();
-            showToast('Imported ' + tasks.length + ' tasks');
-        } catch(err) { showToast('Invalid file', 'error'); }
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = '.json';
+    input.onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                tasks = data.tasks || [];
+                logs = data.logs || [];
+                save(); renderAll();
+                showToast('Imported ' + tasks.length + ' tasks');
+            } catch(err) { showToast('Invalid file', 'error'); }
+        };
+        reader.readAsText(e.target.files[0]);
     };
-    reader.readAsText(file);
-    e.target.value = '';
+    input.click();
 }
 
 function resetBoard() {
@@ -940,16 +1133,23 @@ function resetBoard() {
     showToast('Board reset');
 }
 
-// Toast
 function showToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = 'toast' + (type === 'error' ? ' error' : '');
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Keyboard shortcuts
+function toggleFilter(el, filter) {
+    document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = filter;
+    renderBoard();
+}
+
+function filterTasks() { renderBoard(); }
+
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeModal();
     if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !document.querySelector('.modal.active')) { e.preventDefault(); openCreateModal(); }
