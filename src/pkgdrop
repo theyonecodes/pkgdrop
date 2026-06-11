@@ -731,6 +731,16 @@ main() {
         exit 0
     fi
 
+    # Parse flags first (before --uninstall/--clean)
+    while true; do
+        case "$file" in
+            -n|--dry-run)  DRY_RUN=1; shift; file="${1:-}" ;;
+            -V|--verbose)  VERBOSE=1; shift; file="${1:-}" ;;
+            -y|--yes)      AUTO_YES=1; shift; file="${1:-}" ;;
+            *) break ;;
+        esac
+    done
+
     if [[ "$file" == "-u" ]] || [[ "$file" == "--uninstall" ]]; then
         local pkg="${2:-}"
         [[ -z "$pkg" ]] && fail "Usage: pkgdrop --uninstall <package-name>"
@@ -742,16 +752,6 @@ main() {
         clean_broken
         exit 0
     fi
-
-    # Parse flags
-    while true; do
-        case "$file" in
-            -n|--dry-run)  DRY_RUN=1; shift; file="${1:-}" ;;
-            -V|--verbose)  VERBOSE=1; shift; file="${1:-}" ;;
-            -y|--yes)      AUTO_YES=1; shift; file="${1:-}" ;;
-            *) break ;;
-        esac
-    done
 
     [[ -z "$file" ]] && { show_help; exit 1; }
     [[ -f "$file" ]] || fail "File not found: $file"
