@@ -161,21 +161,26 @@ confirm() {
 
 # --- Size Estimation ---
 
+humanize_size() {
+    local size="$1"
+    if [[ "$size" -lt 1024 ]]; then
+        echo "${size}B"
+    elif [[ "$size" -lt 1048576 ]]; then
+        echo "$(( size / 1024 ))KB"
+    elif [[ "$size" -lt 1073741824 ]]; then
+        echo "$(( size / 1048576 ))MB"
+    else
+        echo "$(( size / 1073741824 ))GB"
+    fi
+}
+
 estimate_size() {
     local file="$1"
     local size
     size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo 0)
 
     local human_size
-    if [[ "$size" -lt 1024 ]]; then
-        human_size="${size}B"
-    elif [[ "$size" -lt 1048576 ]]; then
-        human_size="$(( size / 1024 ))KB"
-    elif [[ "$size" -lt 1073741824 ]]; then
-        human_size="$(( size / 1048576 ))MB"
-    else
-        human_size="$(( size / 1073741824 ))GB"
-    fi
+    human_size=$(humanize_size "$size")
 
     local avail
     avail=$(df -B1 "$HOME" 2>/dev/null | awk 'NR==2{print $4}' || echo 0)
@@ -579,7 +584,20 @@ install_tarportable() {
     mkdir -p "$target" || fail "Cannot create $target"
     _cleanup_target="$target"
 
+    # Get file size for progress
+    local file_size
+    file_size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo 0)
+
     verb "Extracting archive..."
+    if [[ "$file_size" -gt 10485760 ]]; then
+        # Large file: show extraction progress
+        local total_files
+        total_files=$(tar -tf "$file" 2>/dev/null | wc -l)
+        if [[ "$total_files" -gt 0 ]]; then
+            info "Extracting $total_files files from $(humanize_size "$file_size") archive..."
+        fi
+    fi
+    
     if ! tar -xf "$file" -C "$target" 2>/dev/null; then
         rm -rf "$target"
         fail "Failed to extract archive (corrupted or invalid)"
