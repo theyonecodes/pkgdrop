@@ -4,164 +4,242 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pkgdrop - Sprint Board</title>
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg-body: #0d1117;
+            --bg-header: rgba(22, 27, 34, 0.8);
+            --bg-card: #161b22;
+            --bg-modal: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-dim: #8b949e;
+            --accent: #58a6ff;
+            --accent-success: #238636;
+            --accent-success-hover: #2ea043;
+            --accent-danger: #da3633;
+            --accent-danger-hover: #f85149;
+            --accent-warning: #d29922;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            --glass-bg: rgba(22, 27, 34, 0.7);
+            --glass-blur: blur(12px);
+        }
+
+        body.light-mode {
+            --bg-body: #f6f8fa;
+            --bg-header: rgba(255, 255, 255, 0.8);
+            --bg-card: #ffffff;
+            --bg-modal: #ffffff;
+            --border-color: #d0d7de;
+            --text-main: #1f2328;
+            --text-dim: #656d76;
+            --accent: #0969da;
+            --accent-success: #1f883d;
+            --accent-success-hover: #1a7f37;
+            --accent-danger: #cf222e;
+            --accent-danger-hover: #a40e26;
+            --accent-warning: #9a6700;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; transition: background 0.3s, color 0.3s; }
         
         /* Header */
-        .header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header h1 { color: #58a6ff; font-size: 1.4em; display: flex; align-items: center; gap: 8px; }
-        .header h1 span { font-size: 0.6em; color: #8b949e; font-weight: normal; }
+        .header { background: var(--bg-header); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--border-color); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h1 { color: var(--accent); font-size: 1.4em; display: flex; align-items: center; gap: 8px; }
+        .header h1 span { font-size: 0.6em; color: var(--text-dim); font-weight: normal; }
         .header-actions { display: flex; gap: 8px; align-items: center; }
-        .btn { padding: 6px 14px; border: 1px solid #30363d; border-radius: 6px; background: #21262d; color: #c9d1d9; cursor: pointer; font-size: 0.85em; transition: all 0.15s; }
-        .btn:hover { border-color: #58a6ff; background: #161b22; }
-        .btn-primary { background: #238636; border-color: #238636; color: white; }
-        .btn-primary:hover { background: #2ea043; }
-        .btn-danger { background: #da3633; border-color: #da3633; color: white; }
-        .btn-danger:hover { background: #f85149; }
+        
+        .btn { padding: 6px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-main); cursor: pointer; font-size: 0.85em; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+        .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+        .btn-primary { background: var(--accent-success); border-color: var(--accent-success); color: white; }
+        .btn-primary:hover { background: var(--accent-success-hover); }
+        .btn-danger { background: var(--accent-danger); border-color: var(--accent-danger); color: white; }
+        .btn-danger:hover { background: var(--accent-danger-hover); }
         .btn-sm { padding: 4px 10px; font-size: 0.75em; }
-        .btn-icon { width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-icon { width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
         
         /* Sprint Stats Bar */
-        .sprint-bar { display: flex; gap: 16px; padding: 10px 24px; background: #161b22; border-bottom: 1px solid #30363d; align-items: center; flex-wrap: wrap; }
+        .sprint-bar { display: flex; gap: 16px; padding: 10px 24px; background: var(--bg-header); border-bottom: 1px solid var(--border-color); align-items: center; flex-wrap: wrap; }
         .sprint-stat { text-align: center; min-width: 50px; }
         .sprint-stat .num { font-size: 1.3em; font-weight: bold; }
-        .sprint-stat .label { font-size: 0.7em; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
-        .progress-bar { flex: 1; min-width: 150px; height: 8px; background: #21262d; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #238636, #3fb950); transition: width 0.3s; border-radius: 4px; }
-        .progress-text { color: #8b949e; font-size: 0.8em; min-width: 40px; text-align: right; }
+        .sprint-stat .label { font-size: 0.7em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .progress-bar { flex: 1; min-width: 150px; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-success), #3fb950); transition: width 0.3s; border-radius: 4px; }
+        .progress-text { color: var(--text-dim); font-size: 0.8em; min-width: 40px; text-align: right; }
         
         /* Filters */
-        .filters { padding: 10px 24px; background: #0d1117; border-bottom: 1px solid #21262d; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .filter-input { padding: 6px 12px; border: 1px solid #30363d; border-radius: 6px; background: #161b22; color: #c9d1d9; font-size: 0.85em; min-width: 200px; }
-        .filter-input:focus { outline: none; border-color: #58a6ff; }
+        .filters { padding: 10px 24px; background: var(--bg-body); border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .filter-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-main); font-size: 0.85em; min-width: 200px; transition: border-color 0.2s; }
+        .filter-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1); }
         .filter-group { display: flex; gap: 4px; margin-left: 12px; }
-        .filter-tag { padding: 4px 10px; border-radius: 4px; font-size: 0.75em; cursor: pointer; border: 1px solid #30363d; transition: all 0.15s; }
-        .filter-tag:hover, .filter-tag.active { border-color: #58a6ff; background: #161b22; }
-        .filter-tag.active { background: #58a6ff22; }
+        .filter-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75em; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.15s; background: var(--bg-card); }
+        .filter-tag:hover, .filter-tag.active { border-color: var(--accent); color: var(--accent); }
+        .filter-tag.active { background: rgba(88, 166, 255, 0.1); border-color: var(--accent); }
         
         /* Board Layout */
-        .board-container { display: flex; gap: 16px; padding: 16px 24px; overflow-x: auto; min-height: calc(100vh - 180px); }
-        .column { min-width: 320px; max-width: 380px; flex: 1; display: flex; flex-direction: column; }
-        .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; }
-        .column-header h3 { font-size: 0.95em; display: flex; align-items: center; gap: 6px; }
-        .column-count { background: #30363d; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; }
-        .column-body { flex: 1; min-height: 100px; padding: 4px; border-radius: 8px; background: #0d1117; border: 1px dashed #21262d; }
-        .column-body.drag-over { border-color: #58a6ff; background: #58a6ff11; }
+        .board-container { display: flex; gap: 16px; padding: 16px 24px; overflow-x: auto; min-height: calc(100vh - 180px); align-items: flex-start; }
+        .column { min-width: 300px; max-width: 350px; flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.02); border-radius: 12px; padding: 8px; }
+        body.light-mode .column { background: rgba(0,0,0,0.03); }
+        .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 4px; border-bottom: 2px solid transparent; }
+        .column-header h3 { font-size: 0.9em; display: flex; align-items: center; gap: 8px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+        .column-count { background: var(--border-color); color: var(--text-dim); padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 600; }
+        .column-body { flex: 1; min-height: 200px; padding: 4px; border-radius: 8px; transition: background 0.2s; }
+        .column-body.drag-over { background: rgba(88, 166, 255, 0.05); outline: 2px dashed var(--accent); }
         
         /* Task Cards */
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: grab; transition: all 0.15s; position: relative; }
-        .card:hover { border-color: #58a6ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .card.dragging { opacity: 0.4; border-style: dashed; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-        .card-id { color: #58a6ff; font-size: 0.75em; font-weight: 600; }
-        .card-title { font-weight: 600; font-size: 0.9em; margin-bottom: 4px; line-height: 1.3; }
-        .card-desc { color: #8b949e; font-size: 0.8em; margin-bottom: 8px; line-height: 1.4; }
-        .card-meta { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.7em; }
-        .card-meta span { display: flex; align-items: center; gap: 3px; color: #8b949e; }
-        .card-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-        .tag { padding: 2px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
-        .tag-p0 { background: #da363333; color: #f85149; border: 1px solid #da363355; }
-        .tag-p1 { background: #d2992233; color: #d29922; border: 1px solid #d2992255; }
-        .tag-p2 { background: #30363d; color: #8b949e; border: 1px solid #30363d; }
-        .tag-feature { background: #23863633; color: #3fb950; border: 1px solid #23863655; }
-        .tag-bug { background: #d2992233; color: #d29922; border: 1px solid #d2992255; }
-        .tag-security { background: #da363333; color: #f85149; border: 1px solid #da363355; }
-        .tag-ci { background: #8b5cf633; color: #a78bfa; border: 1px solid #8b5cf655; }
-        .tag-docs { background: #58a6ff33; color: #58a6ff; border: 1px solid #58a6ff55; }
-        .card-actions { position: absolute; top: 8px; right: 8px; display: none; gap: 4px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; cursor: grab; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; box-shadow: var(--card-shadow); }
+        .card:hover { border-color: var(--accent); transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .card.dragging { opacity: 0.5; transform: scale(0.95); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .card-id { color: var(--accent); font-size: 0.7em; font-weight: 700; font-family: monospace; }
+        .card-title { font-weight: 600; font-size: 0.95em; margin-bottom: 6px; line-height: 1.4; color: var(--text-main); }
+        .card-desc { color: var(--text-dim); font-size: 0.8em; margin-bottom: 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7em; margin-top: 10px; }
+        .card-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; border: 1px solid transparent; }
+        .tag-p0 { background: rgba(218, 54, 51, 0.15); color: #f85149; border-color: rgba(218, 54, 51, 0.2); }
+        .tag-p1 { background: rgba(210, 153, 34, 0.15); color: var(--accent-warning); border-color: rgba(210, 153, 34, 0.2); }
+        .tag-p2 { background: var(--border-color); color: var(--text-dim); }
+        .tag-feature { background: rgba(35, 134, 54, 0.15); color: #3fb950; border-color: rgba(35, 134, 54, 0.2); }
+        .tag-bug { background: rgba(210, 153, 34, 0.15); color: var(--accent-warning); border-color: rgba(210, 153, 34, 0.2); }
+        .tag-security { background: rgba(218, 54, 51, 0.15); color: #f85149; border-color: rgba(218, 54, 51, 0.2); }
+        .tag-ci { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border-color: rgba(139, 92, 246, 0.2); }
+        .tag-docs { background: rgba(88, 166, 255, 0.15); color: var(--accent); border-color: rgba(88, 166, 255, 0.2); }
+        
+        .card-actions { position: absolute; top: 10px; right: 10px; display: none; gap: 4px; z-index: 5; }
         .card:hover .card-actions { display: flex; }
-        .card-action { width: 24px; height: 24px; border: none; border-radius: 4px; background: #21262d; color: #8b949e; cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; }
-        .card-action:hover { background: #30363d; color: #c9d1d9; }
+        .card-action { width: 28px; height: 28px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .card-action:hover { border-color: var(--accent); color: var(--accent); background: rgba(88, 166, 255, 0.1); }
         
         /* Checklist Progress on Card */
-        .card-progress { margin-top: 8px; }
-        .card-progress-bar { height: 4px; background: #21262d; border-radius: 2px; overflow: hidden; }
-        .card-progress-fill { height: 100%; background: #3fb950; transition: width 0.2s; }
-        .card-progress-text { font-size: 0.65em; color: #8b949e; margin-top: 2px; display: flex; justify-content: space-between; }
+        .card-progress { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
+        .card-progress-bar { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .card-progress-fill { height: 100%; background: var(--accent-success); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-progress-text { font-size: 0.65em; color: var(--text-dim); margin-top: 4px; display: flex; justify-content: space-between; font-weight: 600; }
         
         /* User Story Badge */
-        .story-badge { background: #58a6ff22; border: 1px solid #58a6ff44; border-radius: 4px; padding: 4px 8px; margin-top: 6px; font-size: 0.7em; color: #58a6ff; font-style: italic; }
+        .story-badge { background: rgba(88, 166, 255, 0.08); border: 1px solid rgba(88, 166, 255, 0.2); border-radius: 6px; padding: 6px 10px; margin-top: 8px; font-size: 0.75em; color: var(--accent); font-style: italic; line-height: 1.4; }
         
         /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease-out; }
         .modal-overlay.active { display: flex; }
-        .modal { background: #161b22; border: 1px solid #30363d; border-radius: 12px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #30363d; position: sticky; top: 0; background: #161b22; z-index: 10; }
-        .modal-header h2 { font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
-        .modal-close { background: none; border: none; color: #8b949e; cursor: pointer; font-size: 1.5em; padding: 4px 8px; border-radius: 4px; }
-        .modal-close:hover { color: #c9d1d9; background: #21262d; }
-        .modal-body { padding: 20px; }
-        .modal-footer { padding: 12px 20px; border-top: 1px solid #30363d; display: flex; justify-content: flex-end; gap: 10px; position: sticky; bottom: 0; background: #161b22; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .modal { background: var(--bg-modal); border: 1px solid var(--border-color); border-radius: 16px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.2s; }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-modal); z-index: 10; }
+        .modal-header h2 { font-size: 1.2em; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .modal-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.8em; padding: 0 8px; border-radius: 8px; line-height: 1; }
+        .modal-close:hover { color: var(--text-main); background: var(--border-color); }
+        .modal-body { padding: 24px; flex: 1; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; background: var(--bg-modal); }
         
         /* Forms */
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; margin-bottom: 4px; font-size: 0.85em; color: #8b949e; font-weight: 500; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #30363d; border-radius: 6px; background: #0d1117; color: #c9d1d9; font-size: 0.9em; font-family: inherit; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #58a6ff; }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.85em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-body); color: var(--text-main); font-size: 0.9em; font-family: inherit; transition: all 0.2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1); }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        
+        /* Markdown Preview Toggle */
+        .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .preview-pane { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; min-height: 120px; display: none; overflow-y: auto; }
+        .preview-pane.active { display: block; }
+        .preview-pane h1, .preview-pane h2, .preview-pane h3 { margin: 16px 0 8px; color: var(--accent); }
+        .preview-pane p { margin-bottom: 8px; line-height: 1.6; }
+        .preview-pane ul, .preview-pane ol { margin: 8px 0 16px 20px; }
+        .preview-pane code { background: var(--border-color); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
         
         /* Checklist Sections in Modal */
-        .checklist-section { margin-top: 16px; padding: 12px; background: #0d1117; border-radius: 8px; border: 1px solid #21262d; }
-        .checklist-section h4 { font-size: 0.85em; color: #58a6ff; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .checklist-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.85em; border-radius: 4px; transition: background 0.15s; }
-        .checklist-item:hover { background: #161b22; }
-        .checklist-item input[type="checkbox"] { accent-color: #238636; width: 16px; height: 16px; }
-        .checklist-item.done { color: #8b949e; text-decoration: line-through; }
-        .checklist-progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
-        .checklist-progress-bar { flex: 1; height: 4px; background: #21262d; border-radius: 2px; overflow: hidden; }
-        .checklist-progress-fill { height: 100%; background: #3fb950; }
-        .checklist-progress-text { font-size: 0.7em; color: #8b949e; }
+        .checklist-section { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid var(--border-color); }
+        body.light-mode .checklist-section { background: rgba(0,0,0,0.01); }
+        .checklist-section h4 { font-size: 0.85em; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-size: 0.9em; border-radius: 6px; transition: background 0.15s; }
+        .checklist-item:hover { background: var(--border-color); }
+        .checklist-item input[type="checkbox"] { accent-color: var(--accent-success); width: 18px; height: 18px; cursor: pointer; }
+        .checklist-item.done { color: var(--text-dim); text-decoration: line-through; opacity: 0.7; }
+        .checklist-progress { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .checklist-progress-bar { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .checklist-progress-fill { height: 100%; background: var(--accent-success); transition: width 0.3s; }
+        .checklist-progress-text { font-size: 0.75em; color: var(--text-dim); font-weight: 600; }
         
         /* Steps Section */
         .steps-section { margin-top: 12px; }
-        .step-item { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+        .step-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
         .step-item input { flex: 1; }
-        .step-num { color: #58a6ff; font-size: 0.85em; min-width: 20px; }
-        .step-remove { background: none; border: none; color: #da3633; cursor: pointer; font-size: 0.9em; padding: 2px 4px; }
+        .step-num { color: var(--accent); font-size: 0.9em; min-width: 24px; font-weight: 700; }
+        .step-remove { background: none; border: none; color: var(--accent-danger); cursor: pointer; font-size: 1.1em; padding: 4px; border-radius: 4px; transition: background 0.2s; }
+        .step-remove:hover { background: rgba(218, 54, 51, 0.1); }
         
         /* Comments */
-        .comment { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-top: 6px; }
-        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .comment-time { color: #8b949e; font-size: 0.7em; }
-        .comment-text { font-size: 0.85em; line-height: 1.4; }
+        .comment { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 16px; margin-top: 10px; border-left: 4px solid var(--accent); }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .comment-time { color: var(--text-dim); font-size: 0.75em; font-weight: 600; }
+        .comment-text { font-size: 0.9em; line-height: 1.5; color: var(--text-main); }
         
         /* Log View */
-        .log-view { display: none; padding: 16px 24px; max-height: calc(100vh - 180px); overflow-y: auto; }
+        .log-view { display: none; padding: 24px; max-height: calc(100vh - 180px); overflow-y: auto; animation: slideUp 0.3s ease-out; }
         .log-view.active { display: block; }
-        .log-entry { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.85em; border-left: 3px solid #58a6ff; }
-        .log-entry.created { border-left-color: #3fb950; }
-        .log-entry.moved { border-left-color: #d29922; }
-        .log-entry.updated { border-left-color: #58a6ff; }
-        .log-entry.deleted { border-left-color: #da3633; }
-        .log-time { color: #8b949e; font-size: 0.75em; margin-right: 8px; }
-        .log-action { font-weight: 500; }
-        .log-files { color: #79c0ff; font-size: 0.8em; margin-top: 4px; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .log-entry { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.9em; border-left: 5px solid var(--accent); box-shadow: var(--card-shadow); }
+        .log-entry.created { border-left-color: var(--accent-success); }
+        .log-entry.moved { border-left-color: var(--accent-warning); }
+        .log-entry.updated { border-left-color: var(--accent); }
+        .log-entry.deleted { border-left-color: var(--accent-danger); }
+        .log-time { color: var(--text-dim); font-size: 0.8em; margin-right: 12px; font-family: monospace; }
+        .log-action { font-weight: 600; }
+        .log-files { color: var(--accent); font-size: 0.8em; margin-top: 6px; font-weight: 500; }
+        
+        /* Analytics View */
+        .analytics-view { display: none; padding: 24px; animation: slideUp 0.3s ease-out; }
+        .analytics-view.active { display: block; }
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; }
+        .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--card-shadow); }
+        .chart-container h4 { margin-bottom: 20px; font-size: 1em; color: var(--text-main); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         
         /* Toast */
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #238636; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.85em; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent-success); color: white; padding: 14px 24px; border-radius: 12px; font-size: 0.9em; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 12px 32px rgba(0,0,0,0.4); font-weight: 600; }
         .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.error { background: #da3633; }
+        .toast.error { background: var(--accent-danger); }
         
-        /* Keyboard Shortcuts Help */
-        .shortcuts { position: fixed; bottom: 20px; left: 20px; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px 16px; font-size: 0.75em; color: #8b949e; z-index: 50; }
-        .shortcuts kbd { background: #21262d; border: 1px solid #30363d; border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 0.9em; }
+        /* Shortcuts Help */
+        .shortcuts { position: fixed; bottom: 24px; left: 24px; background: var(--bg-header); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 16px; font-size: 0.8em; color: var(--text-dim); z-index: 50; box-shadow: var(--card-shadow); }
+        .shortcuts kbd { background: var(--border-color); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.95em; color: var(--text-main); margin: 0 2px; }
+        
+        /* Drop Zone */
+        .drop-zone-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(88, 166, 255, 0.2); backdrop-filter: blur(8px); z-index: 3000; border: 4px dashed var(--accent); justify-content: center; align-items: center; flex-direction: column; color: var(--accent); pointer-events: none; }
+        .drop-zone-overlay.active { display: flex; }
+        .drop-zone-overlay h2 { font-size: 2em; margin-bottom: 10px; }
         
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0d1117; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 5px; border: 2px solid var(--bg-body); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* Context Menu */
+        .context-menu { position: fixed; background: var(--bg-modal); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 2500; padding: 6px 0; min-width: 160px; display: none; }
+        .context-menu-item { padding: 8px 16px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .context-menu-item:hover { background: var(--border-color); color: var(--accent); }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>pkgdrop Sprint Board <span>v2.0.0</span></h1>
+        <h1>pkgdrop Sprint Board <span>v3.0.0</span></h1>
         <div class="header-actions">
+            <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle Theme" id="theme-btn">🌓</button>
             <button class="btn" onclick="showView('board')">Board</button>
             <button class="btn" onclick="showView('log')">Work Log</button>
+            <button class="btn" onclick="showView('analytics')">Analytics</button>
             <button class="btn" onclick="exportData()">Export</button>
             <button class="btn" onclick="importData()">Import</button>
             <button class="btn btn-primary" onclick="openCreateModal()">+ New Task</button>
@@ -220,6 +298,24 @@
     
     <div class="log-view" id="log-view"></div>
     
+    <div class="analytics-view" id="analytics-view">
+        <h3 style="margin-bottom:24px;color:var(--accent)">Project Analytics</h3>
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h4>Status Distribution</h4>
+                <canvas id="chart-status"></canvas>
+            </div>
+            <div class="chart-container">
+                <h4>Type Breakdown</h4>
+                <canvas id="chart-type"></canvas>
+            </div>
+            <div class="chart-container" style="grid-column: 1 / -1">
+                <h4>Completion Velocity (Tasks per Day)</h4>
+                <canvas id="chart-velocity"></canvas>
+            </div>
+        </div>
+    </div>
+    
     <!-- Task Modal -->
     <div class="modal-overlay" id="task-modal">
         <div class="modal">
@@ -264,8 +360,12 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="task-desc" placeholder="What needs to be done and why"></textarea>
+                    <div class="editor-header">
+                        <label>Description (Markdown)</label>
+                        <button class="btn btn-sm" onclick="togglePreview('task-desc', 'desc-preview', this)">Preview</button>
+                    </div>
+                    <textarea id="task-desc" placeholder="What needs to be done and why... Supports Markdown"></textarea>
+                    <div id="desc-preview" class="preview-pane"></div>
                 </div>
                 <div class="form-group">
                     <label>User Story</label>
@@ -354,6 +454,18 @@
         <kbd>n</kbd> New task &nbsp; <kbd>/</kbd> Search &nbsp; <kbd>Esc</kbd> Close
     </div>
 
+    <div class="drop-zone-overlay" id="drop-zone">
+        <h2>📂 Drop Markdown to Sync</h2>
+        <p>Supports docs/TODO.md and docs/USER_STORIES.md</p>
+    </div>
+
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" onclick="handleContextMenuAction('edit')">✏️ Edit</div>
+        <div class="context-menu-item" onclick="handleContextMenuAction('move-next')">➡️ Move Forward</div>
+        <div class="context-menu-item" onclick="handleContextMenuAction('done')">✅ Mark as Done</div>
+        <div class="context-menu-item" onclick="handleContextMenuAction('delete')" style="color:var(--accent-danger)">🗑️ Delete</div>
+    </div>
+
 <script>
 // State
 let tasks = JSON.parse(localStorage.getItem('pkgdrop-tasks') || '[]');
@@ -371,10 +483,10 @@ function init() {
 function loadDefaultTasks() {
     tasks = [
         {id:'T-001',title:'AUR Auto-Sync in GitHub Actions',status:'blocked',priority:'p0',type:'ci',desc:'SSH key works locally, fails in CI runner.',files:'.github/workflows/sync-aur.yml',estimate:'2h debug',steps:['SSH key confirmed: ssh -T aur@aur.archlinux.org','CI uses webfactory/ssh-agent@v0.10.0','Fails at git clone aur@aur.archlinux.org:pkgdrop.git','Debug: add ssh -v step','Fallback: manual push via push-aur.sh'],ac:[],subtasks:[],comments:[],story:'',dod:['CI passes','No security warnings'],dor:['Root cause identified','Reproduction steps documented'],qa:['Manual test on CI','Verify SSH key works'],dev:['Add verbose logging','Test locally with CI-like env']},
-        {id:'T-002',title:'Capitalize Display Names',status:'active',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:['Code reviewed','Tests pass'],dor:['humanize_name() exists','create_desktop_entry() identified'],qa:['Install zen.tar.xz','Check launcher shows "Zen"','Test unknown app capitalization'],dev:['Add mapping for zen','Add fallback capitalize','Update unit tests']},
-        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[],comments:[],story:'As a user, I want installs to work reliably',dod:['All scenarios pass','No regressions'],dor:['Test fixtures available','Clean environment ready'],qa:['Test .tar.xz install','Test AppImage install','Test uninstall cleanup','Verify no leftover files'],dev:['Create test script','Run each format','Document results']},
+        {id:'T-002',title:'Capitalize Display Names',status:'done',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:['Code reviewed','Tests pass'],dor:['humanize_name() exists','create_desktop_entry() identified'],qa:['Install zen.tar.xz','Check launcher shows "Zen"','Test unknown app capitalization'],dev:['Add mapping for zen','Add fallback capitalize','Update unit tests']},
+        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[{text:'Test .tar.xz install',done:true},{text:'Test uninstall',done:true},{text:'Fix argument parsing for --yes',done:true},{text:'Test AppImage',done:false}],comments:[{time:'2026-06-11 05:35',text:'tar.xz install/uninstall working. Fixed --yes flag parsing.'}],story:'As a user, I want installs to work reliably',dod:['All scenarios pass','No regressions'],dor:['Test fixtures available','Clean environment ready'],qa:['Test .tar.xz install','Test AppImage install','Test uninstall cleanup','Verify no leftover files'],dev:['Create test script','Run each format','Document results']},
         {id:'T-004',title:'Detect Category from Archive',status:'todo',priority:'p0',type:'feature',desc:'Extract Categories from .desktop inside archive.',files:'src/pkgdrop',estimate:'1h',steps:['After extraction, find *.desktop','Parse Categories= line','Also extract Comment=, GenericName=','Use in generated .desktop','Fallback to Utility'],ac:['Category auto-detected','Fallback works'],subtasks:[],comments:[],story:'As a user, I want apps in correct category',dod:['Code reviewed','Tests pass'],dor:['Desktop file parsing understood','Archive structure documented'],qa:['Test with categorized app','Test fallback','Verify .desktop format'],dev:['Add find_desktop_file()','Parse Categories field','Add fallback logic']},
-        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'todo',priority:'p0',type:'ci',desc:'All checks green on GitHub.',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[],comments:[],story:'As a dev, I want CI green',dod:['All checks green','No warnings'],dor:['Local checks pass','CI logs reviewed'],qa:['Verify CI status badge','Check all workflows','Review Dependabot PRs'],dev:['Fix shellcheck warnings','Run bats tests','Merge PRs #1, #2']},
+        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'done',priority:'p0',type:'ci',desc:'All checks green on GitHub.',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[{text:'Fix shellcheck warnings',done:true},{text:'Fix unit tests',done:true},{text:'Mock pacman for Ubuntu CI',done:true},{text:'Merge Dependabot PRs',done:false}],comments:[{time:'2026-06-11 05:40',text:'CI now passing. Fixed shellcheck warnings and unit test for unknown format.'}],story:'As a dev, I want CI green',dod:['All checks green','No warnings'],dor:['Local checks pass','CI logs reviewed'],qa:['Verify CI status badge','Check all workflows','Review Dependabot PRs'],dev:['Fix shellcheck warnings','Run bats tests','Merge PRs #1, #2']},
         {id:'T-006',title:'Progress Indicator',status:'todo',priority:'p1',type:'feature',desc:'Show extraction progress for large files.',files:'src/pkgdrop',estimate:'1h',steps:['Pre-count files','Extract with --verbose, count lines','Show progress bar'],ac:['Progress shown for files >10MB'],subtasks:[],comments:[],story:'As a user, I want to see progress',dod:['Works for large files','No performance impact'],dor:['Test with 100MB+ archive','Terminal width detection'],qa:['Test with large archive','Verify progress updates','Test on slow disk'],dev:['Add file count','Parse tar output','Update display']},
         {id:'T-007',title:'Handle Nested Archives',status:'todo',priority:'p1',type:'bug',desc:'Some tar.xz contain tar.xz inside.',files:'src/pkgdrop',estimate:'1h',steps:['Check for single dir after extract','Extract inner tar, flatten'],ac:['Nested archives work'],subtasks:[],comments:[],story:'As a user, I want nested archives to work',dod:['Nested archives handled','No data loss'],dor:['Test case available','Archive structure documented'],qa:['Test nested tar.xz','Verify extraction','Check file integrity'],dev:['Add nested detection','Add inner extraction','Flatten directory structure']},
         {id:'T-008',title:'Verbose Mode',status:'todo',priority:'p2',type:'feature',desc:'--verbose shows each step.',files:'src/pkgdrop',estimate:'30min',steps:['Add verb calls before operations','Show size, extraction, binary, icon, desktop'],ac:['--verbose shows detailed output'],subtasks:[],comments:[],story:'As a user, I want to see what happens',dod:['Output is readable','No sensitive data'],dor:['Verb function exists','Output format decided'],qa:['Test --verbose flag','Verify all steps shown','Check output format'],dev:['Add verb calls','Format output','Add to help text']},
