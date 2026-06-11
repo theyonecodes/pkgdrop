@@ -477,6 +477,15 @@ detect_category_from_archive() {
             echo "$categories"
             return 0
         fi
+        
+        # Fallback: detect from MimeType
+        local mimetype
+        mimetype=$(grep -E "^MimeType=" "$desktop_file" 2>/dev/null | head -1 | sed 's/^MimeType=//')
+        if [[ "$mimetype" == *"text/html"* ]] || [[ "$mimetype" == *"x-scheme-handler/http"* ]]; then
+            verb "Detected browser from MimeType"
+            echo "Network"
+            return 0
+        fi
     fi
     echo "Utility"
 }
