@@ -8,6 +8,15 @@ setup() {
     mkdir -p "$BATS_TEST_TMPDIR/bin" "$BATS_TEST_TMPDIR/opt" "$BATS_TEST_TMPDIR/.config/pkgdrop"
     cp "${BATS_TEST_DIRNAME}/../src/pkgdrop" "$BATS_TEST_TMPDIR/bin/pkgdrop"
     chmod +x "$BATS_TEST_TMPDIR/bin/pkgdrop"
+    # Mock pacman for systems that don't have it (like Ubuntu CI)
+    if ! command -v pacman &>/dev/null; then
+        cat > "$BATS_TEST_TMPDIR/bin/pacman" << 'MOCK'
+#!/bin/bash
+# Mock pacman - just make it exist for dependency checks
+exit 1
+MOCK
+        chmod +x "$BATS_TEST_TMPDIR/bin/pacman"
+    fi
 }
 
 @test "show help" {
