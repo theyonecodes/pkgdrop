@@ -2,7 +2,10 @@
 # push-aur.sh - Push pkgdrop updates to AUR
 set -e
 
-VERSION=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_SCRIPT="$SCRIPT_DIR/src/pkgdrop"
+
+VERSION=$(grep '^VERSION=' "$SRC_SCRIPT" | cut -d'"' -f2)
 echo "Pushing pkgdrop $VERSION to AUR..."
 
 # Check if AUR clone exists
@@ -22,12 +25,12 @@ sed -i "s/pkgver = .*/pkgver = $VERSION/" .SRCINFO
 sed -i "s/pkgrel = .*/pkgrel = 1/" .SRCINFO
 
 # Update checksum
-newsum=$(sha256sum src/pkgdrop | awk '{print $1}')
+newsum=$(sha256sum "$SRC_SCRIPT" | awk '{print $1}')
 sed -i "s/sha256sums=.*/sha256sums=('$newsum')/" PKGBUILD
 sed -i "s/sha256sum = .*/sha256sum = $newsum/" .SRCINFO
 
 # Copy updated script
-cp src/pkgdrop pkgdrop
+cp "$SRC_SCRIPT" pkgdrop
 
 # Commit and push
 git add -A
