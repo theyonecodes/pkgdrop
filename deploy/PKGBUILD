@@ -1,6 +1,6 @@
 # Maintainer: theyonecodes <theyonecodes@gmail.com>
 pkgname=pkgdrop
-pkgver=2.0.0
+pkgver=3.0.0
 pkgrel=1
 pkgdesc="Universal package installer for Arch Linux"
 arch=('any')
@@ -9,7 +9,10 @@ license=('MIT')
 depends=('bash')
 optdepends=('pacman: for .pkg.tar.* packages'
             'debtap: for .deb packages'
-            'alien: for .rpm packages')
+            'alien: for .rpm packages'
+            'jq: for package registry and version tracking'
+            'bubblewrap: for sandbox extraction'
+            'firejail: for sandbox extraction (alternative to bubblewrap)')
 install=pkgdrop.install
 source=("pkgdrop::https://raw.githubusercontent.com/theyonecodes/pkgdrop/main/src/pkgdrop")
 sha256sums=('SKIP')
