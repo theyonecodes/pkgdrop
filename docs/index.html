@@ -1,1162 +1,1234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pkgdrop - Sprint Board</title>
-    <!-- Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg-body: #0d1117;
-            --bg-header: rgba(22, 27, 34, 0.8);
-            --bg-card: #161b22;
-            --bg-modal: #161b22;
-            --border-color: #30363d;
-            --text-main: #c9d1d9;
-            --text-dim: #8b949e;
-            --accent: #58a6ff;
-            --accent-success: #238636;
-            --accent-success-hover: #2ea043;
-            --accent-danger: #da3633;
-            --accent-danger-hover: #f85149;
-            --accent-warning: #d29922;
-            --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            --glass-bg: rgba(22, 27, 34, 0.7);
-            --glass-blur: blur(12px);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pkgdrop PM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --g1: 4px; --g2: 8px; --g3: 12px; --g4: 16px; --g5: 20px; --g6: 24px; --g8: 32px;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --surface-0: #0b0e14; --surface-1: #111620; --surface-2: #171c28; --surface-3: #1e2433;
+    --surface-4: #272e40; --border: rgba(255,255,255,0.10);
+    --text-primary: #eef1f6; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+    --accent: #3b82f6; --accent-dim: rgba(59,130,246,0.14); --accent-glow: rgba(59,130,246,0.28);
+    --green: #22c55e; --green-dim: rgba(34,197,94,0.14);
+    --yellow: #eab308; --yellow-dim: rgba(234,179,8,0.14);
+    --red: #ef4444; --red-dim: rgba(239,68,68,0.14);
+    --purple: #a855f7; --purple-dim: rgba(168,85,247,0.14);
+    --cyan: #06b6d4; --cyan-dim: rgba(6,182,212,0.14);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --sidebar-w: 232px; --topbar-h: 52px;
+}
+.light {
+    --surface-0: #f1f3f7; --surface-1: #ffffff; --surface-2: #f8f9fb; --surface-3: #eef0f4;
+    --surface-4: #dde1e8; --border: rgba(0,0,0,0.08);
+    --text-primary: #0f172a; --text-secondary: #475569; --text-tertiary: #94a3b8;
+    --accent: #2563eb; --accent-dim: rgba(37,99,235,0.08); --accent-glow: rgba(37,99,235,0.18);
+    --green: #16a34a; --green-dim: rgba(22,163,74,0.08);
+    --yellow: #ca8a04; --yellow-dim: rgba(202,138,4,0.08);
+    --red: #dc2626; --red-dim: rgba(220,38,38,0.08);
+    --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.08);
+    --cyan: #0891b2; --cyan-dim: rgba(8,145,178,0.08);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+body { font-family: var(--font); background: var(--surface-0); color: var(--text-primary); height: 100vh; overflow: hidden; font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.app { display: flex; height: 100vh; }
 
-        body.light-mode {
-            --bg-body: #f6f8fa;
-            --bg-header: rgba(255, 255, 255, 0.8);
-            --bg-card: #ffffff;
-            --bg-modal: #ffffff;
-            --border-color: #d0d7de;
-            --text-main: #1f2328;
-            --text-dim: #656d76;
-            --accent: #0969da;
-            --accent-success: #1f883d;
-            --accent-success-hover: #1a7f37;
-            --accent-danger: #cf222e;
-            --accent-danger-hover: #a40e26;
-            --accent-warning: #9a6700;
-            --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-        }
+.sidebar { width: var(--sidebar-w); background: var(--surface-1); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: var(--g4) var(--g3); flex-shrink: 0; }
+.brand { display: flex; align-items: center; gap: var(--g2); padding: var(--g2) var(--g3); margin-bottom: var(--g8); }
+.brand-mark { width: 28px; height: 28px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: #fff; }
+.brand-name { font-weight: 700; font-size: 14px; color: var(--text-primary); letter-spacing: -0.2px; }
+.nav-group { margin-bottom: var(--g5); }
+.nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-tertiary); padding: 0 var(--g3); margin-bottom: 6px; }
+.nav-item { padding: 7px var(--g3); border-radius: var(--r-sm); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-secondary); transition: all 0.15s var(--ease); margin-bottom: 1px; display: flex; align-items: center; gap: var(--g2); }
+.nav-item:hover { background: var(--accent-dim); color: var(--text-primary); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.nav-item svg { width: 15px; height: 15px; opacity: 0.6; flex-shrink: 0; }
+.nav-item.active svg { opacity: 1; }
+.nav-spacer { flex: 1; }
+.nav-item.danger { color: var(--red); }
+.nav-item.danger:hover { background: var(--red-dim); }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; transition: background 0.3s, color 0.3s; }
-        
-        /* Header */
-        .header { background: var(--bg-header); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-bottom: 1px solid var(--border-color); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header h1 { color: var(--accent); font-size: 1.4em; display: flex; align-items: center; gap: 8px; }
-        .header h1 span { font-size: 0.6em; color: var(--text-dim); font-weight: normal; }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
-        
-        .btn { padding: 6px 14px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-main); cursor: pointer; font-size: 0.85em; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
-        .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
-        .btn-primary { background: var(--accent-success); border-color: var(--accent-success); color: white; }
-        .btn-primary:hover { background: var(--accent-success-hover); }
-        .btn-danger { background: var(--accent-danger); border-color: var(--accent-danger); color: white; }
-        .btn-danger:hover { background: var(--accent-danger-hover); }
-        .btn-sm { padding: 4px 10px; font-size: 0.75em; }
-        .btn-icon { width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        
-        /* Sprint Stats Bar */
-        .sprint-bar { display: flex; gap: 16px; padding: 10px 24px; background: var(--bg-header); border-bottom: 1px solid var(--border-color); align-items: center; flex-wrap: wrap; }
-        .sprint-stat { text-align: center; min-width: 50px; }
-        .sprint-stat .num { font-size: 1.3em; font-weight: bold; }
-        .sprint-stat .label { font-size: 0.7em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-        .progress-bar { flex: 1; min-width: 150px; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-success), #3fb950); transition: width 0.3s; border-radius: 4px; }
-        .progress-text { color: var(--text-dim); font-size: 0.8em; min-width: 40px; text-align: right; }
-        
-        /* Filters */
-        .filters { padding: 10px 24px; background: var(--bg-body); border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .filter-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-main); font-size: 0.85em; min-width: 200px; transition: border-color 0.2s; }
-        .filter-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1); }
-        .filter-group { display: flex; gap: 4px; margin-left: 12px; }
-        .filter-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75em; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.15s; background: var(--bg-card); }
-        .filter-tag:hover, .filter-tag.active { border-color: var(--accent); color: var(--accent); }
-        .filter-tag.active { background: rgba(88, 166, 255, 0.1); border-color: var(--accent); }
-        
-        /* Board Layout */
-        .board-container { display: flex; gap: 16px; padding: 16px 24px; overflow-x: auto; min-height: calc(100vh - 180px); align-items: flex-start; }
-        .column { min-width: 300px; max-width: 350px; flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.02); border-radius: 12px; padding: 8px; }
-        body.light-mode .column { background: rgba(0,0,0,0.03); }
-        .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 4px; border-bottom: 2px solid transparent; }
-        .column-header h3 { font-size: 0.9em; display: flex; align-items: center; gap: 8px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
-        .column-count { background: var(--border-color); color: var(--text-dim); padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 600; }
-        .column-body { flex: 1; min-height: 200px; padding: 4px; border-radius: 8px; transition: background 0.2s; }
-        .column-body.drag-over { background: rgba(88, 166, 255, 0.05); outline: 2px dashed var(--accent); }
-        
-        /* Task Cards */
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px; margin-bottom: 12px; cursor: grab; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; box-shadow: var(--card-shadow); }
-        .card:hover { border-color: var(--accent); transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-        .card.dragging { opacity: 0.5; transform: scale(0.95); }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .card-id { color: var(--accent); font-size: 0.7em; font-weight: 700; font-family: monospace; }
-        .card-title { font-weight: 600; font-size: 0.95em; margin-bottom: 6px; line-height: 1.4; color: var(--text-main); }
-        .card-desc { color: var(--text-dim); font-size: 0.8em; margin-bottom: 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-meta { display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.7em; margin-top: 10px; }
-        .card-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; border: 1px solid transparent; }
-        .tag-p0 { background: rgba(218, 54, 51, 0.15); color: #f85149; border-color: rgba(218, 54, 51, 0.2); }
-        .tag-p1 { background: rgba(210, 153, 34, 0.15); color: var(--accent-warning); border-color: rgba(210, 153, 34, 0.2); }
-        .tag-p2 { background: var(--border-color); color: var(--text-dim); }
-        .tag-feature { background: rgba(35, 134, 54, 0.15); color: #3fb950; border-color: rgba(35, 134, 54, 0.2); }
-        .tag-bug { background: rgba(210, 153, 34, 0.15); color: var(--accent-warning); border-color: rgba(210, 153, 34, 0.2); }
-        .tag-security { background: rgba(218, 54, 51, 0.15); color: #f85149; border-color: rgba(218, 54, 51, 0.2); }
-        .tag-ci { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border-color: rgba(139, 92, 246, 0.2); }
-        .tag-docs { background: rgba(88, 166, 255, 0.15); color: var(--accent); border-color: rgba(88, 166, 255, 0.2); }
-        
-        .card-actions { position: absolute; top: 10px; right: 10px; display: none; gap: 4px; z-index: 5; }
-        .card:hover .card-actions { display: flex; }
-        .card-action { width: 28px; height: 28px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-dim); cursor: pointer; font-size: 0.8em; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .card-action:hover { border-color: var(--accent); color: var(--accent); background: rgba(88, 166, 255, 0.1); }
-        
-        /* Checklist Progress on Card */
-        .card-progress { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-color); }
-        .card-progress-bar { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
-        .card-progress-fill { height: 100%; background: var(--accent-success); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-progress-text { font-size: 0.65em; color: var(--text-dim); margin-top: 4px; display: flex; justify-content: space-between; font-weight: 600; }
-        
-        /* User Story Badge */
-        .story-badge { background: rgba(88, 166, 255, 0.08); border: 1px solid rgba(88, 166, 255, 0.2); border-radius: 6px; padding: 6px 10px; margin-top: 8px; font-size: 0.75em; color: var(--accent); font-style: italic; line-height: 1.4; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease-out; }
-        .modal-overlay.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .modal { background: var(--bg-modal); border: 1px solid var(--border-color); border-radius: 16px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.5); display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.2s; }
-        .modal-overlay.active .modal { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-modal); z-index: 10; }
-        .modal-header h2 { font-size: 1.2em; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
-        .modal-close { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.8em; padding: 0 8px; border-radius: 8px; line-height: 1; }
-        .modal-close:hover { color: var(--text-main); background: var(--border-color); }
-        .modal-body { padding: 24px; flex: 1; }
-        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; background: var(--bg-modal); }
-        
-        /* Forms */
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 0.85em; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-body); color: var(--text-main); font-size: 0.9em; font-family: inherit; transition: all 0.2s; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1); }
-        .form-group textarea { min-height: 120px; resize: vertical; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-        
-        /* Markdown Preview Toggle */
-        .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .preview-pane { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; min-height: 120px; display: none; overflow-y: auto; }
-        .preview-pane.active { display: block; }
-        .preview-pane h1, .preview-pane h2, .preview-pane h3 { margin: 16px 0 8px; color: var(--accent); }
-        .preview-pane p { margin-bottom: 8px; line-height: 1.6; }
-        .preview-pane ul, .preview-pane ol { margin: 8px 0 16px 20px; }
-        .preview-pane code { background: var(--border-color); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
-        
-        /* Checklist Sections in Modal */
-        .checklist-section { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid var(--border-color); }
-        body.light-mode .checklist-section { background: rgba(0,0,0,0.01); }
-        .checklist-section h4 { font-size: 0.85em; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; font-size: 0.9em; border-radius: 6px; transition: background 0.15s; }
-        .checklist-item:hover { background: var(--border-color); }
-        .checklist-item input[type="checkbox"] { accent-color: var(--accent-success); width: 18px; height: 18px; cursor: pointer; }
-        .checklist-item.done { color: var(--text-dim); text-decoration: line-through; opacity: 0.7; }
-        .checklist-progress { margin-top: 10px; display: flex; align-items: center; gap: 10px; }
-        .checklist-progress-bar { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
-        .checklist-progress-fill { height: 100%; background: var(--accent-success); transition: width 0.3s; }
-        .checklist-progress-text { font-size: 0.75em; color: var(--text-dim); font-weight: 600; }
-        
-        /* Steps Section */
-        .steps-section { margin-top: 12px; }
-        .step-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
-        .step-item input { flex: 1; }
-        .step-num { color: var(--accent); font-size: 0.9em; min-width: 24px; font-weight: 700; }
-        .step-remove { background: none; border: none; color: var(--accent-danger); cursor: pointer; font-size: 1.1em; padding: 4px; border-radius: 4px; transition: background 0.2s; }
-        .step-remove:hover { background: rgba(218, 54, 51, 0.1); }
-        
-        /* Comments */
-        .comment { background: var(--bg-body); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px 16px; margin-top: 10px; border-left: 4px solid var(--accent); }
-        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .comment-time { color: var(--text-dim); font-size: 0.75em; font-weight: 600; }
-        .comment-text { font-size: 0.9em; line-height: 1.5; color: var(--text-main); }
-        
-        /* Log View */
-        .log-view { display: none; padding: 24px; max-height: calc(100vh - 180px); overflow-y: auto; animation: slideUp 0.3s ease-out; }
-        .log-view.active { display: block; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .log-entry { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; font-size: 0.9em; border-left: 5px solid var(--accent); box-shadow: var(--card-shadow); }
-        .log-entry.created { border-left-color: var(--accent-success); }
-        .log-entry.moved { border-left-color: var(--accent-warning); }
-        .log-entry.updated { border-left-color: var(--accent); }
-        .log-entry.deleted { border-left-color: var(--accent-danger); }
-        .log-time { color: var(--text-dim); font-size: 0.8em; margin-right: 12px; font-family: monospace; }
-        .log-action { font-weight: 600; }
-        .log-files { color: var(--accent); font-size: 0.8em; margin-top: 6px; font-weight: 500; }
-        
-        /* Analytics View */
-        .analytics-view { display: none; padding: 24px; animation: slideUp 0.3s ease-out; }
-        .analytics-view.active { display: block; }
-        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; }
-        .chart-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; box-shadow: var(--card-shadow); }
-        .chart-container h4 { margin-bottom: 20px; font-size: 1em; color: var(--text-main); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* Toast */
-        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--accent-success); color: white; padding: 14px 24px; border-radius: 12px; font-size: 0.9em; z-index: 2000; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 12px 32px rgba(0,0,0,0.4); font-weight: 600; }
-        .toast.show { transform: translateY(0); opacity: 1; }
-        .toast.error { background: var(--accent-danger); }
-        
-        /* Shortcuts Help */
-        .shortcuts { position: fixed; bottom: 24px; left: 24px; background: var(--bg-header); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 16px; font-size: 0.8em; color: var(--text-dim); z-index: 50; box-shadow: var(--card-shadow); }
-        .shortcuts kbd { background: var(--border-color); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.95em; color: var(--text-main); margin: 0 2px; }
-        
-        /* Drop Zone */
-        .drop-zone-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(88, 166, 255, 0.2); backdrop-filter: blur(8px); z-index: 3000; border: 4px dashed var(--accent); justify-content: center; align-items: center; flex-direction: column; color: var(--accent); pointer-events: none; }
-        .drop-zone-overlay.active { display: flex; }
-        .drop-zone-overlay h2 { font-size: 2em; margin-bottom: 10px; }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: var(--bg-body); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 5px; border: 2px solid var(--bg-body); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.topbar { padding: 0 var(--g5); height: var(--topbar-h); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--surface-1); }
+.search-box { position: relative; width: 300px; }
+.search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-tertiary); pointer-events: none; }
+.search { width: 100%; padding: 7px 10px 7px 32px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text-primary); font-size: 12px; font-family: var(--font); transition: border-color 0.15s var(--ease); }
+.search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.search::placeholder { color: var(--text-tertiary); }
+.top-actions { display: flex; align-items: center; gap: var(--g2); }
 
-        /* Context Menu */
-        .context-menu { position: fixed; background: var(--bg-modal); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 2500; padding: 6px 0; min-width: 160px; display: none; }
-        .context-menu-item { padding: 8px 16px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
-        .context-menu-item:hover { background: var(--border-color); color: var(--accent); }
-    </style>
+.view-area { flex: 1; overflow-y: auto; padding: var(--g4) var(--g5); scroll-behavior: smooth; }
+.view { display: none; animation: fadeUp 0.25s var(--ease); }
+.view.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.btn { padding: 7px 14px; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary); font-size: 12px; font-weight: 500; font-family: var(--font); cursor: pointer; transition: all 0.15s var(--ease); display: inline-flex; align-items: center; gap: var(--g2); }
+.btn:hover { background: var(--surface-3); border-color: rgba(255,255,255,0.15); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { filter: brightness(1.1); background: var(--accent); }
+.btn-ghost { border: none; background: none; color: var(--text-secondary); }
+.btn-ghost:hover { color: var(--text-primary); background: var(--accent-dim); }
+.btn-danger { border-color: var(--red); color: var(--red); }
+.btn-danger:hover { background: var(--red-dim); }
+
+.input { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface-2); color: var(--text-primary); font-size: 12px; font-family: var(--font); width: 100%; transition: border-color 0.15s var(--ease); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+textarea.input { min-height: 60px; resize: vertical; }
+label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+
+.tag { padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.tag-p0 { background: var(--red-dim); color: var(--red); }
+.tag-p1 { background: var(--yellow-dim); color: var(--yellow); }
+.tag-p2 { background: var(--green-dim); color: var(--green); }
+.tag-epic { background: var(--purple-dim); color: var(--purple); }
+.tag-required { background: var(--red-dim); color: var(--red); }
+.tag-optional { background: var(--yellow-dim); color: var(--yellow); }
+.tag-auto { background: var(--cyan-dim); color: var(--cyan); }
+
+.board { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--g3); min-height: 400px; }
+.col { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--g3); display: flex; flex-direction: column; }
+.col-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--g3); padding-bottom: var(--g2); border-bottom: 1px solid var(--border); }
+.col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-tertiary); }
+.col-count { font-size: 10px; font-weight: 700; color: var(--text-tertiary); background: var(--surface-3); padding: 1px 7px; border-radius: 99px; }
+.cards { display: flex; flex-direction: column; gap: 6px; min-height: 60px; padding: 2px; border-radius: var(--r-sm); transition: background 0.2s; }
+.cards.over { background: var(--accent-dim); outline: 1.5px dashed rgba(96,165,250,0.3); outline-offset: -2px; }
+.card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--g3); cursor: grab; transition: all 0.2s var(--ease); }
+.card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.card:active { cursor: grabbing; transform: scale(0.98); }
+.card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.card.done { opacity: 0.45; }
+.card.done:hover { opacity: 1; }
+.card.overdue { border-color: rgba(239,68,68,0.3); }
+.card.overdue:hover { border-color: rgba(239,68,68,0.5); box-shadow: var(--shadow-md); }
+.card-id { font-size: 10px; font-weight: 600; color: var(--accent); font-family: 'SF Mono', 'Fira Code', monospace; margin-bottom: 3px; letter-spacing: 0.3px; }
+.card-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--g2); line-height: 1.4; }
+.card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: var(--g2); align-items: center; }
+.card-foot { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-tertiary); margin-top: var(--g2); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 8px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; }
+th:hover { color: var(--text-primary); }
+td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+tr:hover td { background: var(--surface-2); }
+tr { cursor: pointer; }
+
+.gantt { position: relative; }
+.gantt-row { display: flex; align-items: center; height: 36px; border-bottom: 1px solid var(--border); }
+.gantt-label { width: 180px; flex-shrink: 0; padding-right: var(--g3); font-size: 11px; font-weight: 500; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gantt-track { flex: 1; position: relative; height: 100%; }
+.gantt-bar { position: absolute; height: 20px; top: 8px; border-radius: 4px; background: var(--accent); font-size: 9px; color: #fff; padding: 0 6px; display: flex; align-items: center; cursor: move; z-index: 6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; box-shadow: var(--shadow-sm); transition: filter 0.15s; }
+.gantt-bar:hover { filter: brightness(1.15); box-shadow: var(--shadow-md); }
+.gantt-bar.epic-bar { background: var(--purple); height: 6px; top: 15px; cursor: default; }
+.gantt-header { display: flex; border-bottom: 1px solid var(--border); padding-bottom: var(--g2); margin-bottom: var(--g2); }
+.gantt-header-cell { flex: 1; text-align: center; font-size: 10px; font-weight: 600; color: var(--text-tertiary); }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--red); z-index: 5; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+.cal-head { padding: 6px; text-align: center; font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; background: var(--surface-1); }
+.cal-day { min-height: 80px; padding: 4px 6px; background: var(--surface-0); font-size: 10px; color: var(--text-tertiary); }
+.cal-day.today { background: var(--accent-dim); }
+.cal-day-num { font-weight: 600; margin-bottom: 2px; }
+.cal-task { padding: 1px 4px; border-radius: 3px; font-size: 9px; margin-top: 1px; cursor: pointer; background: var(--accent-dim); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-task.due { background: var(--yellow-dim); color: var(--yellow); }
+
+.epic-block { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: var(--g3); overflow: hidden; }
+.epic-hdr { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--purple-dim); }
+.epic-hdr strong { font-size: 12px; color: var(--purple); }
+.feat-block { margin-left: var(--g4); padding: 8px 14px; border-left: 2px solid var(--border); margin-top: 4px; }
+.feat-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.feat-hdr strong { font-size: 12px; color: var(--text-primary); }
+.story-row { padding: 6px 10px; background: var(--surface-0); border: 1px solid var(--border); border-radius: var(--r-sm); margin-bottom: 4px; font-size: 11px; color: var(--text-secondary); transition: background 0.15s var(--ease); }
+.story-row:hover { background: var(--surface-2); border-color: rgba(255,255,255,0.1); }
+.story-row .crit { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; font-style: italic; line-height: 1.4; }
+
+.analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--g4); }
+.stat-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--g4); }
+.stat-card h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-bottom: var(--g3); }
+.stat-num { font-size: 32px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: var(--g1); }
+.chart-container { position: relative; height: 200px; }
+
+.progress-bar { width: 100%; height: 4px; background: var(--surface-4); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s var(--ease); }
+.progress-fill.warn { background: var(--yellow); }
+.progress-fill.danger { background: var(--red); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-xl); width: 100%; max-width: 660px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 24px 48px rgba(0,0,0,0.4); animation: modalIn 0.2s var(--ease-spring); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-head { padding: var(--g4) var(--g5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-head h3 { font-size: 15px; font-weight: 700; }
+.modal-close { background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 18px; padding: 4px; }
+.modal-close:hover { color: var(--text-primary); }
+.modal-body { padding: var(--g4) var(--g5); overflow-y: auto; flex: 1; }
+.modal-foot { padding: var(--g3) var(--g5); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: var(--g2); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--g3); margin-bottom: var(--g3); }
+.form-group { margin-bottom: var(--g3); }
+
+.log-list { display: flex; flex-direction: column; gap: 2px; }
+.log-item { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: var(--r-sm); font-size: 12px; color: var(--text-secondary); }
+.log-item:hover { background: var(--surface-2); }
+.log-time { color: var(--text-tertiary); font-size: 10px; font-family: monospace; }
+
+.toast { position: fixed; bottom: var(--g4); left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface-3); color: var(--text-primary); padding: 10px 20px; border-radius: var(--r-md); font-size: 12px; font-weight: 500; font-family: var(--font); border: 1px solid var(--border); transition: all 0.3s var(--ease-spring); z-index: 2000; box-shadow: var(--shadow-md); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.toast.error { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+.dor-dod-banner { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--g4); margin-bottom: var(--g4); }
+.dor-dod-banner h3 { font-size: 16px; font-weight: 700; margin-bottom: var(--g1); }
+.dor-dod-banner p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.checklist-progress-ring { display: flex; align-items: center; gap: var(--g4); margin-bottom: var(--g4); }
+.ring-wrap { position: relative; width: 56px; height: 56px; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--surface-4); stroke-width: 4; }
+.ring-fg { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.5s var(--ease); }
+.ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.ring-label strong { display: block; font-size: 13px; }
+.ring-label span { font-size: 11px; color: var(--text-tertiary); }
+.checklist-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.checklist-card-head { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.checklist-card-head h4 { font-size: 12px; font-weight: 700; }
+.checklist-card-body { padding: var(--g3); }
+.cl-item { display: flex; align-items: center; gap: var(--g2); padding: 8px 10px; border-radius: var(--r-sm); cursor: pointer; transition: background 0.1s; }
+.cl-item:hover { background: var(--surface-2); }
+.cl-item.checked { opacity: 0.5; }
+.cl-item.checked .cl-text { text-decoration: line-through; }
+.cl-text { flex: 1; font-size: 12px; color: var(--text-primary); }
+.cl-tag { font-size: 9px; font-weight: 600; text-transform: uppercase; padding: 1px 6px; border-radius: 99px; }
+.add-cl-form { display: flex; gap: var(--g2); margin-top: var(--g3); padding-top: var(--g3); border-top: 1px solid var(--border); }
+.add-cl-form .input { flex: 1; }
+
+.sprint-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--g3); margin-bottom: var(--g4); }
+.sprint-stat { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--g3); text-align: center; }
+.sprint-stat .num { font-size: 24px; font-weight: 700; }
+.sprint-stat .lbl { font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.cmd-palette { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: flex-start; justify-content: center; padding-top: 120px; backdrop-filter: blur(4px); }
+.cmd-palette.active { display: flex; }
+.cmd-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-xl); width: 520px; max-height: 400px; overflow: hidden; box-shadow: 0 24px 48px rgba(0,0,0,0.5); animation: modalIn 0.15s var(--ease-spring); }
+.cmd-input { width: 100%; padding: 14px 18px; border: none; border-bottom: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: 15px; font-family: var(--font); }
+.cmd-input:focus { outline: none; }
+.cmd-input::placeholder { color: var(--text-tertiary); }
+.cmd-results { max-height: 340px; overflow-y: auto; padding: var(--g2); }
+.cmd-item { padding: 8px 12px; border-radius: var(--r-sm); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-secondary); }
+.cmd-item:hover, .cmd-item.active { background: var(--accent-dim); color: var(--text-primary); }
+.cmd-item .cmd-key { font-size: 10px; color: var(--text-tertiary); font-family: monospace; background: var(--surface-3); padding: 1px 6px; border-radius: 3px; }
+.cmd-item .cmd-label { font-size: 10px; color: var(--text-tertiary); }
+
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-tertiary); font-size: 12px; border: 1.5px dashed var(--border); border-radius: var(--r-md); }
+
+@media (max-width: 768px) {
+    .sidebar { display: none; }
+    .board { grid-template-columns: 1fr; }
+    .sprint-stats { grid-template-columns: repeat(2, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>pkgdrop Sprint Board <span>v3.0.0</span></h1>
-        <div class="header-actions">
-            <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle Theme" id="theme-btn">🌓</button>
-            <button class="btn" onclick="showView('board')">Board</button>
-            <button class="btn" onclick="showView('log')">Work Log</button>
-            <button class="btn" onclick="showView('analytics')">Analytics</button>
-            <button class="btn" onclick="exportData()">Export</button>
-            <button class="btn" onclick="importData()">Import</button>
-            <button class="btn btn-primary" onclick="openCreateModal()">+ New Task</button>
+<div class="app">
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">P</div>
+            <div class="brand-name">pkgdrop PM</div>
         </div>
-    </div>
-    
-    <div class="sprint-bar">
-        <div class="sprint-stat"><div class="num" style="color:var(--accent-success)" id="stat-done">0</div><div class="label">Done</div></div>
-        <div class="sprint-stat"><div class="num" style="color:var(--accent-warning)" id="stat-active">0</div><div class="label">Active</div></div>
-        <div class="sprint-stat"><div class="num" id="stat-todo">0</div><div class="label">Todo</div></div>
-        <div class="sprint-stat"><div class="num" style="color:var(--accent-danger)" id="stat-blocked">0</div><div class="label">Blocked</div></div>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-        <div class="progress-text" id="progress-text">0%</div>
-        <button class="btn btn-danger btn-sm" onclick="resetBoard()">Reset</button>
-    </div>
-    
-    <div class="filters">
-        <input type="text" class="filter-input" placeholder="Search tasks... (press /)" id="search-input" oninput="filterTasks()">
-        <div class="filter-group">
-            <span class="filter-tag active" onclick="toggleFilter(this, 'all')">All</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'p0')">P0</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'p1')">P1</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'p2')">P2</span>
-        </div>
-        <div class="filter-group">
-            <span class="filter-tag" onclick="toggleFilter(this, 'feature')">Feature</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'bug')">Bug</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'security')">Security</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'ci')">CI</span>
-            <span class="filter-tag" onclick="toggleFilter(this, 'docs')">Docs</span>
-        </div>
-    </div>
-    
-    <div class="board-container" id="board-view">
-        <div class="column" data-status="blocked">
-            <div class="column-header" style="border-color:var(--accent-danger)"><h3 style="color:var(--accent-danger)">Blocked</h3><span class="column-count" id="count-blocked">0</span></div>
-            <div class="column-body" id="col-blocked"></div>
-        </div>
-        <div class="column" data-status="todo">
-            <div class="column-header" style="border-color:var(--text-dim)"><h3>Todo</h3><span class="column-count" id="count-todo">0</span></div>
-            <div class="column-body" id="col-todo"></div>
-        </div>
-        <div class="column" data-status="active">
-            <div class="column-header" style="border-color:var(--accent-warning)"><h3 style="color:var(--accent-warning)">Active</h3><span class="column-count" id="count-active">0</span></div>
-            <div class="column-body" id="col-active"></div>
-        </div>
-        <div class="column" data-status="review">
-            <div class="column-header" style="border-color:#8b5cf6"><h3 style="color:#8b5cf6">Review</h3><span class="column-count" id="count-review">0</span></div>
-            <div class="column-body" id="col-review"></div>
-        </div>
-        <div class="column" data-status="done">
-            <div class="column-header" style="border-color:var(--accent-success)"><h3 style="color:var(--accent-success)">Done</h3><span class="column-count" id="count-done">0</span></div>
-            <div class="column-body" id="col-done"></div>
-        </div>
-    </div>
-    
-    <div class="log-view" id="log-view"></div>
-    
-    <div class="analytics-view" id="analytics-view">
-        <h3 style="margin-bottom:24px;color:var(--accent)">Project Analytics</h3>
-        <div class="charts-grid">
-            <div class="chart-container">
-                <h4>Status Distribution</h4>
-                <canvas id="chart-status"></canvas>
+        <div class="nav-group">
+            <div class="nav-label">Views</div>
+            <div class="nav-item active" id="nav-board" onclick="UI.go('board')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Board
             </div>
-            <div class="chart-container">
-                <h4>Type Breakdown</h4>
-                <canvas id="chart-type"></canvas>
+            <div class="nav-item" id="nav-roadmap" onclick="UI.go('roadmap')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+                Roadmap
             </div>
-            <div class="chart-container" style="grid-column: 1 / -1">
-                <h4>Completion Velocity (Tasks per Day)</h4>
-                <canvas id="chart-velocity"></canvas>
+            <div class="nav-item" id="nav-calendar" onclick="UI.go('calendar')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                Calendar
+            </div>
+            <div class="nav-item" id="nav-table" onclick="UI.go('table')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="6" cy="6" r="0" fill="currentColor"/></svg>
+                Table
+            </div>
+            <div class="nav-item" id="nav-backlog" onclick="UI.go('backlog')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                Backlog
+            </div>
+            <div class="nav-item" id="nav-analytics" onclick="UI.go('analytics')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                Analytics
             </div>
         </div>
-    </div>
-    
-    <!-- Task Modal -->
-    <div class="modal-overlay" id="task-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="modal-title">New Task</h2>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="nav-group">
+            <div class="nav-label">Framework</div>
+            <div class="nav-item" id="nav-sprint" onclick="UI.go('sprint')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8"/></svg>
+                Sprints
             </div>
-            <div class="modal-body">
-                <input type="hidden" id="task-id">
-                <div class="form-group">
-                    <label>Title *</label>
-                    <input type="text" id="task-title" placeholder="Task title">
-                </div>
-                <div class="form-row-3">
-                    <div class="form-group">
-                        <label>Priority</label>
-                        <select id="task-priority">
-                            <option value="p0">P0 - Critical</option>
-                            <option value="p1" selected>P1 - High</option>
-                            <option value="p2">P2 - Medium</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Type</label>
-                        <select id="task-type">
-                            <option value="feature">Feature</option>
-                            <option value="bug">Bug</option>
-                            <option value="security">Security</option>
-                            <option value="ci">CI/CD</option>
-                            <option value="docs">Documentation</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="task-status">
-                            <option value="todo">Todo</option>
-                            <option value="active">Active</option>
-                            <option value="review">Review</option>
-                            <option value="done">Done</option>
-                            <option value="blocked">Blocked</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="editor-header">
-                        <label>Description (Markdown)</label>
-                        <button class="btn btn-sm" onclick="togglePreview('task-desc', 'desc-preview', this)">Preview</button>
-                    </div>
-                    <textarea id="task-desc" placeholder="What needs to be done and why... Supports Markdown"></textarea>
-                    <div id="desc-preview" class="preview-pane"></div>
-                </div>
-                <div class="form-group">
-                    <label>User Story</label>
-                    <input type="text" id="task-story" placeholder="As a [user], I want [feature], so that [benefit]">
-                </div>
-                <div class="form-group">
-                    <label>Acceptance Criteria (one per line)</label>
-                    <textarea id="task-ac" placeholder="- Criterion 1&#10;- Criterion 2"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Files</label>
-                        <input type="text" id="task-files" placeholder="src/pkgdrop, ci.yml">
-                    </div>
-                    <div class="form-group">
-                        <label>Estimate</label>
-                        <input type="text" id="task-estimate" placeholder="30min, 2h">
-                    </div>
-                </div>
-                
-                <!-- Definition of Done -->
-                <div class="checklist-section">
-                    <h4>✓ Definition of Done</h4>
-                    <div id="dod-container"></div>
-                    <div class="checklist-progress">
-                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
-                        <div class="checklist-progress-text">0/0 (0%)</div>
-                    </div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dod')" style="margin-top:12px">+ Add Item</button>
-                </div>
-                
-                <!-- Definition of Ready -->
-                <div class="checklist-section">
-                    <h4>✓ Definition of Ready</h4>
-                    <div id="dor-container"></div>
-                    <div class="checklist-progress">
-                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
-                        <div class="checklist-progress-text">0/0 (0%)</div>
-                    </div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dor')" style="margin-top:12px">+ Add Item</button>
-                </div>
-                
-                <!-- QA Checklist -->
-                <div class="checklist-section">
-                    <h4>✓ QA Checklist</h4>
-                    <div id="qa-container"></div>
-                    <div class="checklist-progress">
-                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
-                        <div class="checklist-progress-text">0/0 (0%)</div>
-                    </div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('qa')" style="margin-top:12px">+ Add Item</button>
-                </div>
-                
-                <!-- Dev Checklist -->
-                <div class="checklist-section">
-                    <h4>✓ Dev Checklist</h4>
-                    <div id="dev-container"></div>
-                    <div class="checklist-progress">
-                        <div class="checklist-progress-bar"><div class="checklist-progress-fill"></div></div>
-                        <div class="checklist-progress-text">0/0 (0%)</div>
-                    </div>
-                    <button class="btn btn-sm" onclick="addChecklistItem('dev')" style="margin-top:12px">+ Add Item</button>
-                </div>
-                
-                <!-- Implementation Steps -->
-                <div class="checklist-section">
-                    <h4>→ Implementation Steps</h4>
-                    <div id="steps-container"></div>
-                    <button class="btn btn-sm" onclick="addStep()" style="margin-top:12px">+ Add Step</button>
-                </div>
-                
-                <!-- Subtasks -->
-                <div class="checklist-section">
-                    <h4>→ Subtasks</h4>
-                    <div id="subtasks-container"></div>
-                    <button class="btn btn-sm" onclick="addSubtask()" style="margin-top:12px">+ Add Subtask</button>
-                </div>
-                
-                <!-- Comments -->
-                <div class="form-group" style="margin-top:24px">
-                    <label>Comments</label>
-                    <div id="comments-container"></div>
-                    <div style="display:flex;gap:12px;margin-top:12px">
-                        <input type="text" id="comment-input" placeholder="Add comment... Markdown supported" style="flex:1">
-                        <button class="btn btn-sm btn-primary" onclick="addComment()">Add</button>
-                    </div>
-                </div>
+            <div class="nav-item" id="nav-dor" onclick="UI.go('dor')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                DoR
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="delete-btn" onclick="deleteTask()" style="margin-right:auto;display:none">Delete</button>
-                <button class="btn" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
+            <div class="nav-item" id="nav-dod" onclick="UI.go('dod')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                DoD
+            </div>
+            <div class="nav-item" id="nav-qa" onclick="UI.go('qa')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                QA
+            </div>
+            <div class="nav-item" id="nav-dev" onclick="UI.go('dev')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                Dev
+            </div>
+            <div class="nav-item" id="nav-sec" onclick="UI.go('sec')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Security
+            </div>
+            <div class="nav-item" id="nav-devops" onclick="UI.go('devops')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                DevOps
             </div>
         </div>
-    </div>
-    
-    <div class="toast" id="toast"></div>
-    
-    <div class="shortcuts">
-        <kbd>n</kbd> New task &nbsp; <kbd>/</kbd> Search &nbsp; <kbd>Esc</kbd> Close
+        <div class="nav-spacer"></div>
+        <div class="nav-group">
+            <div class="nav-item" id="nav-log" onclick="UI.go('log')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                Activity Log
+            </div>
+            <div class="nav-item danger" onclick="Store.reset()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                Reset All
+            </div>
+        </div>
     </div>
 
-    <div class="drop-zone-overlay" id="drop-zone">
-        <h2>📂 Drop Markdown to Sync</h2>
-        <p>Supports docs/TODO.md and docs/USER_STORIES.md</p>
-    </div>
+    <div class="main">
+        <div class="topbar">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input class="search" id="search" placeholder="Search tasks... ( / )" oninput="UI.render()">
+            </div>
+            <div class="top-actions">
+                <span style="font-size:10px;color:var(--text-tertiary);margin-right:4px" title="Cmd+K command palette">Cmd+K</span>
+                <button class="btn btn-sm" onclick="UI.toggleTheme()" id="theme-btn">Light</button>
+                <button class="btn btn-primary" onclick="UI.openTask()">+ New Task</button>
+            </div>
+        </div>
 
-    <div class="context-menu" id="context-menu">
-        <div class="context-menu-item" onclick="handleContextMenuAction('edit')">✏️ Edit</div>
-        <div class="context-menu-item" onclick="handleContextMenuAction('move-next')">➡️ Move Forward</div>
-        <div class="context-menu-item" onclick="handleContextMenuAction('done')">✅ Mark as Done</div>
-        <div class="context-menu-item" onclick="handleContextMenuAction('delete')" style="color:var(--accent-danger)">🗑️ Delete</div>
+        <div class="view-area">
+            <div id="v-board" class="view active"></div>
+            <div id="v-roadmap" class="view"></div>
+            <div id="v-calendar" class="view"></div>
+            <div id="v-table" class="view"></div>
+            <div id="v-backlog" class="view"></div>
+            <div id="v-analytics" class="view"></div>
+            <div id="v-sprint" class="view"></div>
+            <div id="v-dor" class="view"></div>
+            <div id="v-dod" class="view"></div>
+            <div id="v-qa" class="view"></div>
+            <div id="v-dev" class="view"></div>
+            <div id="v-sec" class="view"></div>
+            <div id="v-devops" class="view"></div>
+            <div id="v-log" class="view"></div>
+        </div>
     </div>
+</div>
+
+<div class="modal-overlay" id="m-task" onclick="if(event.target===this)UI.closeModal()">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="modal-title">New Task</h3>
+            <button class="modal-close" onclick="UI.closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group"><label>Title</label><input class="input" id="f-title" placeholder="Task title"></div>
+            <div class="form-group"><label>Description</label><textarea class="input" id="f-desc" placeholder="What needs to be done?"></textarea></div>
+            <div class="form-group"><label>Acceptance Criteria</label><textarea class="input" id="f-ac" placeholder="How do we know this is done?"></textarea></div>
+            <div class="form-row">
+                <div class="form-group"><label>Status</label><select class="input" id="f-status"><option value="todo">Todo</option><option value="active">Active</option><option value="blocked">Blocked</option><option value="done">Done</option></select></div>
+                <div class="form-group"><label>Priority</label><select class="input" id="f-priority"><option value="p0">P0 - Critical</option><option value="p1">P1 - High</option><option value="p2">P2 - Normal</option></select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Owner</label><input class="input" id="f-owner" placeholder="Agent or person"></div>
+                <div class="form-group"><label>Epic</label><select class="input" id="f-epic"><option value="">None</option></select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Start Date</label><input class="input" id="f-start" type="date"></div>
+                <div class="form-group"><label>Due Date</label><input class="input" id="f-end" type="date"></div>
+            </div>
+            <div class="form-group"><label>Checklist</label><div id="f-checklist"></div><button class="btn btn-sm btn-ghost" onclick="UI.addCheckItem()">+ Add Item</button></div>
+            <div class="form-group"><label>Comments</label><div id="f-comments"></div></div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-danger btn-sm" id="delete-btn" onclick="UI.deleteTask()" style="margin-right:auto;display:none">Delete</button>
+            <button class="btn" onclick="UI.closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="UI.saveTask()">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="m-confirm" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="modal" style="max-width:400px">
+        <div class="modal-head"><h3 id="confirm-title">Confirm</h3></div>
+        <div class="modal-body"><p id="confirm-msg" style="color:var(--text-secondary)"></p></div>
+        <div class="modal-foot"><button class="btn" onclick="document.getElementById('m-confirm').classList.remove('active')">Cancel</button><button class="btn btn-primary" id="confirm-ok">Confirm</button></div>
+    </div>
+</div>
+
+<div class="cmd-palette" id="cmd-palette" onclick="if(event.target===this)UI.closeCmd()">
+    <div class="cmd-box">
+        <input class="cmd-input" id="cmd-input" placeholder="Type a command..." oninput="UI.filterCmd()" onkeydown="UI.cmdKey(event)">
+        <div class="cmd-results" id="cmd-results"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// State
-let tasks = JSON.parse(localStorage.getItem('pkgdrop-tasks') || '[]');
-let logs = JSON.parse(localStorage.getItem('pkgdrop-logs') || '[]');
-let currentFilter = 'all';
-let editingId = null;
-let draggedCardId = null;
-let contextMenuTargetId = null;
-let charts = {};
+const Store = {
+    _listeners: [],
+    state: { tasks: [], epics: [], feats: [], stories: [], logs: [], checklists: {}, sprint: null },
+    schemaVersion: 2,
 
-// Marked config
-marked.setOptions({
-    headerIds: false,
-    mangle: false,
-    breaks: true,
-    sanitize: false // We use DOMPurify instead
-});
+    async init() {
+        try {
+            await this._openDB();
+            await this._loadAll();
+            this._migrate();
+        } catch(e) {
+            console.error('IndexedDB init failed, falling back to localStorage', e);
+            this._loadFromLS();
+        }
+    },
 
-// Init
-function init() {
-    initTheme();
-    if (tasks.length === 0) loadDefaultTasks();
-    renderAll();
-    setupDropZone();
-    setupContextMenu();
-}
-
-// Theme
-function initTheme() {
-    const theme = localStorage.getItem('pkgdrop-theme') || 'dark';
-    document.body.classList.toggle('light-mode', theme === 'light');
-    updateThemeIcon();
-}
-
-function toggleTheme() {
-    const isLight = document.body.classList.toggle('light-mode');
-    localStorage.setItem('pkgdrop-theme', isLight ? 'light' : 'dark');
-    updateThemeIcon();
-    updateCharts();
-}
-
-function updateThemeIcon() {
-    const btn = document.getElementById('theme-btn');
-    btn.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
-}
-
-function loadDefaultTasks() {
-    tasks = [
-        {id:'T-001',title:'AUR Auto-Sync in GitHub Actions',status:'blocked',priority:'p0',type:'ci',desc:'SSH key works locally, fails in CI runner.',files:'.github/workflows/sync-aur.yml',estimate:'2h debug',steps:['SSH key confirmed: ssh -T aur@aur.archlinux.org','CI uses webfactory/ssh-agent@v0.10.0','Fails at git clone aur@aur.archlinux.org:pkgdrop.git','Debug: add ssh -v step','Fallback: manual push via push-aur.sh'],ac:['CI passes','No security warnings'],subtasks:[],comments:[],story:'',dod:[{text:'Code reviewed and approved',done:false},{text:'All tests passing',done:false},{text:'No security warnings',done:false},{text:'Documentation updated',done:false}],dor:[{text:'Requirements clear',done:true},{text:'Dependencies identified',done:true},{text:'Test plan ready',done:false},{text:'Acceptance criteria defined',done:false}],qa:[],dev:[]},
-        {id:'T-002',title:'Capitalize Display Names',status:'done',priority:'p0',type:'feature',desc:'zen → "Zen" in app launcher, not lowercase.',files:'src/pkgdrop',estimate:'15min',steps:['Wire humanize_name() into create_desktop_entry()','Pass humanize_name "$name" as display name','Add known app mappings: zen→Zen Browser','Fallback: capitalize first letter','Test: install zen.tar.xz, check launcher'],ac:['Name shows "Zen" not "zen"','Works for unknown apps'],subtasks:[{text:'Wire humanize_name',done:true},{text:'Add app mappings',done:false}],comments:[{time:'2026-06-11 05:45',text:'humanize_name() already exists, just needs wiring'}],story:'As a user, I want correct names in launcher',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-003',title:'End-to-End Testing',status:'active',priority:'p0',type:'feature',desc:'Verify full install→run→uninstall cycle.',files:'src/pkgdrop',estimate:'30min',steps:['Clean install zen.tar.xz','Verify: symlink, .desktop, icon, binary runs','Check app launcher','Test uninstall','Test AppImage'],ac:['Full cycle works','No leftover files'],subtasks:[{text:'Test .tar.xz install',done:true},{text:'Test uninstall',done:true},{text:'Fix argument parsing for --yes',done:true},{text:'Test AppImage',done:false}],comments:[{time:'2026-06-11 05:50',text:'tar.xz and uninstall working. AppImage test pending.'}],story:'As a user, I want installs to work reliably',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-010',title:'Desktop Entry Auto-Creation',status:'done',priority:'p0',type:'feature',desc:'.desktop with icon, StartupWMClass, categories',files:'src/pkgdrop',estimate:'2h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-011',title:'Icon Extraction',status:'done',priority:'p0',type:'feature',desc:'find_icon() installs to hicolor theme',files:'src/pkgdrop',estimate:'1h',steps:[],ac:[],subtasks:[],comments:[],story:'',dod:[],dor:[],qa:[],dev:[]},
-        {id:'T-004',title:'Detect Category from Archive',status:'done',priority:'p0',type:'feature',desc:'Extract Categories from .desktop inside archive',files:'src/pkgdrop',estimate:'1h',steps:['After extraction, find *.desktop','Parse Categories= line','Also extract Comment=, GenericName=','Use in generated .desktop','Fallback to Utility'],ac:['Category auto-detected','Fallback works'],subtasks:[{text:'Add detect_category_from_archive()',done:true},{text:'Wire into install_tarportable',done:true},{text:'Wire into install_appimage',done:true}],comments:[{time:'2026-06-11 05:55',text:'Category detection working, falls back to Utility'}],story:'As a user, I want apps in correct category',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-006',title:'Progress Indicator',status:'done',priority:'p1',type:'feature',desc:'Show extraction progress for large files',files:'src/pkgdrop',estimate:'1h',steps:['Pre-count files','Extract with --verbose, count lines','Show progress bar'],ac:['Progress shown for files >10MB'],subtasks:[{text:'Add humanize_size function',done:true},{text:'Show file count for large archives',done:true}],comments:[{time:'2026-06-11 05:58',text:'Shows file count for archives >10MB'}],story:'As a user, I want to see progress',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-007',title:'Handle Nested Archives',status:'done',priority:'p1',type:'bug',desc:'Some tar.xz contain tar.xz inside',files:'src/pkgdrop',estimate:'1h',steps:['Check for single dir after extract','Extract inner tar, flatten'],ac:['Nested archives work'],subtasks:[{text:'Detect nested archives',done:true},{text:'Flatten directory structure',done:true}],comments:[{time:'2026-06-11 06:00',text:'Auto-detects and flattens nested archives'}],story:'As a user, I want nested archives to work',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-008',title:'Verbose Mode',status:'done',priority:'p2',type:'feature',desc:'--verbose shows each step',files:'src/pkgdrop',estimate:'30min',steps:['Add verb calls before operations','Show size, extraction, binary, icon, desktop'],ac:['--verbose shows detailed output'],subtasks:[{text:'Add verb calls throughout install',done:true},{text:'Show binary, icon, category detection',done:true}],comments:[{time:'2026-06-11 06:05',text:'Verbose mode shows all installation steps'}],story:'As a user, I want to see what happens',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-009',title:'Bash Completions for --uninstall',status:'done',priority:'p2',type:'feature',desc:'Tab-complete --uninstall <tab>',files:'completions/pkgdrop.bash',estimate:'15min',steps:['Complete from ls ~/.local/opt/','Test tab completion'],ac:['Tab completes package names'],subtasks:[{text:'Bash completion already implemented',done:true},{text:'Zsh completion already implemented',done:true}],comments:[{time:'2026-06-11 06:10',text:'Both bash and zsh completions working'}],story:'As a user, I want tab completion',dod:[{text:'Code reviewed',done:true},{text:'Tests pass',done:true}],dor:[],qa:[],dev:[]},
-        {id:'T-005',title:'Fix CI to Pass Cleanly',status:'done',priority:'p0',type:'ci',desc:'All checks green on GitHub',files:'ci.yml, all scripts',estimate:'30min',steps:['Check CI logs','Run shellcheck locally','Run bats tests','Push, confirm green','Merge Dependabot PRs'],ac:['CI passes','No warnings'],subtasks:[{text:'Fix shellcheck warnings',done:true},{text:'Fix unit tests',done:true},{text:'Mock pacman for Ubuntu CI',done:true},{text:'Merge Dependabot PRs',done:false}],comments:[{time:'2026-06-11 05:40',text:'CI now passing'}],story:'As a dev, I want CI green',dod:[{text:'All checks green',done:true},{text:'No warnings',done:true}],dor:[],qa:[],dev:[]},
-    ];
-    save();
-}
-
-function save() {
-    localStorage.setItem('pkgdrop-tasks', JSON.stringify(tasks));
-    localStorage.setItem('pkgdrop-logs', JSON.stringify(logs));
-}
-
-function renderAll() {
-    renderBoard();
-    updateStats();
-    renderLog();
-    updateCharts();
-}
-
-function renderBoard() {
-    const statuses = ['blocked','todo','active','review','done'];
-    const search = document.getElementById('search-input').value.toLowerCase();
-    
-    statuses.forEach(status => {
-        const col = document.getElementById('col-' + status);
-        if (!col) return;
-        col.innerHTML = '';
-        const filtered = tasks.filter(t => {
-            if (t.status !== status) return false;
-            if (currentFilter !== 'all') {
-                if (['p0','p1','p2'].includes(currentFilter) && t.priority !== currentFilter) return false;
-                if (['feature','bug','security','ci','docs'].includes(currentFilter) && t.type !== currentFilter) return false;
-            }
-            if (search && !t.title.toLowerCase().includes(search) && !(t.desc||'').toLowerCase().includes(search) && !(t.story||'').toLowerCase().includes(search)) return false;
-            return true;
+    _openDB() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('pkgdrop-pm', this.schemaVersion);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('epics')) db.createObjectStore('epics', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('feats')) db.createObjectStore('feats', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('stories')) db.createObjectStore('stories', { keyPath: 'id' });
+                if (!db.objectStoreNames.contains('logs')) { const s = db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true }); s.createIndex('time', 'time'); }
+                if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
+            };
+            req.onsuccess = (e) => { this._db = e.target.result; resolve(); };
+            req.onerror = (e) => reject(e.target.error);
         });
-        filtered.forEach(t => col.appendChild(createCard(t)));
-        document.getElementById('count-' + status).textContent = filtered.length;
-    });
-}
+    },
 
-function createCard(task) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.draggable = true;
-    card.dataset.id = task.id;
-    card.ondragstart = e => { draggedCardId = task.id; card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
-    card.ondragend = e => { card.classList.remove('dragging'); draggedCardId = null; document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over')); };
-    card.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-    card.ondragenter = e => { e.preventDefault(); card.closest('.column-body').classList.add('drag-over'); };
-    card.ondragleave = e => { card.closest('.column-body').classList.remove('drag-over'); };
-    card.ondrop = e => { e.preventDefault(); card.closest('.column-body').classList.remove('drag-over'); moveTask(task.id); };
-    card.oncontextmenu = e => { e.preventDefault(); showContextMenu(e, task.id); };
-    
-    // Calculate checklist progress
-    const allChecks = [...(task.dod||[]),...(task.dor||[]),...(task.qa||[]),...(task.dev||[])];
-    const checkedCount = allChecks.filter(c => c.done).length;
-    const totalChecks = allChecks.length;
-    const checkPct = totalChecks > 0 ? Math.round((checkedCount / totalChecks) * 100) : 0;
-    
-    // Markdown description preview (first line or truncated)
-    const rawDesc = task.desc || '';
-    const cleanDesc = DOMPurify.sanitize(marked.parse(rawDesc.split('\n')[0] + (rawDesc.split('\n').length > 1 ? '...' : '')));
+    _tx(store, mode) {
+        return this._db.transaction(store, mode).objectStore(store);
+    },
 
-    const subtasks = (task.subtasks || []).slice(0, 3).map((s,i) => 
-        `<div class="checklist-item ${s.done?'done':''}"><input type="checkbox" ${s.done?'checked':''} onchange="toggleSubtask('${task.id}', ${i}, this.checked); event.stopPropagation();"> <span>${s.text}</span></div>`
-    ).join('');
-    
-    card.innerHTML = `
-        <div class="card-actions">
-            <button class="card-action" onclick="event.stopPropagation();editTask('${task.id}')" title="Edit">✏️</button>
-            <button class="card-action" onclick="event.stopPropagation();quickMove('${task.id}')" title="Move forward">➡️</button>
-        </div>
-        <div class="card-header">
-            <span class="card-id">${task.id}</span>
-            <span class="tag tag-${task.priority}">${task.priority.toUpperCase()}</span>
-        </div>
-        <div class="card-title">${task.title}</div>
-        <div class="card-desc">${cleanDesc}</div>
-        <div class="card-tags">
-            <span class="tag tag-${task.type}">${task.type}</span>
-            ${task.files ? `<span class="tag" style="background:var(--border-color);color:var(--accent)">${task.files.split(',')[0].trim()}</span>` : ''}
-            ${task.estimate ? `<span class="tag" style="background:var(--border-color);color:var(--text-dim)">⏱ ${task.estimate}</span>` : ''}
-        </div>
-        ${task.story ? `<div class="story-badge">📋 ${task.story}</div>` : ''}
-        ${subtasks ? `<div style="margin-top:8px">${subtasks}${task.subtasks.length > 3 ? '<div style="font-size:0.7em;color:var(--text-dim);margin-left:28px">...</div>' : ''}</div>` : ''}
-        ${totalChecks > 0 ? `
-            <div class="card-progress">
-                <div class="card-progress-bar"><div class="card-progress-fill" style="width:${checkPct}%"></div></div>
-                <div class="card-progress-text"><span>PROGRESS</span><span>${checkPct}%</span></div>
-            </div>
-        ` : ''}
-    `;
-    card.onclick = () => editTask(task.id);
-    return card;
-}
-
-function moveTask(targetId) {
-    if (!draggedCardId) return;
-    const task = tasks.find(t => t.id === draggedCardId);
-    if (!task) return;
-    const col = document.querySelector('.column-body.drag-over');
-    if (col) {
-        const column = col.closest('.column');
-        const newStatus = column.dataset.status;
-        const oldStatus = task.status;
-        if (oldStatus !== newStatus) {
-            task.status = newStatus;
-            addLog(`Moved "${task.title}" from ${oldStatus} → ${newStatus}`, 'moved');
-            save(); renderAll();
-        }
-    }
-}
-
-function quickMove(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    const order = ['blocked','todo','active','review','done'];
-    const idx = order.indexOf(task.status);
-    if (idx < order.length - 1) {
-        const old = task.status;
-        task.status = order[idx + 1];
-        addLog(`Moved "${task.title}" from ${old} → ${task.status}`, 'moved');
-        save(); renderAll();
-        showToast(`Moved to ${task.status}`);
-    }
-}
-
-function toggleSubtask(taskId, idx, checked) {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !task.subtasks[idx]) return;
-    task.subtasks[idx].done = checked;
-    addLog(`Subtask "${task.subtasks[idx].text}" ${checked ? 'completed' : 'unchecked'} in "${task.title}"`, 'updated');
-    save(); renderBoard();
-}
-
-function updateStats() {
-    const counts = {done:0, active:0, todo:0, blocked:0, review:0};
-    tasks.forEach(t => counts[t.status]++);
-    const total = tasks.length;
-    const pct = total ? Math.round((counts.done / total) * 100) : 0;
-    
-    ['done','active','todo','blocked'].forEach(s => {
-        document.getElementById('stat-' + s).textContent = counts[s];
-    });
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-text').textContent = pct + '%';
-}
-
-function renderLog() {
-    const view = document.getElementById('log-view');
-    view.innerHTML = '<h3 style="margin-bottom:24px;color:var(--accent)">Work Log</h3>' + logs.slice().reverse().map(l => 
-        `<div class="log-entry ${l.type || ''}"><span class="log-time">${l.time}</span><span class="log-action">${l.msg}</span>${l.files ? `<div class="log-files">📁 ${l.files}</div>` : ''}</div>`
-    ).join('');
-}
-
-function addLog(msg, type) {
-    logs.push({time: new Date().toISOString().slice(0,16).replace('T',' '), msg, type: type || 'updated'});
-    save();
-}
-
-// Markdown Preview
-function togglePreview(inputId, previewId, btn) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    const isPreview = preview.classList.toggle('active');
-    input.style.display = isPreview ? 'none' : 'block';
-    btn.textContent = isPreview ? 'Edit' : 'Preview';
-    if (isPreview) {
-        preview.innerHTML = DOMPurify.sanitize(marked.parse(input.value || '*No description*'));
-    }
-}
-
-// Modal
-function openCreateModal() {
-    editingId = null;
-    document.getElementById('modal-title').textContent = 'New Task';
-    document.getElementById('delete-btn').style.display = 'none';
-    document.getElementById('task-id').value = '';
-    document.getElementById('task-title').value = '';
-    document.getElementById('task-priority').value = 'p1';
-    document.getElementById('task-type').value = 'feature';
-    document.getElementById('task-status').value = 'todo';
-    document.getElementById('task-desc').value = '';
-    document.getElementById('task-ac').value = '';
-    document.getElementById('task-files').value = '';
-    document.getElementById('task-estimate').value = '';
-    document.getElementById('task-story').value = '';
-    document.getElementById('desc-preview').classList.remove('active');
-    document.getElementById('task-desc').style.display = 'block';
-    
-    document.getElementById('steps-container').innerHTML = '';
-    document.getElementById('subtasks-container').innerHTML = '';
-    document.getElementById('comments-container').innerHTML = '';
-    ['dod','dor','qa','dev'].forEach(type => {
-        document.getElementById(type + '-container').innerHTML = '';
-        renderChecklistProgress(type, 'new');
-    });
-    
-    addStep();
-    addDefaultChecklists();
-    document.getElementById('task-modal').classList.add('active');
-    document.getElementById('task-title').focus();
-}
-
-function addDefaultChecklists() {
-    const defaults = {
-        dod: ['Code reviewed and approved','All tests passing','No security warnings','Documentation updated'],
-        dor: ['Requirements clear','Dependencies identified','Test plan ready','Acceptance criteria defined'],
-        qa: ['Manual testing complete','Edge cases covered','Performance acceptable','Regression tested'],
-        dev: ['Code compiles/runs','No lint warnings','Type checking passes','Code style consistent']
-    };
-    Object.entries(defaults).forEach(([type, items]) => {
-        items.forEach(text => addChecklistItem(type, text, false));
-        renderChecklistProgress(type, 'new');
-    });
-}
-
-function editTask(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    editingId = id;
-    document.getElementById('modal-title').textContent = 'Edit Task ' + task.id;
-    document.getElementById('delete-btn').style.display = 'block';
-    document.getElementById('task-id').value = task.id;
-    document.getElementById('task-title').value = task.title;
-    document.getElementById('task-priority').value = task.priority;
-    document.getElementById('task-type').value = task.type;
-    document.getElementById('task-status').value = task.status;
-    document.getElementById('task-desc').value = task.desc || '';
-    document.getElementById('task-ac').value = (task.ac || []).join('\n');
-    document.getElementById('task-files').value = task.files || '';
-    document.getElementById('task-estimate').value = task.estimate || '';
-    document.getElementById('task-story').value = task.story || '';
-    
-    document.getElementById('desc-preview').classList.remove('active');
-    document.getElementById('task-desc').style.display = 'block';
-    
-    document.getElementById('steps-container').innerHTML = '';
-    (task.steps || []).forEach(s => { addStep(); document.querySelector('#steps-container .step-item:last-child input').value = s; });
-    if (!task.steps || !task.steps.length) addStep();
-    
-    document.getElementById('subtasks-container').innerHTML = '';
-    (task.subtasks || []).forEach((s,i) => { addSubtask(); const last = document.querySelector('#subtasks-container .step-item:last-child'); last.querySelector('input[type="text"]').value = s.text; last.querySelector('input[type="checkbox"]').checked = s.done; });
-    
-    document.getElementById('comments-container').innerHTML = '';
-    (task.comments || []).forEach(c => {
-        document.getElementById('comments-container').innerHTML += `<div class="comment"><div class="comment-header"><span class="comment-time">${c.time}</span></div><div class="comment-text">${DOMPurify.sanitize(marked.parse(c.text))}</div></div>`;
-    });
-    
-    ['dod','dor','qa','dev'].forEach(type => {
-        document.getElementById(type + '-container').innerHTML = '';
-        (task[type] || []).forEach(item => addChecklistItem(type, item.text, item.done));
-        renderChecklistProgress(type, id);
-    });
-    
-    document.getElementById('task-modal').classList.add('active');
-}
-
-function closeModal() { document.getElementById('task-modal').classList.remove('active'); }
-
-function saveTask() {
-    const title = document.getElementById('task-title').value.trim();
-    if (!title) { showToast('Title required', 'error'); return; }
-    
-    const steps = Array.from(document.querySelectorAll('#steps-container input')).map(i => i.value.trim()).filter(Boolean);
-    const subtasks = Array.from(document.querySelectorAll('#subtasks-container .step-item')).map(el => ({
-        text: el.querySelector('input[type="text"]').value.trim(),
-        done: el.querySelector('input[type="checkbox"]').checked
-    })).filter(s => s.text);
-    const ac = document.getElementById('task-ac').value.split('\n').map(l => l.replace(/^[-*]\s*/, '').trim()).filter(Boolean);
-    
-    const checklists = {};
-    ['dod','dor','qa','dev'].forEach(type => {
-        checklists[type] = Array.from(document.querySelectorAll(`#${type}-container .checklist-item`)).map(el => ({
-            text: el.querySelector('span') ? el.querySelector('span').textContent : el.querySelector('input[type="text"]').value.trim(),
-            done: el.querySelector('input[type="checkbox"]').checked
-        })).filter(c => c.text);
-    });
-    
-    if (editingId) {
-        const task = tasks.find(t => t.id === editingId);
-        Object.assign(task, {
-            title, priority: document.getElementById('task-priority').value,
-            type: document.getElementById('task-type').value,
-            status: document.getElementById('task-status').value,
-            desc: document.getElementById('task-desc').value,
-            files: document.getElementById('task-files').value,
-            estimate: document.getElementById('task-estimate').value,
-            story: document.getElementById('task-story').value,
-            steps, subtasks, ac, ...checklists
+    _getAll(store) {
+        return new Promise((resolve, reject) => {
+            const req = this._tx(store, 'readonly').getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
         });
-        addLog(`Updated "${title}"`, 'updated');
-    } else {
-        const id = 'T-' + String(tasks.length + 1).padStart(3, '0');
-        tasks.push({
-            id, title, status: document.getElementById('task-status').value,
-            priority: document.getElementById('task-priority').value,
-            type: document.getElementById('task-type').value,
-            desc: document.getElementById('task-desc').value,
-            files: document.getElementById('task-files').value,
-            estimate: document.getElementById('task-estimate').value,
-            story: document.getElementById('task-story').value,
-            steps, subtasks, ac, ...checklists,
-            comments: []
+    },
+
+    _put(store, data) {
+        return new Promise((resolve, reject) => {
+            const req = this._tx(store, 'readwrite').put(data);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
         });
-        addLog(`Created "${title}"`, 'created');
-    }
-    save(); closeModal(); renderAll();
-    showToast(editingId ? 'Task updated' : 'Task created');
-}
+    },
 
-function deleteTask(id) {
-    const targetId = id || editingId;
-    const task = tasks.find(t => t.id === targetId);
-    if (!task || !confirm(`Delete "${task.title}"?`)) return;
-    tasks = tasks.filter(t => t.id !== targetId);
-    addLog(`Deleted "${task.title}"`, 'deleted');
-    save(); closeModal(); renderAll();
-    showToast('Task deleted');
-}
+    _delete(store, key) {
+        return new Promise((resolve, reject) => {
+            const req = this._tx(store, 'readwrite').delete(key);
+            req.onsuccess = () => resolve();
+            req.onerror = () => reject(req.error);
+        });
+    },
 
-function addStep() {
-    const container = document.getElementById('steps-container');
-    const div = document.createElement('div');
-    div.className = 'step-item';
-    div.innerHTML = `<span class="step-num">${container.children.length + 1}.</span><input type="text" placeholder="Step ${container.children.length + 1}"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
-    container.appendChild(div);
-}
+    async _loadAll() {
+        this.state.tasks = await this._getAll('tasks');
+        this.state.epics = await this._getAll('epics');
+        this.state.feats = await this._getAll('feats');
+        this.state.stories = await this._getAll('stories');
+        this.state.logs = (await this._getAll('logs')).sort((a,b) => b.id - a.id);
+        const meta = await this._getAll('meta');
+        meta.forEach(m => {
+            if (m.key === 'checklists') this.state.checklists = m.value;
+            if (m.key === 'sprint') this.state.sprint = m.value;
+            if (m.key === 'schemaVersion') this._savedVersion = m.value;
+        });
+    },
 
-function addSubtask() {
-    const container = document.getElementById('subtasks-container');
-    const div = document.createElement('div');
-    div.className = 'step-item';
-    div.innerHTML = `<input type="checkbox"><input type="text" placeholder="Subtask description"><button class="step-remove" onclick="this.parentElement.remove()">×</button>`;
-    container.appendChild(div);
-}
-
-function addChecklistItem(type, text, done) {
-    const container = document.getElementById(type + '-container');
-    const div = document.createElement('div');
-    div.className = 'checklist-item' + (done ? ' done' : '');
-    div.innerHTML = `<input type="checkbox" ${done ? 'checked' : ''} onchange="toggleChecklistItem('${type}','${editingId||'new'}',${container.children.length},this.checked)"><span>${text || ''}</span>`;
-    if (!text) {
-        const span = div.querySelector('span');
-        const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'New item...';
-        input.className = 'filter-input'; input.style.flex = '1';
-        div.insertBefore(input, span); span.remove();
-    }
-    container.appendChild(div);
-}
-
-function toggleChecklistItem(type, taskId, idx, checked) {
-    if (taskId === 'new') return;
-    const task = tasks.find(t => t.id === taskId);
-    if (task && task[type] && task[type][idx]) {
-        task[type][idx].done = checked;
-        save(); renderBoard(); renderChecklistProgress(type, taskId);
-    }
-}
-
-function renderChecklistProgress(type, taskId) {
-    const task = tasks.find(t => t.id === taskId) || { [type]: [] };
-    const items = task[type] || [];
-    const done = items.filter(i => i.done).length;
-    const total = items.length;
-    const pct = total ? Math.round((done/total)*100) : 0;
-    const container = document.getElementById(type + '-container').parentElement;
-    const fill = container.querySelector('.checklist-progress-fill');
-    const text = container.querySelector('.checklist-progress-text');
-    if (fill && text) { fill.style.width = pct + '%'; text.textContent = `${done}/${total} (${pct}%)`; }
-}
-
-function addComment() {
-    const input = document.getElementById('comment-input');
-    const text = input.value.trim();
-    if (!text || !editingId) return;
-    const task = tasks.find(t => t.id === editingId);
-    const comment = {time: new Date().toISOString().slice(0,16).replace('T',' '), text};
-    task.comments = task.comments || [];
-    task.comments.push(comment);
-    addLog(`Commented on "${task.title}"`, 'updated');
-    save(); editTask(editingId);
-    input.value = '';
-}
-
-// Views
-function showView(view) {
-    ['board-view', 'log-view', 'analytics-view'].forEach(id => {
-        document.getElementById(id).classList.toggle('active', id === view + '-view');
-    });
-    if (view === 'analytics') updateCharts();
-}
-
-// Analytics
-function updateCharts() {
-    if (!document.getElementById('analytics-view').classList.contains('active')) return;
-    const ctxStatus = document.getElementById('chart-status').getContext('2d');
-    const ctxType = document.getElementById('chart-type').getContext('2d');
-    const ctxVel = document.getElementById('chart-velocity').getContext('2d');
-    
-    const isLight = document.body.classList.contains('light-mode');
-    const textColor = isLight ? '#1f2328' : '#c9d1d9';
-    const gridColor = isLight ? '#d0d7de' : '#30363d';
-
-    // Status
-    const statusData = {done:0, active:0, todo:0, blocked:0, review:0};
-    tasks.forEach(t => statusData[t.status]++);
-    if (charts.status) charts.status.destroy();
-    charts.status = new Chart(ctxStatus, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(statusData),
-            datasets: [{
-                data: Object.values(statusData),
-                backgroundColor: ['#3fb950', '#d29922', '#8b949e', '#f85149', '#a78bfa'],
-                borderWidth: 0
-            }]
-        },
-        options: { plugins: { legend: { position: 'bottom', labels: { color: textColor } } } }
-    });
-
-    // Type
-    const typeData = {feature:0, bug:0, security:0, ci:0, docs:0};
-    tasks.forEach(t => typeData[t.type]++);
-    if (charts.type) charts.type.destroy();
-    charts.type = new Chart(ctxType, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(typeData),
-            datasets: [{
-                label: 'Tasks',
-                data: Object.values(typeData),
-                backgroundColor: '#58a6ff'
-            }]
-        },
-        options: { 
-            scales: { 
-                y: { grid: { color: gridColor }, ticks: { color: textColor } },
-                x: { grid: { display: false }, ticks: { color: textColor } }
-            },
-            plugins: { legend: { display: false } }
+    _migrate() {
+        if (!this._savedVersion || this._savedVersion < this.schemaVersion) {
+            this._put('meta', { key: 'schemaVersion', value: this.schemaVersion });
         }
-    });
+    },
 
-    // Velocity
-    const velocity = {};
-    logs.filter(l => l.type === 'moved' && l.msg.includes('→ done')).forEach(l => {
-        const date = l.time.split(' ')[0];
-        velocity[date] = (velocity[date] || 0) + 1;
-    });
-    const velLabels = Object.keys(velocity).sort();
-    if (charts.vel) charts.vel.destroy();
-    charts.vel = new Chart(ctxVel, {
-        type: 'line',
-        data: {
-            labels: velLabels,
-            datasets: [{
-                label: 'Completed Tasks',
-                data: velLabels.map(l => velocity[l]),
-                borderColor: '#3fb950',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(63, 185, 80, 0.1)'
-            }]
-        },
-        options: { 
-            scales: { 
-                y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
-                x: { grid: { color: gridColor }, ticks: { color: textColor } }
-            },
-            plugins: { legend: { display: false } }
+    _loadFromLS() {
+        try {
+            this.state.tasks = JSON.parse(localStorage.getItem('pd-tasks') || '[]');
+            this.state.epics = JSON.parse(localStorage.getItem('pd-epics') || '[]');
+            this.state.feats = JSON.parse(localStorage.getItem('pd-feats') || '[]');
+            this.state.stories = JSON.parse(localStorage.getItem('pd-stories') || '[]');
+            this.state.logs = JSON.parse(localStorage.getItem('pd-logs') || '[]');
+            this.state.checklists = JSON.parse(localStorage.getItem('pd-checklists') || '{}');
+            this.state.sprint = JSON.parse(localStorage.getItem('pd-sprint') || 'null');
+        } catch(e) { console.error('localStorage fallback failed', e); }
+    },
+
+    async save() {
+        try {
+            for (const t of this.state.tasks) await this._put('tasks', t);
+            for (const e of this.state.epics) await this._put('epics', e);
+            for (const f of this.state.feats) await this._put('feats', f);
+            for (const s of this.state.stories) await this._put('stories', s);
+            for (const l of this.state.logs.slice(0, 100)) await this._put('logs', l);
+            await this._put('meta', { key: 'checklists', value: this.state.checklists });
+            await this._put('meta', { key: 'sprint', value: this.state.sprint });
+        } catch(e) {
+            console.error('IndexedDB save failed, falling back to localStorage', e);
+            ['tasks','epics','feats','stories','logs'].forEach(k => localStorage.setItem('pd-' + k, JSON.stringify(this.state[k])));
+            localStorage.setItem('pd-checklists', JSON.stringify(this.state.checklists));
+            localStorage.setItem('pd-sprint', JSON.stringify(this.state.sprint));
         }
-    });
-}
+        this._notify();
+    },
 
-// Markdown Sync (File Drop)
-function setupDropZone() {
-    const zone = document.getElementById('drop-zone');
-    window.addEventListener('dragenter', e => { e.preventDefault(); zone.classList.add('active'); });
-    zone.addEventListener('dragleave', e => { if (e.relatedTarget === null) zone.classList.remove('active'); });
-    window.addEventListener('dragover', e => e.preventDefault());
-    window.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('active');
-        const file = e.dataTransfer.files[0];
-        if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown'))) {
-            const reader = new FileReader();
-            reader.onload = ev => parseMarkdownSync(ev.target.result, file.name);
-            reader.readAsText(file);
+    _notify() { this._listeners.forEach(fn => fn()); },
+    onChange(fn) { this._listeners.push(fn); },
+
+    addTask(t) {
+        t.id = 'PKGD-' + (100 + this.state.tasks.length);
+        t.checklist = t.checklist || [];
+        t.ac = t.ac || '';
+        t.comments = t.comments || [];
+        t.createdAt = new Date().toISOString();
+        this.state.tasks.push(t);
+        this.audit('TASK_CREATED', t.id, t.title);
+        this.save();
+    },
+
+    updateTask(id, d) {
+        const i = this.state.tasks.findIndex(t => t.id === id);
+        if (i !== -1) {
+            const old = { ...this.state.tasks[i] };
+            this.state.tasks[i] = { ...this.state.tasks[i], ...d };
+            if (d.status && d.status !== old.status) this.audit('STATUS_CHANGED', id, `${old.status} → ${d.status}`);
+            this.save();
         }
-    });
-}
+    },
 
-function parseMarkdownSync(content, filename) {
-    let imported = 0;
-    // Simple parser for docs/TODO.md format
-    const lines = content.split('\n');
-    let currentStatus = 'todo';
-    let currentPriority = 'p1';
+    deleteTask(id) {
+        const t = this.state.tasks.find(t => t.id === id);
+        this.state.tasks = this.state.tasks.filter(t => t.id !== id);
+        if (t) this.audit('TASK_DELETED', id, t.title);
+        this.save();
+    },
 
-    lines.forEach(line => {
-        if (line.includes('Must Fix (P0)')) { currentPriority = 'p0'; currentStatus = 'todo'; }
-        else if (line.includes('Should Fix (P1)')) { currentPriority = 'p1'; currentStatus = 'todo'; }
-        else if (line.includes('Nice to Have (P2)')) { currentPriority = 'p2'; currentStatus = 'todo'; }
-        else if (line.includes('Done This Sprint')) { currentStatus = 'done'; }
-        else if (line.includes('Blocked')) { currentStatus = 'blocked'; }
-        
-        const taskMatch = line.match(/-\s*\[([ x])\]\s*(.*)/);
-        if (taskMatch) {
-            const isDone = taskMatch[1] === 'x';
-            const title = taskMatch[2].trim();
-            if (!tasks.find(t => t.title === title)) {
-                const id = 'T-' + String(tasks.length + 1).padStart(3, '0');
-                tasks.push({
-                    id, title, status: isDone ? 'done' : currentStatus,
-                    priority: currentPriority, type: 'feature',
-                    desc: 'Imported from ' + filename, steps: [], ac: [], subtasks: [], comments: []
-                });
-                imported++;
-            }
-        }
-    });
+    audit(action, taskId, detail) {
+        this.state.logs.unshift({
+            id: Date.now(),
+            time: new Date().toISOString(),
+            action: action,
+            taskId: taskId,
+            detail: detail || '',
+            agent: 'user'
+        });
+    },
 
-    if (imported > 0) {
-        save(); renderAll();
-        showToast(`Synced ${imported} tasks from ${filename}`);
-    } else {
-        showToast('No new tasks found in file', 'error');
-    }
-}
-
-// Context Menu
-function setupContextMenu() {
-    window.addEventListener('click', () => document.getElementById('context-menu').style.display = 'none');
-}
-
-function showContextMenu(e, id) {
-    const menu = document.getElementById('context-menu');
-    menu.style.display = 'block';
-    menu.style.left = e.pageX + 'px';
-    menu.style.top = e.pageY + 'px';
-    contextMenuTargetId = id;
-}
-
-function handleContextMenuAction(action) {
-    if (!contextMenuTargetId) return;
-    if (action === 'edit') editTask(contextMenuTargetId);
-    else if (action === 'move-next') quickMove(contextMenuTargetId);
-    else if (action === 'done') {
-        const task = tasks.find(t => t.id === contextMenuTargetId);
-        if (task) { task.status = 'done'; addLog(`Moved "${task.title}" to done`, 'moved'); save(); renderAll(); }
-    }
-    else if (action === 'delete') deleteTask(contextMenuTargetId);
-}
-
-// Export/Import
-function exportData() {
-    const data = {tasks, logs, exported: new Date().toISOString(), version: '3.0.0'};
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `pkgdrop-sprint-${new Date().toISOString().slice(0,10)}.json`;
-    a.click(); URL.revokeObjectURL(url);
-    showToast('Exported');
-}
-
-function importData() {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = '.json';
-    input.onchange = e => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            try {
-                const data = JSON.parse(ev.target.result);
-                tasks = data.tasks || [];
-                logs = data.logs || [];
-                save(); renderAll();
-                showToast('Imported ' + tasks.length + ' tasks');
-            } catch(err) { showToast('Invalid file', 'error'); }
+    getDefaultChecklists() {
+        return {
+            dor: [
+                {id:'dor-1',text:'User story has clear, testable acceptance criteria',tag:'required',checked:false},
+                {id:'dor-2',text:'Dependencies identified and available',tag:'required',checked:false},
+                {id:'dor-3',text:'UI/UX designs or wireframes attached',tag:'required',checked:false},
+                {id:'dor-4',text:'Performance criteria defined',tag:'required',checked:false},
+                {id:'dor-5',text:'Security implications reviewed',tag:'required',checked:false},
+                {id:'dor-6',text:'Data model changes documented',tag:'required',checked:false},
+                {id:'dor-7',text:'API contract agreed upon',tag:'required',checked:false},
+                {id:'dor-8',text:'Test data requirements identified',tag:'required',checked:false},
+                {id:'dor-9',text:'Story sized appropriately',tag:'required',checked:false},
+                {id:'dor-10',text:'Rollback plan considered',tag:'optional',checked:false},
+                {id:'dor-11',text:'Documentation impact assessed',tag:'optional',checked:false},
+                {id:'dor-12',text:'Monitoring requirements defined',tag:'optional',checked:false}
+            ],
+            dod: [
+                {id:'dod-1',text:'All acceptance criteria met',tag:'required',checked:false},
+                {id:'dod-2',text:'Code reviewed and approved',tag:'required',checked:false},
+                {id:'dod-3',text:'Unit tests written and passing',tag:'required',checked:false},
+                {id:'dod-4',text:'Integration tests passing',tag:'required',checked:false},
+                {id:'dod-5',text:'No linting warnings',tag:'required',checked:false},
+                {id:'dod-6',text:'No security vulnerabilities',tag:'required',checked:false},
+                {id:'dod-7',text:'Documentation updated',tag:'required',checked:false},
+                {id:'dod-8',text:'Performance benchmarks met',tag:'required',checked:false},
+                {id:'dod-9',text:'Error handling covers edge cases',tag:'required',checked:false},
+                {id:'dod-10',text:'Logging added for key operations',tag:'required',checked:false},
+                {id:'dod-11',text:'Feature flag configured',tag:'optional',checked:false},
+                {id:'dod-12',text:'DB migrations tested with rollback',tag:'optional',checked:false},
+                {id:'dod-13',text:'Deployment script updated',tag:'optional',checked:false},
+                {id:'dod-14',text:'Stakeholder demo completed',tag:'auto',checked:false}
+            ],
+            qa: [
+                {id:'qa-1',text:'Test plan reviewed and approved',tag:'required',checked:false},
+                {id:'qa-2',text:'Test cases cover all AC',tag:'required',checked:false},
+                {id:'qa-3',text:'Happy path verified',tag:'required',checked:false},
+                {id:'qa-4',text:'Error scenarios verified',tag:'required',checked:false},
+                {id:'qa-5',text:'Boundary cases tested',tag:'required',checked:false},
+                {id:'qa-6',text:'Cross-browser tested',tag:'required',checked:false},
+                {id:'qa-7',text:'Responsive / accessibility tested',tag:'required',checked:false},
+                {id:'qa-8',text:'Performance under load tested',tag:'required',checked:false},
+                {id:'qa-9',text:'Security scan completed',tag:'required',checked:false},
+                {id:'qa-10',text:'Regression suite passing',tag:'required',checked:false},
+                {id:'qa-11',text:'Data integrity verified',tag:'required',checked:false},
+                {id:'qa-12',text:'API contract validation',tag:'required',checked:false},
+                {id:'qa-13',text:'UAT completed',tag:'required',checked:false},
+                {id:'qa-14',text:'Localization verified',tag:'optional',checked:false},
+                {id:'qa-15',text:'Screen reader checked',tag:'optional',checked:false}
+            ],
+            dev: [
+                {id:'dev-1',text:'Code follows style guide',tag:'required',checked:false},
+                {id:'dev-2',text:'No hardcoded secrets',tag:'required',checked:false},
+                {id:'dev-3',text:'Inputs validated and sanitized',tag:'required',checked:false},
+                {id:'dev-4',text:'Error messages user-friendly',tag:'required',checked:false},
+                {id:'dev-5',text:'Resource cleanup on errors',tag:'required',checked:false},
+                {id:'dev-6',text:'Idempotent operations',tag:'required',checked:false},
+                {id:'dev-7',text:'Race conditions handled',tag:'required',checked:false},
+                {id:'dev-8',text:'Memory limits considered',tag:'required',checked:false},
+                {id:'dev-9',text:'Dependencies minimal',tag:'required',checked:false},
+                {id:'dev-10',text:'TODOs tracked',tag:'optional',checked:false},
+                {id:'dev-11',text:'No deep nesting',tag:'optional',checked:false},
+                {id:'dev-12',text:'Functions single-purpose',tag:'optional',checked:false}
+            ],
+            sec: [
+                {id:'sec-1',text:'Auth enforced',tag:'required',checked:false},
+                {id:'sec-2',text:'Input validation prevents injection',tag:'required',checked:false},
+                {id:'sec-3',text:'Data encrypted at rest/transit',tag:'required',checked:false},
+                {id:'sec-4',text:'No secrets in logs',tag:'required',checked:false},
+                {id:'sec-5',text:'Rate limiting applied',tag:'required',checked:false},
+                {id:'sec-6',text:'CORS configured',tag:'required',checked:false},
+                {id:'sec-7',text:'Dependencies scanned',tag:'required',checked:false},
+                {id:'sec-8',text:'Least-privilege permissions',tag:'required',checked:false},
+                {id:'sec-9',text:'Symlink attacks prevented',tag:'required',checked:false},
+                {id:'sec-10',text:'Privilege escalation reviewed',tag:'required',checked:false},
+                {id:'sec-11',text:'Security headers configured',tag:'optional',checked:false},
+                {id:'sec-12',text:'Audit trail enabled',tag:'optional',checked:false},
+                {id:'sec-13',text:'Pen test findings addressed',tag:'optional',checked:false}
+            ],
+            devops: [
+                {id:'do-1',text:'CI pipeline passes',tag:'required',checked:false},
+                {id:'do-2',text:'CD tested in staging',tag:'required',checked:false},
+                {id:'do-3',text:'IaC reviewed',tag:'required',checked:false},
+                {id:'do-4',text:'Env vars documented',tag:'required',checked:false},
+                {id:'do-5',text:'Rollback tested',tag:'required',checked:false},
+                {id:'do-6',text:'Monitoring dashboards updated',tag:'required',checked:false},
+                {id:'do-7',text:'Alerting configured',tag:'required',checked:false},
+                {id:'do-8',text:'Log aggregation configured',tag:'required',checked:false},
+                {id:'do-9',text:'Backup/DR tested',tag:'required',checked:false},
+                {id:'do-10',text:'Load balancer configured',tag:'optional',checked:false},
+                {id:'do-11',text:'SSL certs valid',tag:'optional',checked:false},
+                {id:'do-12',text:'DNS propagated',tag:'auto',checked:false},
+                {id:'do-13',text:'Canary deploy ready',tag:'optional',checked:false}
+            ]
         };
-        reader.readAsText(e.target.files[0]);
-    };
-    input.click();
-}
+    },
 
-function resetBoard() {
-    if (!confirm('Reset to default tasks? All changes will be lost.')) return;
-    localStorage.removeItem('pkgdrop-tasks');
-    localStorage.removeItem('pkgdrop-logs');
-    logs = [];
-    loadDefaultTasks();
-    renderAll();
-    showToast('Board reset');
-}
+    getChecklist(key) {
+        if (!this.state.checklists[key]) this.state.checklists[key] = this.getDefaultChecklists()[key] || [];
+        return this.state.checklists[key];
+    },
 
-function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast' + (type === 'error' ? ' error' : '');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
+    toggleCheck(key, id) {
+        const cl = this.getChecklist(key);
+        const item = cl.find(c => c.id === id);
+        if (item) item.checked = !item.checked;
+        this.state.checklists[key] = cl;
+        this.audit('CHECKLIST_TOGGLE', key, `${id}: ${item ? item.checked : '?'}`);
+        this.save();
+    },
 
-function toggleFilter(el, filter) {
-    document.querySelectorAll('.filter-tag').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    currentFilter = filter;
-    renderBoard();
-}
+    addChecklistItem(key, text, tag) {
+        const cl = this.getChecklist(key);
+        cl.push({ id: key + '-' + Date.now(), text, tag: tag || 'optional', checked: false });
+        this.state.checklists[key] = cl;
+        this.save();
+    },
 
-function filterTasks() { renderBoard(); }
+    removeChecklistItem(key, id) {
+        this.state.checklists[key] = this.getChecklist(key).filter(c => c.id !== id);
+        this.save();
+    },
 
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-    if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !document.querySelector('.modal.active')) { e.preventDefault(); openCreateModal(); }
-    if (e.key === '/' && !document.querySelector('.modal.active')) { e.preventDefault(); document.getElementById('search-input').focus(); }
-});
+    exportData() {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state, null, 2)], { type: 'application/json' }));
+        a.download = 'pkgdrop-export.json';
+        a.click();
+    },
 
-init();
+    reset() {
+        document.getElementById('confirm-title').textContent = 'Reset All Data';
+        document.getElementById('confirm-msg').textContent = 'This will permanently delete all tasks, epics, features, and stories. This cannot be undone.';
+        document.getElementById('m-confirm').classList.add('active');
+        document.getElementById('confirm-ok').onclick = async () => {
+            try {
+                const tx = this._db.transaction(['tasks','epics','feats','stories','logs','meta'], 'readwrite');
+                ['tasks','epics','feats','stories','logs','meta'].forEach(s => tx.objectStore(s).clear());
+            } catch(e) { localStorage.clear(); }
+            location.reload();
+        };
+    }
+};
+
+const UI = {
+    cur: 'board', editId: null, calDate: new Date(), sortKey: 'id', sortDir: 1, charts: {}, selId: null, cmdIdx: 0,
+
+    async init() {
+        await Store.init();
+        this.initTheme();
+        this.calDate.setDate(1);
+        if (!Store.state.tasks.length) this.loadSample();
+        this.setupKeys();
+        Store.onChange(() => this.render());
+        this.render();
+    },
+
+    initTheme() {
+        const t = localStorage.getItem('pd-theme') || 'dark';
+        document.body.classList.toggle('light', t === 'light');
+        document.getElementById('theme-btn').textContent = t === 'light' ? 'Dark' : 'Light';
+    },
+
+    toggleTheme() {
+        const l = document.body.classList.toggle('light');
+        localStorage.setItem('pd-theme', l ? 'light' : 'dark');
+        this.initTheme();
+        if (this.cur === 'analytics') this.renderAnalytics();
+    },
+
+    go(v) {
+        this.cur = v;
+        document.querySelectorAll('.view').forEach(s => s.classList.remove('active'));
+        document.getElementById('v-' + v).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const n = document.getElementById('nav-' + v);
+        if (n) n.classList.add('active');
+        this.render();
+    },
+
+    render() {
+        const q = document.getElementById('search').value.toLowerCase();
+        const tasks = Store.state.tasks.filter(t => t.title.toLowerCase().includes(q) || (t.owner || '').toLowerCase().includes(q));
+        const renderers = {
+            board: () => this.renderBoard(tasks),
+            roadmap: () => this.renderGantt(tasks),
+            calendar: () => this.renderCal(tasks),
+            table: () => this.renderTable(tasks),
+            backlog: () => this.renderBacklog(q),
+            analytics: () => this.renderAnalytics(tasks),
+            sprint: () => this.renderSprint(),
+            dor: () => this.renderChecklist('dor', 'Definition of Ready', 'All items must be checked before a story enters a sprint.'),
+            dod: () => this.renderChecklist('dod', 'Definition of Done', 'All items must be satisfied before work is shippable.'),
+            qa: () => this.renderChecklist('qa', 'QA Checklist', 'Quality assurance verification steps.'),
+            dev: () => this.renderChecklist('dev', 'Dev Checklist', 'Development best practices.'),
+            sec: () => this.renderChecklist('sec', 'Security Checklist', 'Security audit items.'),
+            devops: () => this.renderChecklist('devops', 'DevOps Checklist', 'Deployment and infrastructure readiness.'),
+            log: () => this.renderLog()
+        };
+        (renderers[this.cur] || renderers.board)();
+    },
+
+    renderBoard(tasks) {
+        const el = document.getElementById('v-board');
+        let h = '<div class="board">';
+        const today = new Date().toISOString().split('T')[0];
+        ['todo', 'active', 'blocked', 'done'].forEach(s => {
+            h += `<div class="col" data-s="${s}"><div class="col-head"><span class="col-title">${s[0].toUpperCase() + s.slice(1)}</span><span class="col-count">${tasks.filter(t => t.status === s).length}</span></div><div class="cards" data-s="${s}">`;
+            const colTasks = tasks.filter(t => t.status === s);
+            if (!colTasks.length) h += `<div class="empty-state">No tasks</div>`;
+            colTasks.forEach(t => {
+                const epic = Store.state.epics.find(e => e.id === t.epicId);
+                const isOverdue = t.end && t.end < today && s !== 'done';
+                const progress = t.checklist && t.checklist.length ? Math.round(t.checklist.filter(c => c.done).length / t.checklist.length * 100) : null;
+                h += `<div class="card${s === 'done' ? ' done' : ''}${this.selId === t.id ? ' selected' : ''}${isOverdue ? ' overdue' : ''}" draggable="true" data-id="${t.id}" ondblclick="UI.openTask('${t.id}')" onclick="UI.selId='${t.id}';UI.render()"><div class="card-id">${this.esc(t.id)}</div><div class="card-title">${this.esc(t.title)}</div><div class="card-tags"><span class="tag tag-${t.priority}">${t.priority}</span>${epic ? `<span class="tag tag-epic">${this.esc(epic.title)}</span>` : ''}${isOverdue ? `<span style="font-size:9px;font-weight:700;color:var(--red)">OVERDUE</span>` : ''}</div>${progress !== null ? `<div class="progress-bar" style="margin-bottom:6px"><div class="progress-fill${progress < 40 ? ' danger' : progress < 80 ? ' warn' : ''}" style="width:${progress}%"></div></div><div style="font-size:9px;color:var(--text-tertiary);margin-bottom:4px">${progress}%</div>` : ''}<div class="card-foot"><span>${this.esc(t.owner || '\u2014')}</span><span>${t.end ? t.end.slice(5) : '\u2014'}</span></div></div>`;
+            });
+            h += '</div></div>';
+        });
+        el.innerHTML = h + '</div>';
+        el.querySelectorAll('.cards').forEach(cl => {
+            cl.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+            cl.ondragenter = () => cl.classList.add('over');
+            cl.ondragleave = () => cl.classList.remove('over');
+            cl.ondrop = e => { e.preventDefault(); cl.classList.remove('over'); Store.updateTask(e.dataTransfer.getData('tid'), { status: cl.dataset.s }); };
+        });
+        el.querySelectorAll('.card').forEach(c => {
+            c.ondragstart = e => { e.dataTransfer.setData('tid', c.dataset.id); c.style.opacity = '0.5'; };
+            c.ondragend = () => { c.style.opacity = ''; };
+        });
+    },
+
+    renderGantt(tasks) {
+        const el = document.getElementById('v-roadmap');
+        if (!tasks.length) { el.innerHTML = '<div class="empty-state">No tasks with dates</div>'; return; }
+        const dated = tasks.filter(t => t.start && t.end).sort((a, b) => a.start.localeCompare(b.start));
+        if (!dated.length) { el.innerHTML = '<div class="empty-state">No tasks with start/end dates</div>'; return; }
+        const minDate = new Date(dated[0].start);
+        const maxDate = new Date(dated.reduce((m, t) => t.end > m ? t.end : m, dated[0].end));
+        const totalDays = Math.max(1, Math.ceil((maxDate - minDate) / 86400000) + 1);
+        const dayWidth = Math.max(30, Math.min(60, 800 / totalDays));
+        let h = `<div class="gantt" style="min-width:${180 + totalDays * dayWidth}px">`;
+        h += '<div class="gantt-header"><div style="width:180px;flex-shrink:0"></div>';
+        for (let i = 0; i < totalDays; i++) {
+            const d = new Date(minDate);
+            d.setDate(d.getDate() + i);
+            const label = d.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+            h += `<div class="gantt-header-cell" style="width:${dayWidth}px">${label}</div>`;
+        }
+        h += '</div>';
+        dated.forEach(t => {
+            const startOff = Math.max(0, Math.ceil((new Date(t.start) - minDate) / 86400000));
+            const dur = Math.max(1, Math.ceil((new Date(t.end) - new Date(t.start)) / 86400000) + 1);
+            const left = startOff * dayWidth;
+            const width = dur * dayWidth;
+            h += `<div class="gantt-row"><div class="gantt-label">${this.esc(t.title)}</div><div class="gantt-track"><div class="gantt-bar" style="left:${left}px;width:${width}px" ondblclick="UI.openTask('${t.id}')">${this.esc(t.title)}</div></div></div>`;
+        });
+        el.innerHTML = h + '</div>';
+    },
+
+    renderCal(tasks) {
+        const el = document.getElementById('v-calendar');
+        const year = this.calDate.getFullYear();
+        const month = this.calDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date().toISOString().split('T')[0];
+        const dm = {};
+        tasks.forEach(t => { if (t.end) { if (!dm[t.end]) dm[t.end] = []; dm[t.end].push(t); } });
+        let h = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--g4)"><button class="btn btn-sm" onclick="UI.calDate.setMonth(UI.calDate.getMonth()-1);UI.render()">Prev</button><h3 style="font-size:15px;font-weight:700">${this.calDate.toLocaleDateString('en', { month: 'long', year: 'numeric' })}</h3><button class="btn btn-sm" onclick="UI.calDate.setMonth(UI.calDate.getMonth()+1);UI.render()">Next</button></div>`;
+        h += '<div class="cal-grid">';
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => h += `<div class="cal-head">${d}</div>`);
+        for (let i = 0; i < firstDay; i++) h += '<div class="cal-day"></div>';
+        for (let d = 1; d <= daysInMonth; d++) {
+            const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const isToday = ds === today;
+            h += `<div class="cal-day${isToday ? ' today' : ''}"><div class="cal-day-num">${d}</div>`;
+            (dm[ds] || []).forEach(t => {
+                const isOverdue = t.end < today && t.status !== 'done';
+                h += `<div class="cal-task${isOverdue ? ' due' : ''}" onclick="UI.openTask('${t.id}')">${this.esc(t.title)}</div>`;
+            });
+            h += '</div>';
+        }
+        el.innerHTML = h + '</div>';
+    },
+
+    renderTable(tasks) {
+        const sorted = [...tasks].sort((a, b) => (a[this.sortKey] > b[this.sortKey] ? 1 : -1) * this.sortDir);
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('v-table').innerHTML = `<div class="table-wrap"><table><thead><tr><th onclick="UI.sorts('id')">ID</th><th onclick="UI.sorts('title')">Title</th><th onclick="UI.sorts('status')">Status</th><th onclick="UI.sorts('priority')">Priority</th><th onclick="UI.sorts('owner')">Owner</th><th onclick="UI.sorts('end')">Due</th><th>Progress</th></tr></thead><tbody>${sorted.map(t => {
+            const isOverdue = t.end && t.end < today && t.status !== 'done';
+            const progress = t.checklist && t.checklist.length ? Math.round(t.checklist.filter(c => c.done).length / t.checklist.length * 100) : null;
+            return `<tr onclick="UI.openTask('${t.id}')"><td style="font-family:monospace;font-size:10px;color:var(--accent)">${this.esc(t.id)}</td><td style="font-weight:600;color:var(--text-primary)">${this.esc(t.title)}</td><td><select class="input" style="padding:2px 20px 2px 6px;font-size:10px;width:auto" onclick="event.stopPropagation()" onchange="Store.updateTask('${t.id}',{status:this.value})">${['todo','active','blocked','done'].map(s => `<option value="${s}"${t.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></td><td><span class="tag tag-${t.priority}">${t.priority}</span></td><td style="color:var(--text-secondary)">${this.esc(t.owner || '\u2014')}</td><td style="color:${isOverdue ? 'var(--red)' : 'var(--text-tertiary)'};${isOverdue ? 'font-weight:600' : ''}">${t.end || '\u2014'}</td><td>${progress !== null ? `<div style="display:flex;align-items:center;gap:6px"><div class="progress-bar" style="width:60px"><div class="progress-fill${progress < 40 ? ' danger' : progress < 80 ? ' warn' : ''}" style="width:${progress}%"></div></div><span style="font-size:10px;color:var(--text-tertiary)">${progress}%</span></div>` : '\u2014'}</td></tr>`;
+        }).join('')}</tbody></table></div>`;
+    },
+
+    renderBacklog(q) {
+        const el = document.getElementById('v-backlog');
+        const hasSearch = q && q.length > 0;
+        let html = '';
+        Store.state.epics.forEach(e => {
+            const epicMatch = e.title.toLowerCase().includes(q);
+            const matchingFeats = Store.state.feats.filter(f => f.epicId === e.id && (epicMatch || f.title.toLowerCase().includes(q)));
+            const matchingStories = matchingFeats.flatMap(f => Store.state.stories.filter(s => s.featId === f.id && (epicMatch || f.title.toLowerCase().includes(q) || s.title.toLowerCase().includes(q))));
+            if (hasSearch && !epicMatch && !matchingFeats.length) return;
+            html += `<div class="epic-block"><div class="epic-hdr"><strong>${this.esc(e.title)}</strong><button class="btn btn-sm btn-ghost" onclick="UI.quickAdd('feat','${e.id}')">+ Feature</button></div>`;
+            if (!matchingFeats.length) {
+                Store.state.feats.filter(f => f.epicId === e.id).forEach(f => {
+                    html += `<div class="feat-block"><div class="feat-hdr"><strong>${this.esc(f.title)}</strong><button class="btn btn-sm btn-ghost" onclick="UI.quickAdd('story','${f.id}')">+ Story</button></div>`;
+                    Store.state.stories.filter(s => s.featId === f.id).forEach(s => {
+                        html += `<div class="story-row"><div>${this.esc(s.title)}</div>${s.criteria ? `<div class="crit">${this.esc(s.criteria)}</div>` : ''}</div>`;
+                    });
+                    html += '</div>';
+                });
+            } else {
+                matchingFeats.forEach(f => {
+                    html += `<div class="feat-block"><div class="feat-hdr"><strong>${this.esc(f.title)}</strong><button class="btn btn-sm btn-ghost" onclick="UI.quickAdd('story','${f.id}')">+ Story</button></div>`;
+                    Store.state.stories.filter(s => s.featId === f.id).forEach(s => {
+                        const match = epicMatch || f.title.toLowerCase().includes(q) || s.title.toLowerCase().includes(q);
+                        html += `<div class="story-row" style="${match && hasSearch ? 'border-color:var(--accent);background:var(--accent-dim)' : ''}"><div>${this.esc(s.title)}</div>${s.criteria ? `<div class="crit">${this.esc(s.criteria)}</div>` : ''}</div>`;
+                    });
+                    html += '</div>';
+                });
+            }
+            html += '</div>';
+        });
+        el.innerHTML = html || '<div class="empty-state">No epics found</div>';
+    },
+
+    renderAnalytics(tasks) {
+        const el = document.getElementById('v-analytics');
+        const sc = { done: 0, active: 0, todo: 0, blocked: 0 };
+        tasks.forEach(t => sc[t.status]++);
+        const pc = { p0: 0, p1: 0, p2: 0 };
+        tasks.forEach(t => pc[t.priority]++);
+        const overdue = tasks.filter(t => t.end && t.end < new Date().toISOString().split('T')[0] && t.status !== 'done').length;
+        const totalProgress = tasks.filter(t => t.checklist && t.checklist.length).reduce((sum, t) => sum + Math.round(t.checklist.filter(c => c.done).length / t.checklist.length * 100), 0);
+        const avgProgress = tasks.filter(t => t.checklist && t.checklist.length).length ? Math.round(totalProgress / tasks.filter(t => t.checklist && t.checklist.length).length) : 0;
+        let h = '<div class="analytics-grid">';
+        h += `<div class="stat-card"><h4>Total Tasks</h4><div class="stat-num">${tasks.length}</div><div class="stat-sub">${sc.done} done, ${sc.active} active, ${sc.todo} todo, ${sc.blocked} blocked</div></div>`;
+        h += `<div class="stat-card"><h4>Completion</h4><div class="stat-num">${tasks.length ? Math.round(sc.done / tasks.length * 100) : 0}%</div><div class="stat-sub">Avg progress: ${avgProgress}%</div></div>`;
+        h += `<div class="stat-card"><h4>Overdue</h4><div class="stat-num" style="color:${overdue ? 'var(--red)' : 'var(--green)'}">${overdue}</div><div class="stat-sub">tasks past due date</div></div>`;
+        h += `<div class="stat-card"><h4>Priority</h4><div class="stat-num">${pc.p0}</div><div class="stat-sub">P0 critical, ${pc.p1} P1 high, ${pc.p2} P2 normal</div></div>`;
+        h += '</div>';
+        h += '<div class="analytics-grid" style="margin-top:var(--g4)">';
+        h += '<div class="stat-card"><h4>Status Distribution</h4><div class="chart-container"><canvas id="ch-s"></canvas></div></div>';
+        h += '<div class="stat-card"><h4>Priority Breakdown</h4><div class="chart-container"><canvas id="ch-p"></canvas></div></div>';
+        h += '</div>';
+        el.innerHTML = h;
+        if (typeof Chart !== 'undefined') {
+            const tc = getComputedStyle(document.body).getPropertyValue('--text-tertiary').trim();
+            if (this.charts.s) this.charts.s.destroy();
+            if (this.charts.p) this.charts.p.destroy();
+            this.charts.s = new Chart(document.getElementById('ch-s'), { type: 'doughnut', data: { labels: ['Done', 'Active', 'Todo', 'Blocked'], datasets: [{ data: [sc.done, sc.active, sc.todo, sc.blocked], backgroundColor: ['#22c55e', '#eab308', '#3b82f6', '#ef4444'], borderWidth: 0 }] }, options: { plugins: { legend: { labels: { color: tc, font: { family: 'Inter', size: 11 } } } }, cutout: '68%' } });
+            this.charts.p = new Chart(document.getElementById('ch-p'), { type: 'bar', data: { labels: ['P0', 'P1', 'P2'], datasets: [{ data: [pc.p0, pc.p1, pc.p2], backgroundColor: ['#ef4444', '#eab308', '#64748b'], borderRadius: 4, barThickness: 28 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { color: tc, font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.06)' } }, x: { ticks: { color: tc, font: { family: 'Inter' } }, grid: { display: false } } } } });
+        }
+    },
+
+    renderSprint() {
+        const el = document.getElementById('v-sprint');
+        const tasks = Store.state.tasks;
+        const today = new Date().toISOString().split('T')[0];
+        const sprint = Store.state.sprint || { name: 'Sprint 1', start: '2026-06-01', end: '2026-06-14' };
+        const active = tasks.filter(t => t.status === 'active');
+        const todo = tasks.filter(t => t.status === 'todo');
+        const done = tasks.filter(t => t.status === 'done');
+        const blocked = tasks.filter(t => t.status === 'blocked');
+        const overdue = tasks.filter(t => t.end && t.end < today && t.status !== 'done');
+        let h = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--g4)"><div><h3 style="font-size:16px;font-weight:700">${this.esc(sprint.name)}</h3><p style="font-size:11px;color:var(--text-tertiary)">${sprint.start} to ${sprint.end}</p></div><button class="btn btn-sm" onclick="UI.editSprint()">Edit Sprint</button></div>`;
+        h += '<div class="sprint-stats">';
+        h += `<div class="sprint-stat"><div class="num" style="color:var(--accent)">${active.length}</div><div class="lbl">Active</div></div>`;
+        h += `<div class="sprint-stat"><div class="num" style="color:var(--yellow)">${todo.length}</div><div class="lbl">To Do</div></div>`;
+        h += `<div class="sprint-stat"><div class="num" style="color:var(--green)">${done.length}</div><div class="lbl">Done</div></div>`;
+        h += `<div class="sprint-stat"><div class="num" style="color:var(--red)">${blocked.length + overdue.length}</div><div class="lbl">Blocked / Overdue</div></div>`;
+        h += '</div>';
+        h += '<div class="board">';
+        ['active', 'todo', 'blocked', 'done'].forEach(s => {
+            const colTasks = tasks.filter(t => t.status === s);
+            h += `<div class="col" data-s="${s}"><div class="col-head"><span class="col-title">${s[0].toUpperCase() + s.slice(1)}</span><span class="col-count">${colTasks.length}</span></div><div class="cards" data-s="${s}">`;
+            colTasks.forEach(t => {
+                const isOverdue = t.end && t.end < today && s !== 'done';
+                h += `<div class="card${s === 'done' ? ' done' : ''}${isOverdue ? ' overdue' : ''}" draggable="true" data-id="${t.id}" ondblclick="UI.openTask('${t.id}')"><div class="card-id">${this.esc(t.id)}</div><div class="card-title">${this.esc(t.title)}</div><div class="card-tags"><span class="tag tag-${t.priority}">${t.priority}</span>${isOverdue ? `<span style="font-size:9px;font-weight:700;color:var(--red)">OVERDUE</span>` : ''}</div><div class="card-foot"><span>${this.esc(t.owner || '\u2014')}</span><span>${t.end ? t.end.slice(5) : '\u2014'}</span></div></div>`;
+            });
+            h += '</div></div>';
+        });
+        h += '</div>';
+        el.innerHTML = h;
+        el.querySelectorAll('.cards').forEach(cl => {
+            cl.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+            cl.ondragenter = () => cl.classList.add('over');
+            cl.ondragleave = () => cl.classList.remove('over');
+            cl.ondrop = e => { e.preventDefault(); cl.classList.remove('over'); Store.updateTask(e.dataTransfer.getData('tid'), { status: cl.dataset.s }); };
+        });
+        el.querySelectorAll('.card').forEach(c => {
+            c.ondragstart = e => { e.dataTransfer.setData('tid', c.dataset.id); c.style.opacity = '0.5'; };
+            c.ondragend = () => { c.style.opacity = ''; };
+        });
+    },
+
+    renderChecklist(key, title, desc) {
+        const el = document.getElementById('v-' + key);
+        const cl = Store.getChecklist(key);
+        const done = cl.filter(c => c.checked).length;
+        const pct = cl.length ? Math.round(done / cl.length * 100) : 0;
+        const circ = 2 * Math.PI * 22;
+        const offset = circ - (pct / 100) * circ;
+        const color = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--yellow)' : 'var(--red)';
+        let h = `<div class="dor-dod-banner"><h3>${title}</h3><p>${desc}</p></div>`;
+        h += `<div class="checklist-progress-ring"><div class="ring-wrap"><svg width="56" height="56"><circle class="ring-bg" cx="28" cy="28" r="22"/><circle class="ring-fg" cx="28" cy="28" r="22" stroke="${color}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg><div class="ring-pct">${pct}%</div></div><div class="ring-label"><strong>${done} of ${cl.length} complete</strong><span>${cl.length - done} remaining</span></div></div>`;
+        h += `<div class="checklist-card"><div class="checklist-card-head"><h4>Items</h4></div><div class="checklist-card-body">`;
+        cl.forEach(c => {
+            h += `<div class="cl-item${c.checked ? ' checked' : ''}" onclick="Store.toggleCheck('${key}','${c.id}')"><input type="checkbox"${c.checked ? ' checked' : ''} onclick="event.stopPropagation();Store.toggleCheck('${key}','${c.id}')"><span class="cl-text">${this.esc(c.text)}</span><span class="cl-tag tag-${c.tag}">${c.tag}</span></div>`;
+        });
+        h += `<div class="add-cl-form"><input class="input" id="add-cl-${key}" placeholder="Add new item..." onkeydown="if(event.key==='Enter'){Store.addChecklistItem('${key}',this.value);this.value='';UI.render()}"><select class="input" style="width:90px" id="add-cl-tag-${key}"><option value="optional">Optional</option><option value="required">Required</option><option value="auto">Auto</option></select><button class="btn btn-primary btn-sm" onclick="Store.addChecklistItem('${key}',document.getElementById('add-cl-${key}').value,document.getElementById('add-cl-tag-${key}').value);document.getElementById('add-cl-${key}').value='';UI.render()">Add</button></div>`;
+        h += '</div></div>';
+        el.innerHTML = h;
+    },
+
+    renderLog() {
+        const el = document.getElementById('v-log');
+        const logs = Store.state.logs.slice(0, 50);
+        if (!logs.length) { el.innerHTML = '<div class="empty-state">No activity yet</div>'; return; }
+        let h = '<div class="log-list">';
+        logs.forEach(l => {
+            const time = l.time ? new Date(l.time).toLocaleString() : l.time || '';
+            h += `<div class="log-item"><span><strong style="color:var(--accent)">${this.esc(l.action || '')}</strong> ${this.esc(l.taskId || '')} ${this.esc(l.detail || l.msg || '')}</span><span class="log-time">${time}</span></div>`;
+        });
+        el.innerHTML = h + '</div>';
+    },
+
+    sorts(key) {
+        if (this.sortKey === key) this.sortDir *= -1;
+        else { this.sortKey = key; this.sortDir = 1; }
+        this.render();
+    },
+
+    openTask(id) {
+        this.editId = id || null;
+        const t = id ? Store.state.tasks.find(t => t.id === id) : null;
+        document.getElementById('modal-title').textContent = t ? 'Edit Task' : 'New Task';
+        document.getElementById('f-title').value = t ? t.title : '';
+        document.getElementById('f-desc').value = t ? (t.desc || '') : '';
+        document.getElementById('f-ac').value = t ? (t.ac || '') : '';
+        document.getElementById('f-status').value = t ? t.status : 'todo';
+        document.getElementById('f-priority').value = t ? t.priority : 'p2';
+        document.getElementById('f-owner').value = t ? (t.owner || '') : '';
+        document.getElementById('f-start').value = t ? (t.start || '') : '';
+        document.getElementById('f-end').value = t ? (t.end || '') : '';
+        document.getElementById('delete-btn').style.display = t ? '' : 'none';
+        const epSel = document.getElementById('f-epic');
+        epSel.innerHTML = '<option value="">None</option>' + Store.state.epics.map(e => `<option value="${e.id}"${t && t.epicId === e.id ? ' selected' : ''}>${this.esc(e.title)}</option>`).join('');
+        const clDiv = document.getElementById('f-checklist');
+        clDiv.innerHTML = '';
+        if (t && t.checklist) t.checklist.forEach((c, i) => this._addCheckItemHTML(clDiv, c.text, c.done));
+        document.getElementById('f-comments').innerHTML = t && t.comments ? t.comments.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-secondary)">${this.esc(c)}</div>`).join('') : '';
+        document.getElementById('m-task').classList.add('active');
+        setTimeout(() => document.getElementById('f-title').focus(), 100);
+    },
+
+    _addCheckItemHTML(div, text, done) {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;margin-bottom:4px;align-items:center';
+        row.innerHTML = `<input type="checkbox"${done ? ' checked' : ''} style="flex-shrink:0"><input class="input" value="${this.esc(text || '')}" placeholder="Checklist item" style="flex:1"><button class="btn btn-sm btn-ghost" onclick="this.parentElement.remove()">&times;</button>`;
+        div.appendChild(row);
+    },
+
+    addCheckItem() {
+        this._addCheckItemHTML(document.getElementById('f-checklist'), '', false);
+    },
+
+    saveTask() {
+        const d = {
+            title: document.getElementById('f-title').value.trim(),
+            desc: document.getElementById('f-desc').value,
+            ac: document.getElementById('f-ac').value,
+            status: document.getElementById('f-status').value,
+            priority: document.getElementById('f-priority').value,
+            owner: document.getElementById('f-owner').value,
+            start: document.getElementById('f-start').value,
+            end: document.getElementById('f-end').value,
+            epicId: document.getElementById('f-epic').value,
+            checklist: Array.from(document.getElementById('f-checklist').children).map(c => ({
+                text: c.querySelector('input[type=text]').value,
+                done: c.querySelector('input[type=checkbox]').checked
+            }))
+        };
+        if (!d.title) { this.toast('Title required', 'error'); return; }
+        if (this.editId) Store.updateTask(this.editId, d);
+        else Store.addTask(d);
+        this.closeModal();
+        this.toast('Saved', 'success');
+    },
+
+    deleteTask() {
+        document.getElementById('confirm-title').textContent = 'Delete Task';
+        document.getElementById('confirm-msg').textContent = 'Remove this task?';
+        document.getElementById('m-confirm').classList.add('active');
+        document.getElementById('confirm-ok').onclick = () => {
+            Store.deleteTask(this.editId);
+            this.closeModal();
+            this.toast('Deleted', 'error');
+        };
+    },
+
+    closeModal() {
+        document.getElementById('m-task').classList.remove('active');
+        this.editId = null;
+    },
+
+    quickAdd(type, pid) {
+        const title = prompt(type === 'feat' ? 'Feature name:' : 'Story name:');
+        if (!title) return;
+        if (type === 'feat') Store.state.feats.push({ id: 'F-' + (100 + Store.state.feats.length), epicId: pid, title });
+        if (type === 'story') Store.state.stories.push({ id: 'S-' + (100 + Store.state.stories.length), featId: pid, title, criteria: '' });
+        Store.audit(type === 'feat' ? 'FEATURE_ADDED' : 'STORY_ADDED', pid, title);
+        Store.save();
+        this.toast(type === 'feat' ? 'Feature added' : 'Story added', 'success');
+    },
+
+    editSprint() {
+        const s = Store.state.sprint || { name: 'Sprint 1', start: '2026-06-01', end: '2026-06-14' };
+        const name = prompt('Sprint name:', s.name);
+        if (!name) return;
+        const start = prompt('Start date (YYYY-MM-DD):', s.start);
+        if (!start) return;
+        const end = prompt('End date (YYYY-MM-DD):', s.end);
+        if (!end) return;
+        Store.state.sprint = { name, start, end };
+        Store.audit('SPRINT_UPDATED', name, `${start} to ${end}`);
+        Store.save();
+        this.toast('Sprint updated', 'success');
+    },
+
+    toast(m, type) {
+        const t = document.getElementById('toast');
+        t.textContent = m;
+        t.className = 'toast show' + (type ? ' ' + type : '');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    },
+
+    setupKeys() {
+        window.addEventListener('keydown', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); this.openCmd(); return; }
+            if (e.key === 'Escape') { this.closeModal(); this.closeCmd(); }
+            if (e.key === 'n' || e.key === 'N') { e.preventDefault(); this.openTask(); }
+            if (e.key === '1') this.go('board');
+            if (e.key === '2') this.go('roadmap');
+            if (e.key === '3') this.go('calendar');
+            if (e.key === '4') this.go('table');
+            if (e.key === '5') this.go('backlog');
+            if (e.key === '6') this.go('analytics');
+            if (e.key === 's' || e.key === 'S') this.go('sprint');
+            if (e.key === 'd' || e.key === 'D') { e.preventDefault(); if (e.shiftKey) this.go('dod'); else this.go('dor'); }
+            if (e.key === 'f' || e.key === 'F') this.go('qa');
+            if (e.key === 'g' || e.key === 'G') this.go('dev');
+            if (e.key === 'h' || e.key === 'H') this.go('sec');
+            if (e.key === 'j' || e.key === 'J') this.go('devops');
+            if (e.key === '/' || e.key === '?') { e.preventDefault(); document.getElementById('search').focus(); }
+        });
+    },
+
+    esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; },
+
+    openCmd() {
+        this.cmdIdx = 0;
+        document.getElementById('cmd-palette').classList.add('active');
+        const inp = document.getElementById('cmd-input');
+        inp.value = '';
+        inp.focus();
+        this.filterCmd();
+    },
+
+    closeCmd() { document.getElementById('cmd-palette').classList.remove('active'); },
+
+    cmdKey(e) {
+        const items = document.querySelectorAll('#cmd-results .cmd-item');
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.cmdIdx = Math.min(this.cmdIdx + 1, items.length - 1); this._highlightCmd(items); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); this.cmdIdx = Math.max(this.cmdIdx - 1, 0); this._highlightCmd(items); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (items[this.cmdIdx]) items[this.cmdIdx].click(); }
+    },
+
+    _highlightCmd(items) {
+        items.forEach((it, i) => it.classList.toggle('active', i === this.cmdIdx));
+        if (items[this.cmdIdx]) items[this.cmdIdx].scrollIntoView({ block: 'nearest' });
+    },
+
+    filterCmd() {
+        const q = document.getElementById('cmd-input').value.toLowerCase();
+        const commands = [
+            { label: 'New Task', key: 'N', action: () => this.openTask() },
+            { label: 'Board View', key: '1', action: () => this.go('board') },
+            { label: 'Roadmap View', key: '2', action: () => this.go('roadmap') },
+            { label: 'Calendar View', key: '3', action: () => this.go('calendar') },
+            { label: 'Table View', key: '4', action: () => this.go('table') },
+            { label: 'Backlog View', key: '5', action: () => this.go('backlog') },
+            { label: 'Analytics View', key: '6', action: () => this.go('analytics') },
+            { label: 'Sprint Board', key: 'S', action: () => this.go('sprint') },
+            { label: 'Definition of Ready', key: 'D', action: () => this.go('dor') },
+            { label: 'Definition of Done', key: 'Shift+D', action: () => this.go('dod') },
+            { label: 'QA Checklist', key: 'F', action: () => this.go('qa') },
+            { label: 'Dev Checklist', key: 'G', action: () => this.go('dev') },
+            { label: 'Security Checklist', key: 'H', action: () => this.go('sec') },
+            { label: 'DevOps Checklist', key: 'J', action: () => this.go('devops') },
+            { label: 'Activity Log', key: '', action: () => this.go('log') },
+            { label: 'Toggle Theme', key: '', action: () => this.toggleTheme() },
+            { label: 'Export Data', key: '', action: () => Store.exportData() },
+            { label: 'Reset All Data', key: '', action: () => Store.reset() },
+            { label: 'Search', key: '/', action: () => { this.closeCmd(); document.getElementById('search').focus(); } }
+        ];
+        const filtered = commands.filter(c => c.label.toLowerCase().includes(q));
+        this.cmdIdx = 0;
+        document.getElementById('cmd-results').innerHTML = filtered.map((c, i) => `<div class="cmd-item${i === 0 ? ' active' : ''}" onclick="UI.closeCmd();(${c.action.toString()})()"><span>${c.label}</span><span class="cmd-key">${c.key}</span></div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text-tertiary);font-size:12px">No commands found</div>';
+    },
+
+    loadSample() {
+        Store.state.epics = [
+            { id: 'E-1', title: 'Core Package Engine' },
+            { id: 'E-2', title: 'App Integration' },
+            { id: 'E-3', title: 'User Experience' },
+            { id: 'E-4', title: 'Operations & CI' },
+            { id: 'E-5', title: 'Documentation' }
+        ];
+        Store.state.feats = [
+            { id: 'F-1', epicId: 'E-1', title: 'Dependency resolution' },
+            { id: 'F-2', epicId: 'E-1', title: 'Package format handlers' },
+            { id: 'F-3', epicId: 'E-2', title: 'Desktop integration' },
+            { id: 'F-4', epicId: 'E-3', title: 'CLI improvements' },
+            { id: 'F-5', epicId: 'E-2', title: 'App detection' },
+            { id: 'F-6', epicId: 'E-4', title: 'CI/CD pipeline' },
+            { id: 'F-7', epicId: 'E-4', title: 'GitHub automation' },
+            { id: 'F-8', epicId: 'E-3', title: 'Config & logging' },
+            { id: 'F-9', epicId: 'E-5', title: 'Technical docs' },
+            { id: 'F-10', epicId: 'E-1', title: 'CLI flags & config' }
+        ];
+        Store.state.stories = [
+            { id: 'S-1', featId: 'F-1', title: 'Auto-detect deps', criteria: 'Resolve .deb, .rpm, .pkg.tar.zst deps' },
+            { id: 'S-2', featId: 'F-2', title: 'Handle .deb packages', criteria: 'Install via alien/dpkg' },
+            { id: 'S-3', featId: 'F-2', title: 'Handle .rpm packages', criteria: 'Install via alien' },
+            { id: 'S-4', featId: 'F-2', title: 'Handle .pkg.tar.zst', criteria: 'Extract and install' },
+            { id: 'S-5', featId: 'F-3', title: 'Desktop file generation', criteria: 'Auto-generate .desktop files' },
+            { id: 'S-6', featId: 'F-3', title: 'Icon extraction', criteria: 'Extract icons from packages' },
+            { id: 'S-7', featId: 'F-4', title: 'Progress indicator', criteria: 'Show download/install progress' },
+            { id: 'S-8', featId: 'F-4', title: 'Verbose mode', criteria: 'Debug output with --verbose' }
+        ];
+        Store.state.tasks = [
+            { id: 'PKGD-100', title: 'Auto-detect & install dependencies', status: 'done', priority: 'p0', epicId: 'E-1', featId: 'F-1', owner: 'Agent', start: '2026-06-01', end: '2026-06-03', ac: 'Detect .deb/.rpm/.pkg deps, install automatically', checklist: [{ text: 'Parse package metadata', done: true }, { text: 'Resolve dependency tree', done: true }, { text: 'Install missing deps', done: true }] },
+            { id: 'PKGD-101', title: '.deb handler via alien', status: 'done', priority: 'p0', epicId: 'E-1', featId: 'F-2', owner: 'Agent', start: '2026-06-02', end: '2026-06-04', ac: 'Convert and install .deb packages', checklist: [{ text: 'Alien conversion', done: true }, { text: 'dpkg fallback', done: true }] },
+            { id: 'PKGD-102', title: '.rpm handler via alien', status: 'done', priority: 'p0', epicId: 'E-1', featId: 'F-2', owner: 'Agent', start: '2026-06-03', end: '2026-06-05', ac: 'Convert and install .rpm packages', checklist: [{ text: 'Alien conversion', done: true }, { text: 'RPM install', done: true }] },
+            { id: 'PKGD-103', title: 'Desktop integration', status: 'done', priority: 'p1', epicId: 'E-2', featId: 'F-3', owner: 'Agent', start: '2026-06-04', end: '2026-06-06', ac: 'Generate .desktop files and extract icons', checklist: [{ text: 'Desktop file gen', done: true }, { text: 'Icon extraction', done: true }] },
+            { id: 'PKGD-104', title: 'Config file support', status: 'done', priority: 'p2', epicId: 'E-3', featId: 'F-8', owner: 'Agent', start: '2026-06-05', end: '2026-06-06', ac: 'Config at ~/.config/pkgdrop/config', checklist: [{ text: 'XDG paths', done: true }, { text: 'Config parsing', done: true }] },
+            { id: 'PKGD-105', title: 'Progress indicator', status: 'done', priority: 'p1', epicId: 'E-3', featId: 'F-4', owner: 'Agent', start: '2026-06-06', end: '2026-06-08', ac: 'Show download/install progress bar', checklist: [{ text: 'Progress bar', done: true }, { text: 'ETA calculation', done: true }] },
+            { id: 'PKGD-106', title: 'Verbose mode', status: 'done', priority: 'p2', epicId: 'E-3', featId: 'F-4', owner: 'Agent', start: '2026-06-07', end: '2026-06-09', ac: 'Debug output with --verbose flag', checklist: [{ text: 'Flag parsing', done: true }, { text: 'Debug output', done: true }] },
+            { id: 'PKGD-107', title: 'CI pipeline setup', status: 'done', priority: 'p1', epicId: 'E-4', featId: 'F-6', owner: 'Agent', start: '2026-06-08', end: '2026-06-10', ac: 'GitHub Actions CI with lint, test, build', checklist: [{ text: 'Workflow file', done: true }, { text: 'Test integration', done: true }] },
+            { id: 'PKGD-108', title: 'Security audit', status: 'done', priority: 'p0', epicId: 'E-4', featId: 'F-7', owner: 'Agent', start: '2026-06-09', end: '2026-06-11', ac: 'Full security review, fix all findings', checklist: [{ text: 'Input validation', done: true }, { text: 'Path traversal fix', done: true }, { text: 'Symlink protection', done: true }] },
+            { id: 'PKGD-109', title: 'Technical documentation', status: 'done', priority: 'p1', epicId: 'E-5', featId: 'F-9', owner: 'Agent', start: '2026-06-10', end: '2026-06-11', ac: 'Write TECH_ROADMAP, ARCHITECTURE, USER_STORIES', checklist: [{ text: 'TECH_ROADMAP.md', done: true }, { text: 'ARCHITECTURE.md', done: true }, { text: 'USER_STORIES.md', done: true }] },
+            { id: 'PKGD-110', title: 'Dependency resolution engine', status: 'active', priority: 'p0', epicId: 'E-1', featId: 'F-1', owner: 'Agent', start: '2026-06-11', end: '2026-06-14', ac: 'Full dependency graph resolution with conflict detection', checklist: [{ text: 'Graph traversal', done: true }, { text: 'Conflict detection', done: false }, { text: 'Version comparison', done: false }] },
+            { id: 'PKGD-111', title: 'Conflict detection matrix', status: 'todo', priority: 'p1', epicId: 'E-1', featId: 'F-1', owner: 'Agent', start: '2026-06-14', end: '2026-06-18', ac: 'Detect and report package conflicts before install', checklist: [] },
+            { id: 'PKGD-112', title: 'Signature verification', status: 'todo', priority: 'p1', epicId: 'E-4', featId: 'F-7', owner: 'Agent', start: '2026-06-15', end: '2026-06-19', ac: 'Verify package signatures before installation', checklist: [] },
+            { id: 'PKGD-113', title: 'Hook system', status: 'todo', priority: 'p2', epicId: 'E-3', featId: 'F-8', owner: 'Agent', start: '2026-06-18', end: '2026-06-22', ac: 'Pre/post install hooks for custom scripts', checklist: [] }
+        ];
+        Store.state.logs = [
+            { id: 1, time: '2026-06-01T10:00:00Z', action: 'PROJECT_STARTED', taskId: '', detail: 'pkgdrop v2.0.0 - core engine', agent: 'agent-01' },
+            { id: 2, time: '2026-06-03T14:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-100', detail: 'Auto-detect & install dependencies', agent: 'agent-01' },
+            { id: 3, time: '2026-06-05T16:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-101', detail: '.deb handler via alien', agent: 'agent-01' },
+            { id: 4, time: '2026-06-06T12:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-102', detail: '.rpm handler via alien', agent: 'agent-01' },
+            { id: 5, time: '2026-06-08T09:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-103', detail: 'Desktop integration', agent: 'agent-01' },
+            { id: 6, time: '2026-06-10T11:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-107', detail: 'CI pipeline setup', agent: 'agent-01' },
+            { id: 7, time: '2026-06-11T15:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-108', detail: 'Security audit complete - 76 items', agent: 'agent-01' },
+            { id: 8, time: '2026-06-11T18:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-109', detail: 'Technical documentation', agent: 'agent-01' },
+            { id: 9, time: '2026-06-11T19:00:00Z', action: 'SPRINT_STARTED', taskId: '', detail: 'Sprint 1 - Core Engine', agent: 'agent-01' },
+            { id: 10, time: '2026-06-12T08:00:00Z', action: 'TASK_STARTED', taskId: 'PKGD-110', detail: 'Dependency resolution engine', agent: 'agent-01' }
+        ];
+        Store.state.sprint = { name: 'Sprint 1 \u2014 Core Engine', start: '2026-06-01', end: '2026-06-14' };
+        Store.state.checklists = Store.getDefaultChecklists();
+        Store.save();
+    }
+};
+
+UI.init();
 </script>
 </body>
 </html>

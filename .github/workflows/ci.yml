@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install shellcheck
-        run: sudo apt-get update && sudo apt-get install -y shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck jq
 
       - name: Install bats
         run: |
@@ -39,9 +39,46 @@ jobs:
       - name: Validate help output
         run: |
           ./src/pkgdrop --help | grep -q "Usage:"
-          ./src/pkgdrop --version | grep -q "pkgdrop"
+          ./src/pkgdrop --version | grep -q "pkgdrop 3.0.0"
+
+      - name: Validate new commands exist
+        run: |
+          ./src/pkgdrop --help | grep -q "\-\-upgrade"
+          ./src/pkgdrop --help | grep -q "\-\-info"
+          ./src/pkgdrop --help | grep -q "\-\-owns"
+          ./src/pkgdrop --help | grep -q "\-\-force"
 
       - name: Validate --dry-run
         run: |
           touch /tmp/test.xyz
           ./src/pkgdrop --dry-run /tmp/test.xyz 2>&1 || true
+
+  test-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          pacman -Sy --noconfirm jq bash
+
+      - name: Install bats
+        run: |
+          git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats
+          /tmp/bats/install.sh /usr/local
+
+      - name: Make scripts executable
+        run: chmod +x src/pkgdrop
+
+      - name: Syntax check
+        run: bash -n src/pkgdrop
+
+      - name: Unit tests
+        run: bats tests/pkgdrop.bats
+
+      - name: Integration tests
+        run: bats tests/integration.bats
+
+      - name: Validate version
+        run: ./src/pkgdrop --version | grep -q "pkgdrop 3.0.0"
