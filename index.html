@@ -1230,7 +1230,7 @@ const UI = {
             { id: 'PKGD-11', title: 'Fix grep/find for set -e', status: 'done', priority: 'p0', epicId: 'E-pkgdrop', featId: 'F-edge', owner: 'Agent', start: '2026-06-11', end: '2026-06-11', ac: 'Use || true or || continue', checklist: [{ text: 'Fix find pipelines', done: true }, { text: 'Fix grep patterns', done: true }] },
             { id: 'PKGD-12', title: 'Run full test suite', status: 'done', priority: 'p0', epicId: 'E-pkgdrop', featId: 'F-pkg', owner: 'Agent', start: '2026-06-11', end: '2026-06-12', ac: 'All 23/23 tests passing', checklist: [{ text: 'Run unit tests', done: true }, { text: 'Run integration tests', done: true }, { text: 'Verify 23/23 pass', done: true }] },
             { id: 'PKGD-13', title: 'Push to GitHub & AUR', status: 'done', priority: 'p0', epicId: 'E-pkgdrop', featId: 'F-pkg', owner: 'Agent', start: '2026-06-12', end: '2026-06-12', ac: 'Commits pushed to GitHub and AUR', checklist: [{ text: 'Commit and push GitHub', done: true }, { text: 'Push to AUR', done: true }] },
-            { id: 'PKGD-14', title: 'Install system-wide', status: 'todo', priority: 'p0', epicId: 'E-pkgdrop', featId: 'F-pkg', owner: 'User', start: '2026-06-12', end: '2026-06-12', ac: 'Approve pkexec dialog or run `sudo pacman -S pkgdrop`', checklist: [{ text: 'Approve pkexec OR run pacman reinstall', done: false }] }
+            { id: 'PKGD-14', title: 'Install system-wide', status: 'done', priority: 'p0', epicId: 'E-pkgdrop', featId: 'F-pkg', owner: 'User', start: '2026-06-12', end: '2026-06-12', ac: 'pkgdrop 3.0.0 installed via yay', checklist: [{ text: 'Approved pkexec OR ran pacman reinstall', done: true }] }
         ];
         Store.state.logs = [
             { id: 1, time: '2026-06-12T10:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-1', detail: 'Audit pkgdrop for ALL edge cases', agent: 'agent-01' },
@@ -1245,7 +1245,8 @@ const UI = {
             { id: 10, time: '2026-06-12T15:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-10', detail: 'Add path traversal protection', agent: 'agent-01' },
             { id: 11, time: '2026-06-12T15:30:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-11', detail: 'Fix grep/find for set -e', agent: 'agent-01' },
             { id: 12, time: '2026-06-12T16:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-12', detail: 'Run full test suite - 23/23 passing', agent: 'agent-01' },
-            { id: 13, time: '2026-06-12T16:30:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-13', detail: 'Push to GitHub & AUR', agent: 'agent-01' }
+            { id: 13, time: '2026-06-12T16:30:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-13', detail: 'Push to GitHub & AUR', agent: 'agent-01' },
+            { id: 14, time: '2026-06-14T00:00:00Z', action: 'TASK_COMPLETED', taskId: 'PKGD-14', detail: 'Install system-wide via yay', agent: 'user' }
         ];
         Store.state.sprint = { name: 'pkgdrop v3.0.0 - Edge Case Fix', start: '2026-06-12', end: '2026-06-12' };
         Store.state.checklists = Store.getDefaultChecklists();
