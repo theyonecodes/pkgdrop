@@ -1,5 +1,43 @@
 # Changelog
 
+## 3.0.0 (2026-06-13)
+
+### New Features
+- Atomic installs with staging directory + automatic rollback on failure
+- Package registry (JSON database at `~/.local/share/pkgdrop/registry.json`)
+- Version awareness with semver comparison
+- Upgrade command (`-U`) to reinstall if newer version available
+- Package info command (`-i`) showing version, files, type, install date
+- Owns command (`-o`) to find which package owns a file
+- Conflict detection with file ownership tracking
+- GPG signature verification (`.sig`, `.asc` files)
+- Checksum verification (SHA-256, SHA-512, MD5)
+- Sandbox extraction via bubblewrap or firejail
+- Hook system (`~/.config/pkgdrop/hooks/`) with pre/post install/remove
+- Force flag (`-f`) to skip confirmations
+- System-wide install option (`-S`)
+- Progress bar for large archives
+
+### Improvements
+- Fixed atomic commit race condition (symlink pointed to staging dir)
+- Fixed exit codes for list, uninstall, clean commands under `set -euo pipefail`
+- Fixed `((count++))` arithmetic under strict mode
+- Fixed `push-aur.sh` to use absolute paths
+
+### Security
+- Sandbox extraction for untrusted archives (bubblewrap/firejail)
+- Signature and checksum verification before install
+- Atomic installs prevent partial/corrupt installations
+- File ownership database prevents overwriting files from other packages
+
+### Testing
+- 23 tests (12 unit + 11 integration) all passing
+- CI pipeline updated for multi-distro (Ubuntu + Arch)
+
+### Packaging
+- AUR PKGBUILD updated to v3.0.0
+- Added jq, bubblewrap, firejail as optdepends
+
 ## 2.0.0 (2026-06-11)
 
 ### Security
