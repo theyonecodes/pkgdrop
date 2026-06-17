@@ -1,4 +1,39 @@
 # Changelog
+## 3.0.1 (2026-06-18)
+
+
+
+### New Features
+
+- Audit command (`--audit`) to compare registry vs filesystem consistency
+
+- Prune mode (`--audit --prune`) to remove orphaned files, directories, and desktop entries
+
+- Enhanced uninstall error handling with filesystem operation tracking
+
+- Improved desktop file detection using WMClass and Exec fields
+
+
+
+### Improvements
+
+- Better error messages when filesystem operations fail during uninstall
+
+- Atomic prepare/commit refinements for more robust installs
+
+- Updated completions for audit command in both bash and zsh
+
+
+
+### Documentation
+
+- Man page updated with audit command documentation and examples
+
+- QUICK_START.md updated with audit command usage
+
+- README.md features section updated to highlight audit capability
+
+
 
 ## 3.0.0 (2026-06-13)
 

@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
+- **Audit & Cleanup:** Audit registry vs filesystem consistency, remove orphans with `--audit` and `--audit --prune`
 
 - **Universal support:** `.tar.xz`, `.deb`, `.AppImage`, `.rpm`, `.pkg.tar.*`
 - **Atomic installs:** Staging directory + atomic commit, auto-rollback on failure

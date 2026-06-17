@@ -63,6 +63,8 @@ Look for "Zen" in your desktop environment's application launcher.
 | `pkgdrop --dry-run file.tar.xz` | Preview without installing |
 | `pkgdrop --verbose file.tar.xz` | Show detailed steps |
 | `pkgdrop --clean` | Remove broken symlinks |
+| `pkgdrop --audit` | Audit registry vs filesystem consistency |
+| `pkgdrop --audit --prune` | Audit and remove orphaned files |
 
 ## Troubleshooting
 
