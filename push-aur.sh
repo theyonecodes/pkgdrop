@@ -35,6 +35,6 @@ cp "$SRC_SCRIPT" pkgdrop
 # Commit and push to AUR
 git add -A
 git commit -m "pkgdrop $VERSION" || { echo "No changes to commit"; exit 0; }
-git push origin main
+git push origin HEAD
 
 echo "Done! pkgdrop $VERSION pushed to AUR."
