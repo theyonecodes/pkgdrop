@@ -20,7 +20,6 @@ Desktop.ini
 *.tar.gz
 *.pkg.tar.*
 pkg/
-src/
 
 # AUR
 *.sig

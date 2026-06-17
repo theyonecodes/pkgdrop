@@ -7,6 +7,7 @@ _pkgdrop() {
         '(-l --list)'{-l,--list}'[List installed packages]' \
         '(-u --uninstall)'{-u,--uninstall}'[Uninstall a package]:package:_pkgdrop_installed' \
         '(-c --clean)'{-c,--clean}'[Remove broken symlinks]' \
+        '(-a --audit)'{-a,--audit}'[Audit registry vs filesystem]' \
         '(-n --dry-run)'{-n,--dry-run}'[Preview without changes]' \
         '(-V --verbose)'{-V,--verbose}'[Show detailed output]' \
         '(-y --yes)'{-y,--yes}'[Skip confirmation prompts]' \

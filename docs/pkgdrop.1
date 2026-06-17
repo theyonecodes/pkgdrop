@@ -23,6 +23,9 @@ List installed packages.
 .BR \-u ", " \-\-uninstall " " \fIname\fR
 Uninstall a package by name.
 .TP
+.BR \-a ", " \-\-audit
+Audit registry vs filesystem consistency.
+.TP
 .BR \-c ", " \-\-clean
 Remove broken symlinks and orphaned packages.
 .TP
@@ -92,6 +95,12 @@ Preview installation:
 .PP
 Uninstall a package:
 .B pkgdrop -u app
+.PP
+Audit registry consistency:
+.B pkgdrop --audit
+.PP
+Audit and remove orphans:
+.B pkgdrop --audit --prune
 .PP
 List installed packages:
 .B pkgdrop --list

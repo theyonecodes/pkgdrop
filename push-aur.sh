@@ -32,9 +32,9 @@ sed -i "s/sha256sum = .*/sha256sum = $newsum/" .SRCINFO
 # Copy updated script
 cp "$SRC_SCRIPT" pkgdrop
 
-# Commit and push
+# Commit and push to AUR
 git add -A
 git commit -m "pkgdrop $VERSION" || { echo "No changes to commit"; exit 0; }
-git push
+git push origin main
 
 echo "Done! pkgdrop $VERSION pushed to AUR."

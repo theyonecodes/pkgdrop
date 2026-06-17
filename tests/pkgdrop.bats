@@ -125,3 +125,14 @@ MOCK
     # Just checking the flag is parsed without error
     [[ "$output" == *"DRY RUN"* ]] || [[ "$status" -eq 1 ]]
 }
+
+@test "audit command runs without error" {
+    run pkgdrop --audit
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"pkgdrop audit"* ]]
+}
+
+@test "audit command with --prune flag runs" {
+    run pkgdrop --audit --prune
+    [ "$status" -eq 0 ]
+}

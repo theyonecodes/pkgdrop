@@ -6,7 +6,7 @@ _pkgdrop() {
 
     case $cur in
         -*)
-            COMPREPLY=($(compgen -W "--help --version --list --uninstall --clean --dry-run --verbose --yes -h -v -l -u -c -n -V -y" -- "$cur"))
+            COMPREPLY=($(compgen -W "--help --version --list --uninstall --clean --audit --dry-run --verbose --yes -h -v -l -u -c -a -n -V -y" -- "$cur"))
             return
             ;;
     esac

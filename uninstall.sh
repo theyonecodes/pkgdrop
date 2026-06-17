@@ -38,6 +38,11 @@ echo "[..] Removing desktop entry"
 elevate rm -f /usr/share/applications/pkgdrop.desktop
 echo "[OK] Removed desktop entry"
 
+# Remove PATH export from user's .bashrc if it was added by installer
+echo "[..] Cleaning PATH from ~/.bashrc"
+sudo -u "$REAL_USER" bash -c 'sed -i "/export PATH=\"\$HOME\/.local\/bin:\$PATH\"/d" "$HOME/.bashrc" 2>/dev/null || true'
+echo "[OK] Cleaned PATH from ~/.bashrc"
+
 echo "[..] Removing Dolphin service menu"
 elevate rm -f /usr/share/kservices5/ServiceMenus/pkgdrop-servicemenu.xml
 echo "[OK] Removed Dolphin service menu"
