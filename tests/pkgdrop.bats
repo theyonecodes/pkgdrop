@@ -58,6 +58,7 @@ MOCK
     [[ "$output" == *"--owns"* ]]
     [[ "$output" == *"--force"* ]]
     [[ "$output" == *"--dry-run"* ]]
+    [[ "$output" == *"--extract"* ]]
 }
 
 @test "show version" {
@@ -96,6 +97,13 @@ MOCK
     [[ "$output" == *"0 items"* ]]
 }
 
+@test "clean scans /usr/local/bin" {
+    mkdir -p "$BATS_TEST_TMPDIR/test/usr-local-bin"
+    ln -sf "/nonexistent/path/to/binary" "/usr/local/bin/test-broken-link-$$" 2>/dev/null || true
+    run pkgdrop --clean
+    [ "$status" -eq 0 ]
+}
+
 @test "file size validation" {
     PKGDROP_MAX_SIZE=1024 run pkgdrop --dry-run "$BATS_TEST_TMPDIR/test.xyz"
 }
@@ -120,9 +128,13 @@ MOCK
 
 @test "force flag accepted" {
     echo "test" > "$BATS_TEST_TMPDIR/test.tar.xz"
-    # Dry run with force should not error on flag parsing
     run pkgdrop --force --dry-run "$BATS_TEST_TMPDIR/test.tar.xz"
-    # Just checking the flag is parsed without error
+    [[ "$output" == *"DRY RUN"* ]] || [[ "$status" -eq 1 ]]
+}
+
+@test "extract flag accepted" {
+    echo "test" > "$BATS_TEST_TMPDIR/test.AppImage"
+    run pkgdrop --extract --dry-run "$BATS_TEST_TMPDIR/test.AppImage"
     [[ "$output" == *"DRY RUN"* ]] || [[ "$status" -eq 1 ]]
 }
 
@@ -130,6 +142,30 @@ MOCK
     run pkgdrop --audit
     [ "$status" -eq 0 ]
     [[ "$output" == *"pkgdrop audit"* ]]
+}
+
+@test "audit shows broken symlinks section" {
+    run pkgdrop --audit
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Broken Symlinks"* ]]
+}
+
+@test "audit shows duplicate desktop entries section" {
+    run pkgdrop --audit
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Duplicate Desktop Entries"* ]]
+}
+
+@test "audit shows systemd section" {
+    run pkgdrop --audit
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Systemd"* ]]
+}
+
+@test "audit shows pacman cross-reference section" {
+    run pkgdrop --audit
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Pacman Cross-Reference"* ]]
 }
 
 @test "audit command with --prune flag runs" {
