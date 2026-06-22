@@ -1,0 +1,6 @@
+[pkgdrop-uninstall]
+Identity=unix-user:*
+Action=org.freedesktop.policykit.exec
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes

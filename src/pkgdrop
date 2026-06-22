@@ -1329,7 +1329,33 @@ create_desktop_entry() {
     local display_name
     display_name=$(humanize_name "$name")
 
-    cat > "$desktop_file" << DESKTOP
+    # Generate the proper StartupWMClass value
+    local startup_wmclass
+    startup_wmclass=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+
+    # If the package has its own desktop file, ensure it has the correct StartupWMClass
+    # This handles cases where packages include their own .desktop files
+    local package_desktop=""
+    if [[ -f "$INSTALL_DIR/$name/$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g').desktop" ]]; then
+        package_desktop="$INSTALL_DIR/$name/$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g').desktop"
+    elif [[ -f "$INSTALL_DIR/$name/$(echo "$name" | tr '[:upper:]' '[:lower:]').desktop" ]]; then
+        package_desktop="$INSTALL_DIR/$name/$(echo "$name" | tr '[:upper:]' '[:lower:]').desktop"
+    fi
+
+    # Update any existing desktop file with correct StartupWMClass
+    if [[ -n "$package_desktop" ]]; then
+        # Update the existing desktop file with correct StartupWMClass
+        sed -i "s/^StartupWMClass=.*$/StartupWMClass=$startup_wmclass/" "$package_desktop" 2>/dev/null || true
+    fi
+
+    # Also update any desktop file in the applications directory that might have been created by the package
+    if [[ -f "$HOME/.local/share/applications/pkgdrop-${name}.desktop" ]]; then
+        # Update the pkgdrop-created desktop file with correct StartupWMClass
+        sed -i "s/^StartupWMClass=.*$/StartupWMClass=$startup_wmclass/" "$HOME/.local/share/applications/pkgdrop-${name}.desktop" 2>/dev/null || true
+    fi
+
+    # Create the desktop file with the correct StartupWMClass
+cat > "$desktop_file" << DESKTOP
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -1337,13 +1363,13 @@ Name=${display_name}
 Exec=${bin} %u
 Icon=${icon_label}
 Terminal=false
-StartupWMClass=${name}
+StartupWMClass=$startup_wmclass
 Categories=${category};
 MimeType=text/html;text/plain;application/xhtml+xml;
 StartupNotify=true
 DESKTOP
 
-    verb "Created: $desktop_file"
+verb "Created: $desktop_file"
 }
 
 refresh_desktop() {

@@ -1,0 +1,7 @@
+// Allow any user to run pkgdrop-uninstall without password
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/bin/pkgdrop-uninstall") {
+        return polkit.Result.YES;
+    }
+});

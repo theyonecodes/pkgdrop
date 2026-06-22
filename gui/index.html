@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>pkgdrop GUI</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        margin: 15px 0;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .btn:hover {
+        background-color: #3a7bd5;
+      }
+      .btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      .info {
+        text-align: center;
+        color: #666;
+        margin: 20px 0;
+      }
+      .installed-list {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .installed-item {
+        padding: 8px;
+        margin: 5px 0;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>pkgdrop GUI</h1>
+      <p class="info">Manage your installed packages</p>
+      
+      <button class="btn" id="uninstallBtn">Uninstall Package</button>
+      
+      <h3>Installed Packages</h3>
+      <div id="installedList" class="installed-list">
+        <p class="info">Loading installed packages...</p>
+      </div>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require('electron');
+      
+      document.getElementById('uninstallBtn').addEventListener('click', () => {
+        ipcRenderer.send('uninstall-package');
+      });
+      
+      // Load installed packages
+      ipcRenderer.invoke('list-packages').then(packages => {
+        const list = document.getElementById('installedList');
+        if (packages.length === 0) {
+          list.innerHTML = '<p class="info">No packages installed</p>';
+        } else {
+          list.innerHTML = packages.map(pkg => `<div class="installed-item">${pkg}</div>`).join('');
+        }
+      });
+      
+      // Listen for package list updates
+      ipcRenderer.on('package-list-updated', (event, packages) => {
+        const list = document.getElementById('installedList');
+        if (packages.length === 0) {
+          list.innerHTML = '<p class="info">No packages installed</p>';
+        } else {
+          list.innerHTML = packages.map(pkg => `<div class="installed-item">${pkg}</div>`).join('');
+        }
+      });
+    </script>
+  </body>
+</html>
