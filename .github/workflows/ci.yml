@@ -39,7 +39,7 @@ jobs:
       - name: Validate help output
         run: |
           ./src/pkgdrop --help | grep -q "Usage:"
-          ./src/pkgdrop --version | grep -q "pkgdrop 3.0.0"
+          ./src/pkgdrop --version | grep -q "pkgdrop 3.0.1"
 
       - name: Validate new commands exist
         run: |
@@ -81,4 +81,4 @@ jobs:
         run: bats tests/integration.bats
 
       - name: Validate version
-        run: ./src/pkgdrop --version | grep -q "pkgdrop 3.0.0"
+        run: ./src/pkgdrop --version | grep -q "pkgdrop 3.0.1"

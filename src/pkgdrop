@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-VERSION="3.0.0"
+VERSION="3.0.1"
 DEBUG="${DEBUG:-0}"
 VERBOSE="${VERBOSE:-0}"
 DRY_RUN="${DRY_RUN:-0}"

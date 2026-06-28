@@ -64,7 +64,7 @@ MOCK
 @test "show version" {
     run pkgdrop --version
     [ "$status" -eq 0 ]
-    [[ "$output" == *"pkgdrop 3.0.0"* ]]
+    [[ "$output" == *"pkgdrop 3.0.1"* ]]
 }
 
 @test "no arguments shows help" {
