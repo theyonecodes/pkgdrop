@@ -1,24 +1,48 @@
-# pkgdrop
+![pkgdrop Banner](https://raw.githubusercontent.com/theyonecodes/pkgdrop/main/.github/banner.svg)
 
-**Universal package installer for Arch Linux** - Install `.tar.xz`, `.deb`, `.AppImage`, `.rpm`, and pacman packages with a single command.
+<h1 align="center">pkgdrop</h1>
 
-[![CI](https://github.com/theyonecodes/pkgdrop/actions/workflows/ci.yml/badge.svg)](https://github.com/theyonecodes/pkgdrop/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <strong>Universal Package Installer for Arch Linux</strong><br>
+  Install AppImage, tar.xz, deb, rpm, and pacman packages with a single command.
+</p>
 
-## Features
-- **Audit & Cleanup:** Audit registry vs filesystem consistency, remove orphans with `--audit` and `--audit --prune`
+<p align="center">
+  <a href="https://github.com/theyonecodes/pkgdrop/actions/workflows/ci.yml">
+    <img src="https://github.com/theyonecodes/pkgdrop/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+  <a href="https://github.com/theyonecodes/pkgdrop/releases/latest">
+    <img src="https://img.shields.io/github/v/release/theyonecodes/pkgdrop?color=6366f1&label=version" alt="Release">
+  </a>
+  <a href="https://aur.archlinux.org/packages/pkgdrop">
+    <img src="https://img.shields.io/aur/version/pkgdrop?color=1793d1&label=AUR" alt="AUR">
+  </a>
+  <a href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  </a>
+  <a href="https://github.com/theyonecodes/pkgdrop/stargazers">
+    <img src="https://img.shields.io/github/stars/theyonecodes/pkgdrop" alt="Stars">
+  </a>
+  <a href="https://github.com/theyonecodes/pkgdrop/issues">
+    <img src="https://img.shields.io/github/issues/theyonecodes/pkgdrop" alt="Issues">
+  </a>
+</p>
 
-- **Universal support:** `.tar.xz`, `.deb`, `.AppImage`, `.rpm`, `.pkg.tar.*`
-- **Atomic installs:** Staging directory + atomic commit, auto-rollback on failure
-- **Package registry:** JSON database tracks installed packages, versions, and files
-- **Version awareness:** Compares installed vs candidate versions, upgrade support
-- **Conflict detection:** File ownership tracking prevents overwrites
-- **Signature verification:** GPG signature and checksum validation
-- **Sandbox extraction:** bubblewrap/firejail sandboxing for untrusted archives
-- **Hook system:** Pre/post install hooks for custom automation
-- **Smart:** Auto-detects package type, finds binaries, manages dependencies
-- **Integrated:** Desktop entry, icon installation, MIME types
-- **Clean:** Easy uninstall, broken symlink cleanup
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🔧 **Multi-format** | `.AppImage`, `.tar.xz`, `.tar.gz`, `.tar.zst`, `.deb`, `.rpm`, `.pkg.tar.*` |
+| 🛡️ **Secure** | GPG signatures, checksums, sandbox extraction (bubblewrap/firejail) |
+| ⚡ **Atomic** | Staging + commit with auto-rollback on failure |
+| 📦 **Registry** | JSON database tracks packages, versions, files, ownership |
+| 🔄 **Upgrade** | Compare versions, reinstall if newer |
+| 🔍 **Audit** | Detect ghosts, orphans, broken symlinks, duplicates |
+| 🎨 **GUI** | Electron (dark theme), GTK, or tkinter fallback |
+| 🪝 **Hooks** | Pre/post install and remove scripts |
+| 🧹 **Clean** | Easy uninstall, broken symlink cleanup |
 
 ## Installation
 

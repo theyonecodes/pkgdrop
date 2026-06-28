@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f14"/>
+      <stop offset="100%" style="stop-color:#1a1a24"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#818cf8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="200" fill="url(#bg)"/>
+
+  <!-- Decorative shapes -->
+  <circle cx="700" cy="100" r="120" fill="#6366f1" opacity="0.1"/>
+  <circle cx="100" cy="150" r="80" fill="#818cf8" opacity="0.1"/>
+
+  <!-- Box icon -->
+  <g transform="translate(80, 50)">
+    <path d="M0 20 L30 0 L70 0 L100 20 L100 60 L70 80 L30 80 L0 60 Z" fill="url(#accent)" opacity="0.3"/>
+    <path d="M0 20 L30 0 L70 0 L100 20 L100 60 L70 80 L30 80 L0 60 Z" fill="none" stroke="#6366f1" stroke-width="2"/>
+    <line x1="30" y1="0" x2="30" y2="40" stroke="#6366f1" stroke-width="2"/>
+    <line x1="70" y1="0" x2="70" y2="40" stroke="#6366f1" stroke-width="2"/>
+    <line x1="0" y1="20" x2="30" y2="40" stroke="#6366f1" stroke-width="2"/>
+    <line x1="100" y1="20" x2="70" y2="40" stroke="#6366f1" stroke-width="2"/>
+    <ellipse cx="50" cy="70" rx="25" ry="8" fill="#6366f1" opacity="0.5"/>
+  </g>
+
+  <!-- Text -->
+  <text x="220" y="75" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="bold" fill="#f1f5f9">pkgdrop</text>
+  <text x="222" y="75" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="bold" fill="url(#accent)">pkgdrop</text>
+
+  <text x="220" y="115" font-family="system-ui, -apple-system, sans-serif" font-size="18" fill="#94a3b8">Universal Package Installer for Arch Linux</text>
+
+  <!-- Tags -->
+  <rect x="220" y="135" width="80" height="24" rx="4" fill="#6366f1"/>
+  <text x="260" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">AppImage</text>
+
+  <rect x="310" y="135" width="70" height="24" rx="4" fill="#8b5cf6"/>
+  <text x="345" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">.tar.xz</text>
+
+  <rect x="390" y="135" width="60" height="24" rx="4" fill="#10b981"/>
+  <text x="420" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">.deb</text>
+
+  <rect x="460" y="135" width="60" height="24" rx="4" fill="#f59e0b"/>
+  <text x="490" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">.rpm</text>
+
+  <rect x="530" y="135" width="75" height="24" rx="4" fill="#3b82f6"/>
+  <text x="567" y="152" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">pacman</text>
+
+  <!-- Version badge -->
+  <rect x="680" y="40" width="90" height="28" rx="14" fill="#6366f1" opacity="0.2" stroke="#6366f1" stroke-width="1"/>
+  <text x="725" y="59" font-family="monospace" font-size="12" font-weight="600" fill="#6366f1" text-anchor="middle">v3.0.0</text>
+</svg>
