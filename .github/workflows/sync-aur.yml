@@ -31,10 +31,12 @@ jobs:
           
           echo "Starting sync for version ${{ steps.ver.outputs.v }}..."
 
-          # Use the standard AUR Git syntax: user@host:repo
-          git clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur || {
-            echo "Clone failed. Retrying with StrictHostKeyChecking=no..."
-            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone aur@aur.archlinux.org:pkgdrop.git /tmp/aur
+          mkdir -p ~/.ssh
+          ssh-keyscan -t rsa,ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
+          
+          GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur || {
+            echo "Clone failed. Trying with StrictHostKeyChecking=no..."
+            git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
           }
           
           cd /tmp/aur
@@ -50,8 +52,8 @@ jobs:
             echo "Changes detected. Committing..."
             git commit -m "pkgdrop ${{ steps.ver.outputs.v }}"
             echo "Pushing to AUR..."
-            git push origin master || git push origin main
+            git push origin HEAD
             echo "Successfully pushed to AUR!"
           fi
         env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
