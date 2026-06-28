@@ -92,6 +92,10 @@ MOCK
 }
 
 @test "clean with no broken symlinks" {
+    # First clean any existing broken symlinks to ensure clean state
+    run pkgdrop --clean
+    [ "$status" -eq 0 ]
+    # Run again to verify 0 items
     run pkgdrop --clean
     [ "$status" -eq 0 ]
     [[ "$output" == *"0 items"* ]]
