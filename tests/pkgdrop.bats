@@ -96,6 +96,7 @@ MOCK
     run pkgdrop --clean
     # Run again to verify 0 items found - check output, not exit code
     run pkgdrop --clean
+    echo "DEBUG: output='$output'" >&2
     [[ "$output" == *"0 items"* ]]
 }
 
