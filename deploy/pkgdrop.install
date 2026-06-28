@@ -1,22 +1,38 @@
 post_install() {
     echo ""
-    echo "pkgdrop installed successfully!"
+    echo "============================================"
+    echo "  pkgdrop v3.0.0 installed successfully!"
+    echo "============================================"
     echo ""
-    echo "Usage: pkgdrop <file>"
+    echo "Usage:"
+    echo "  pkgdrop <file>          # Install package (CLI)"
+    echo "  pkgdrop -l              # List packages"
+    echo "  pkgdrop -i <name>       # Show package info"
+    echo "  pkgdrop -u <name>       # Uninstall"
+    echo "  pkgdrop -a              # Audit system"
+    echo "  pkgdrop --help          # Full help"
     echo ""
     echo "Supported formats:"
-    echo "  *.tar.xz, *.deb, *.AppImage, *.pkg.tar.*, *.rpm"
+    echo "  *.AppImage  *.tar.xz  *.tar.gz  *.tar.zst"
+    echo "  *.deb  *.rpm  *.pkg.tar.zst  *.pkg.tar.xz"
     echo ""
-    echo "Add to PATH if needed:"
-    echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+    echo "GUI:"
+    echo "  pkgdrop-gui            # Launch Electron GUI"
+    echo "  python3 /usr/share/pkgdrop/gui/gtk_gui.py  # GTK GUI"
     echo ""
-    echo "For bash completions:"
-    echo "  source /usr/share/bash-completion/completions/pkgdrop.bash"
-    echo ""
+    echo "============================================"
 }
 
 post_upgrade() {
     echo ""
-    echo "pkgdrop upgraded to $(grep '^VERSION=' /usr/bin/pkgdrop | cut -d'\"' -f2)"
+    echo "pkgdrop upgraded to v3.0.0"
+    echo "See: pkgdrop --help"
+    echo ""
+}
+
+post_remove() {
+    echo ""
+    echo "pkgdrop removed."
+    echo "To reinstall: yay -S pkgdrop"
     echo ""
 }

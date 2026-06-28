@@ -20,10 +20,17 @@ Desktop.ini
 *.tar.gz
 *.pkg.tar.*
 pkg/
+*.AppImage
+!appimage/output/*.AppImage
+
+# AppImage build
+appimage/output/
+appimage/pkgdrop.AppDir/
 
 # AUR
 *.sig
-*.SRCINFO
+.SRCINFO
+!.SRCINFO
 
 # Testing
 *.bats
@@ -38,8 +45,8 @@ temp/
 *.tmp
 
 # Node (if used for tooling)
-node_modules/
-package-lock.json
+gui/node_modules/
+gui/package-lock.json
 
 # Python (if used for tooling)
 __pycache__/

@@ -2,31 +2,67 @@
 pkgname=pkgdrop
 pkgver=3.0.0
 pkgrel=1
-pkgdesc="Universal package installer for Arch Linux"
+pkgdesc="Universal package installer for Arch Linux - AppImage, tar.xz, deb, rpm, pacman"
 arch=('any')
 url="https://github.com/theyonecodes/pkgdrop"
 license=('MIT')
-depends=('bash')
-optdepends=('pacman: for .pkg.tar.* packages'
-            'debtap: for .deb packages'
-            'alien: for .rpm packages'
-            'jq: for package registry and version tracking'
-            'bubblewrap: for sandbox extraction'
-            'firejail: for sandbox extraction (alternative to bubblewrap)')
+provides=('pkgdrop')
+conflicts=('pkgdrop-git')
+depends=('bash' 'jq')
+optdepends=(
+    'pacman: for .pkg.tar.* packages'
+    'debtap: for .deb packages'
+    'alien: for .rpm packages'
+    'bubblewrap: for sandbox extraction'
+    'firejail: for sandbox extraction (alternative to bubblewrap)'
+    'electron: for Electron GUI'
+    'python3-gobject: for GTK GUI fallback'
+    'python3-tkinter: for tkinter GUI fallback'
+)
+makedepends=('wget')
 install=pkgdrop.install
-source=("pkgdrop::https://raw.githubusercontent.com/theyonecodes/pkgdrop/main/src/pkgdrop")
+source=("https://github.com/theyonecodes/pkgdrop/releases/download/v${pkgver}/pkgdrop-${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
 package() {
-    install -Dm755 "$srcdir/pkgdrop" "$pkgdir/usr/bin/pkgdrop"
+    cd "$srcdir/pkgdrop-${pkgver}"
+
+    # Main CLI
+    install -Dm755 src/pkgdrop "$pkgdir/usr/bin/pkgdrop"
+
+    # GUI launcher
+    install -Dm755 gui/run-gui.sh "$pkgdir/usr/bin/pkgdrop-gui"
+    chmod +x "$pkgdir/usr/bin/pkgdrop-gui"
+
+    # GUI files
+    install -dm755 "$pkgdir/usr/share/pkgdrop/gui"
+    install -m644 gui/index.html "$pkgdir/usr/share/pkgdrop/gui/index.html"
+    install -m644 gui/main.js "$pkgdir/usr/share/pkgdrop/gui/main.js"
+    install -m644 gui/preload.js "$pkgdir/usr/share/pkgdrop/gui/preload.js"
+    install -m644 gui/app.js "$pkgdir/usr/share/pkgdrop/gui/app.js"
+    install -m644 gui/styles.css "$pkgdir/usr/share/pkgdrop/gui/styles.css"
+    install -m644 gui/package.json "$pkgdir/usr/share/pkgdrop/gui/package.json"
+
+    # Python GUIs (fallbacks)
+    install -m755 gui/gtk_gui.py "$pkgdir/usr/share/pkgdrop/gui/gtk_gui.py"
+    install -m755 gui/drag_drop_uninstall.py "$pkgdir/usr/share/pkgdrop/gui/drag_drop_uninstall.py"
+    install -m755 gui/uninstall_gui.sh "$pkgdir/usr/share/pkgdrop/gui/uninstall_gui.sh"
+
+    # Desktop entry
+    install -Dm644 deploy/pkgdrop.desktop "$pkgdir/usr/share/applications/pkgdrop.desktop"
+
+    # Desktop integration (for Electron GUI)
+    install -Dm644 deploy/pkgdrop.desktop "$pkgdir/usr/share/applications/pkgdrop-electron.desktop"
 
     # Man page
-    install -Dm644 "${startdir}/../../docs/pkgdrop.1" "$pkgdir/usr/share/man/man1/pkgdrop.1" 2>/dev/null || true
+    install -Dm644 docs/pkgdrop.1 "$pkgdir/usr/share/man/man1/pkgdrop.1"
 
     # Completions
-    install -Dm644 "${startdir}/../../completions/pkgdrop.bash" "$pkgdir/usr/share/bash-completion/completions/pkgdrop" 2>/dev/null || true
-    install -Dm644 "${startdir}/../../completions/_pkgdrop" "$pkgdir/usr/share/zsh/site-functions/_pkgdrop" 2>/dev/null || true
+    install -Dm644 completions/pkgdrop.bash "$pkgdir/usr/share/bash-completion/completions/pkgdrop"
+    install -Dm644 completions/_pkgdrop "$pkgdir/usr/share/zsh/site-functions/_pkgdrop"
 
     # Documentation
-    install -Dm644 "${startdir}/../../CHANGELOG.md" "$pkgdir/usr/share/doc/pkgdrop/CHANGELOG.md" 2>/dev/null || true
+    install -dm755 "$pkgdir/usr/share/doc/pkgdrop"
+    install -m644 docs/FEATURES.md "$pkgdir/usr/share/doc/pkgdrop/FEATURES.md"
+    install -m644 CHANGELOG.md "$pkgdir/usr/share/doc/pkgdrop/CHANGELOG.md"
 }

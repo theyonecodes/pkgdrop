@@ -1,106 +1,260 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <title>pkgdrop GUI</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 40px;
-        background-color: #f5f5f5;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      }
-      h1 {
-        color: #333;
-        text-align: center;
-      }
-      .btn {
-        display: block;
-        width: 100%;
-        padding: 12px;
-        margin: 15px 0;
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      .btn:hover {
-        background-color: #3a7bd5;
-      }
-      .btn:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-      }
-      .info {
-        text-align: center;
-        color: #666;
-        margin: 20px 0;
-      }
-      .installed-list {
-        margin-top: 20px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px;
-        max-height: 200px;
-        overflow-y: auto;
-      }
-      .installed-item {
-        padding: 8px;
-        margin: 5px 0;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>pkgdrop GUI</h1>
-      <p class="info">Manage your installed packages</p>
-      
-      <button class="btn" id="uninstallBtn">Uninstall Package</button>
-      
-      <h3>Installed Packages</h3>
-      <div id="installedList" class="installed-list">
-        <p class="info">Loading installed packages...</p>
-      </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pkgdrop - Package Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-box-open"></i>
+                    <span>pkgdrop</span>
+                </div>
+                <span class="version">v3.0.0</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="packages">
+                    <i class="fas fa-box"></i>
+                    <span>Packages</span>
+                </button>
+                <button class="nav-item" data-view="install">
+                    <i class="fas fa-download"></i>
+                    <span>Install</span>
+                </button>
+                <button class="nav-item" data-view="audit">
+                    <i class="fas fa-search"></i>
+                    <span>Audit</span>
+                </button>
+                <button class="nav-item" data-view="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="pkgdrop-status">
+                    <i class="fas fa-circle" id="statusDot"></i>
+                    <span id="statusText">Checking...</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title" id="pageTitle">Dashboard</div>
+                <div class="top-bar-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search packages...">
+                    </div>
+                    <button class="btn-icon" id="refreshBtn" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div id="dashboardView" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalPackages">0</span>
+                                <span class="stat-label">Total Packages</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="appimages">0</span>
+                                <span class="stat-label">AppImages</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-archive"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="tarportables">0</span>
+                                <span class="stat-label">Tarballs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="issues">0</span>
+                                <span class="stat-label">Issues</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn" id="installBtn">
+                                <i class="fas fa-plus"></i>
+                                Install Package
+                            </button>
+                            <button class="action-btn secondary" id="runAuditBtn">
+                                <i class="fas fa-search"></i>
+                                Run Audit
+                            </button>
+                            <button class="action-btn secondary" id="cleanBtn">
+                                <i class="fas fa-broom"></i>
+                                Clean Broken
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="recent-section">
+                        <h3>Installed Packages</h3>
+                        <div class="package-list" id="dashboardPackageList">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Loading packages...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="packagesView" class="view">
+                    <div class="view-header">
+                        <h2>All Packages</h2>
+                        <div class="filter-group">
+                            <select id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="appimage">AppImage</option>
+                                <option value="tarportable">Tarball</option>
+                                <option value="pacman">Pacman</option>
+                            </select>
+                            <select id="sourceFilter">
+                                <option value="">All Sources</option>
+                                <option value="registry">Registry</option>
+                                <option value="filesystem">Filesystem</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="package-table-container">
+                        <table class="package-table">
+                            <thead>
+                                <tr>
+                                    <th>Package</th>
+                                    <th>Version</th>
+                                    <th>Type</th>
+                                    <th>Source</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packagesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="installView" class="view">
+                    <div class="install-area">
+                        <div class="drop-zone" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>Drop package files here</h3>
+                            <p>or click to browse</p>
+                            <input type="file" id="fileInput" hidden accept=".AppImage,.tar.xz,.tar.gz,.tar.zst,.tar.bz2,.deb,.rpm,.pkg.tar.zst,.pkg.tar.xz" multiple>
+                        </div>
+                        <div class="install-options">
+                            <label>
+                                <input type="checkbox" id="extractMode">
+                                <span>Extract Mode (for AppImages)</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="forceInstall">
+                                <span>Force Install</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="yesToAll" checked>
+                                <span>Yes to All Prompts</span>
+                            </label>
+                        </div>
+                        <div class="install-log" id="installLog">
+                            <h4>Installation Log</h4>
+                            <div class="log-content" id="logContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="auditView" class="view">
+                    <div class="audit-controls">
+                        <button class="btn primary" id="runAuditBtn2">
+                            <i class="fas fa-play"></i>
+                            Run System Audit
+                        </button>
+                        <button class="btn danger" id="pruneBtn" disabled>
+                            <i class="fas fa-trash"></i>
+                            Prune Issues
+                        </button>
+                    </div>
+                    <div class="audit-results" id="auditResults">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-check"></i>
+                            <p>Run an audit to check for issues</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settingsView" class="view">
+                    <div class="settings-section">
+                        <h3>Configuration</h3>
+                        <div class="setting-item">
+                            <label>Install Directory</label>
+                            <input type="text" id="installDir" value="~/.local/opt" readonly>
+                        </div>
+                        <div class="setting-item">
+                            <label>Sandbox Mode</label>
+                            <select id="sandboxMode">
+                                <option value="1">Enabled</option>
+                                <option value="0">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>About</h3>
+                        <div class="about-info">
+                            <p><strong>pkgdrop</strong> - Universal Package Installer</p>
+                            <p>Version: 3.0.0</p>
+                            <p>License: MIT</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <script>
-      const { ipcRenderer } = require('electron');
-      
-      document.getElementById('uninstallBtn').addEventListener('click', () => {
-        ipcRenderer.send('uninstall-package');
-      });
-      
-      // Load installed packages
-      ipcRenderer.invoke('list-packages').then(packages => {
-        const list = document.getElementById('installedList');
-        if (packages.length === 0) {
-          list.innerHTML = '<p class="info">No packages installed</p>';
-        } else {
-          list.innerHTML = packages.map(pkg => `<div class="installed-item">${pkg}</div>`).join('');
-        }
-      });
-      
-      // Listen for package list updates
-      ipcRenderer.on('package-list-updated', (event, packages) => {
-        const list = document.getElementById('installedList');
-        if (packages.length === 0) {
-          list.innerHTML = '<p class="info">No packages installed</p>';
-        } else {
-          list.innerHTML = packages.map(pkg => `<div class="installed-item">${pkg}</div>`).join('');
-        }
-      });
-    </script>
-  </body>
+    <div class="modal" id="uninstallModal">
+        <div class="modal-content">
+            <h3>Uninstall Package</h3>
+            <p id="uninstallMessage"></p>
+            <div class="modal-actions">
+                <button class="btn" id="cancelUninstall">Cancel</button>
+                <button class="btn danger" id="confirmUninstall">Uninstall</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
 </html>

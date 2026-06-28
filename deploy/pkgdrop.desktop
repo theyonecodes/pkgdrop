@@ -1,10 +1,38 @@
 [Desktop Entry]
+Name=pkgdrop
+GenericName=Package Installer
+Comment=Universal package installer for Arch Linux
+Exec=pkgdrop-gui
+Icon=system-software-install
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=System;PackageManager;Settings;
+Keywords=install;package;appimage;tarball;deb;rpm;pacman;
+NoDisplay=false
+
+[Desktop Action cli]
+Name=Command Line
+Comment=Run pkgdrop in terminal
+Exec=pkgdrop --help
+Terminal=true
+
+[Desktop Action install]
 Name=Install Package
-Comment=Install any supported package format
+Comment=Install a package file
+Exec=pkgdrop %f
+Terminal=true
+MimeType=application-x-tar;application-x-xz;application-x-debian-package;application-x-appimage;application-octet-stream;
+
+[Desktop Entry]
+Name=pkgdrop (Package Installer)
+GenericName=Install Package
+Comment=Install any supported package format (.AppImage, .tar.xz, .deb, .rpm, etc.)
 Exec=pkgdrop %f
 Icon=application-x-executable
 Terminal=true
 StartupNotify=true
 Type=Application
-MimeType=application/x-tar;application/x-xz;application/x-debian-package;application/x-appimage;application/octet-stream;
+MimeType=application/x-tar;application/x-xz;application/gzip;application/x-bzip2;application/x-debian-package;application-x-appimage;application-x-rpm;application/x-arch-package;
 Categories=System;Utilities;
+Keywords=install;package;appimage;tarball;deb;rpm;

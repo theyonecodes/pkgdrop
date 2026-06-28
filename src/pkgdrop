@@ -228,19 +228,19 @@ extract_version_from_file() {
     local version=""
     case "$file" in
         *.AppImage)
-            version=$(strings "$file" 2>/dev/null | grep -oP 'version["\s:=]+\K[0-9]+\.[0-9]+[0-9.]*' | head -1 || true)
+            version=$(strings "$file" 2>/dev/null | grep -oP 'version["\s:=]+\K[0-9]+\.[0-9]+(\.[0-9]+)*' | head -1 || true)
             if [[ -z "$version" ]]; then
-                version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+[0-9.]*' | head -1 || true)
+                version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+(\.[0-9]+)*' | head -1 || true)
             fi
             ;;
         *.tar.xz|*.tar.gz|*.tar.zst|*.tar.bz2)
-            version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+[0-9.]*' | head -1 || true)
+            version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+(\.[0-9]+)*' | head -1 || true)
             ;;
         *.deb)
             version=$(dpkg-deb -f "$file" Version 2>/dev/null || true)
             ;;
         *.pkg.tar.*)
-            version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+[0-9.]*' | head -1 || true)
+            version=$(echo "$file" | grep -oP '[0-9]+\.[0-9]+(\.[0-9]+)*' | head -1 || true)
             ;;
     esac
     echo "${version:-0.0.0}"
@@ -255,7 +255,37 @@ check_conflicts() {
     if command -v jq &>/dev/null && [[ -f "$REGISTRY_FILE" ]]; then
         local conflict
         conflict=$(jq -r --arg n "$name" 'keys[] | select(. == $n)' "$REGISTRY_FILE" 2>/dev/null || true)
-        if [[ -n "$conflict" ]] && [[ "$name" == "$conflict" ]]; then
+        if [[ -z "$conflict" ]]; then
+            local sanitized_name
+            sanitized_name=$(echo "$name" | sed 's/ /-/g' | tr '[:upper:]' '[:lower:]')
+            while IFS= read -r key; do
+                [[ -z "$key" ]] && continue
+                local sanitized_key
+                sanitized_key=$(sanitize_name "$key" | sed 's/ /-/g' | tr '[:upper:]' '[:lower:]')
+                if [[ "$sanitized_key" == "$sanitized_name" ]]; then
+                    conflict="$key"
+                    break
+                fi
+            done < <(jq -r 'keys[]' "$REGISTRY_FILE" 2>/dev/null || true)
+        fi
+        if [[ -n "$conflict" ]] && [[ "$name" != "$conflict" ]]; then
+            local installed_ver
+            installed_ver=$(registry_get_version "$conflict")
+            warn "Package '$name' matches existing installation: $conflict (v${installed_ver})"
+            if [[ "$FORCE" == "0" ]]; then
+                if ! confirm "Uninstall existing '$conflict' and reinstall?"; then
+                    fail "Aborted by user"
+                fi
+            fi
+            verb "Removing old installation: $conflict"
+            registry_remove "$conflict"
+            cleanup_desktop "$conflict"
+            rm -rf "$INSTALL_DIR/${conflict:?}" 2>/dev/null || true
+            rm -f "$HOME/.local/bin/$conflict" 2>/dev/null || true
+            rm -f "/usr/local/bin/$conflict" 2>/dev/null || true
+            rm -f "$HOME/.local/share/pkgdrop/icons/${conflict}.png" 2>/dev/null || true
+            rm -f "$HOME/.local/share/pkgdrop/icons/${conflict}.svg" 2>/dev/null || true
+        elif [[ -n "$conflict" ]] && [[ "$name" == "$conflict" ]]; then
             local installed_ver
             installed_ver=$(registry_get_version "$name")
             warn "Package '$name' is already registered (v${installed_ver})"
@@ -817,9 +847,8 @@ audit_system() {
     echo ""
 
     echo "--- Registry vs Filesystem ---"
-    local reg_names
-    reg_names=$(jq -r 'keys[]' "$REGISTRY_FILE" 2>/dev/null || true)
-    for name in $reg_names; do
+    while IFS= read -r name; do
+        [[ -z "$name" ]] && continue
         local has_dir=0 has_bin=0 missing=()
         [[ -d "$INSTALL_DIR/$name" ]] && has_dir=1
         [[ -L "$HOME/.local/bin/$name" ]] || [[ -f "$HOME/.local/bin/$name" ]] && has_bin=1
@@ -836,7 +865,7 @@ audit_system() {
             ghost_pkgs+=("$name")
             issues=$((issues + 1))
         fi
-    done
+    done < <(jq -r 'keys[]' "$REGISTRY_FILE" 2>/dev/null || true)
 
     echo ""
     echo "--- Filesystem vs Registry ---"
@@ -1195,8 +1224,10 @@ sanitize_name() {
     name="${name%.pkg.tar.zst}"
     name="${name%.pkg.tar.xz}"
     name="${name%.pkg.tar.gz}"
-    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
-    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|linux|macos|win(dows)?)$//')
+    name=$(echo "$name" | sed -E 's/[-_. ]v?[0-9]+(\.[0-9]+)+$//')
+    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|amd64|linux|macos|win(dows)?)$//')
+    name=$(echo "$name" | sed -E 's/[._-]*(x86_64|i686|i386|aarch64|armv7hl|amd64|linux|macos|win(dows)?)$//')
+    name=$(echo "$name" | sed 's/ /-/g')
     [[ -z "$name" ]] && name="unknown"
     echo "$name"
 }
@@ -2083,14 +2114,19 @@ install_appimage() {
         local icon_name="${rest%%|*}"
         category="${rest#*|}"
 
+        local installed_icon=""
         if [[ -n "$raw_icon_path" ]]; then
-            local installed_icon
             installed_icon=$(install_icon "$raw_icon_path" "$icon_name" "$name") || true
-            if [[ -n "$installed_icon" ]]; then
-                final_icon_name="${installed_icon#*|}"
-                installed_icon="${installed_icon%%|*}"
-                verb "Installed icon: $installed_icon"
-            fi
+        fi
+        if [[ -z "$installed_icon" ]]; then
+            local fallback_icon
+            fallback_icon=$(find_icon "squashfs-root" "$name")
+            [[ -n "$fallback_icon" ]] && installed_icon=$(install_icon "$fallback_icon" "" "$name") || true
+        fi
+        if [[ -n "$installed_icon" ]]; then
+            final_icon_name="${installed_icon#*|}"
+            installed_icon="${installed_icon%%|*}"
+            verb "Installed icon: $installed_icon"
         fi
 
         if [[ -f "squashfs-root/chrome-sandbox" ]]; then

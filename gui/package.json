@@ -1,24 +1,18 @@
 {
   "name": "pkgdrop-gui",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "description": "Universal Package Installer - Electron GUI",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
-  "keywords": [
-    "pkgdrop",
-    "package",
-    "installer",
-    "uninstaller"
-  ],
+  "keywords": ["pkgdrop", "package", "installer", "appimage", "arch-linux"],
   "author": "pkgdrop team",
   "license": "MIT",
   "devDependencies": {
+    "electron": "^28.2.7",
     "electron-builder": "^24.13.3"
-  },
-  "dependencies": {
-    "electron": "^28.2.7"
   }
 }

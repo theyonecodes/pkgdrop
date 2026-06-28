@@ -154,6 +154,40 @@ Environment variables passed to hooks:
 
 ## GUI Integration
 
+pkgdrop offers multiple GUI options:
+
+### Electron GUI (Recommended)
+Full-featured desktop application with modern dark theme.
+
+```bash
+cd gui
+npm install    # First time only
+./run-gui.sh   # Or: cd gui && electron .
+```
+
+Features:
+- Dashboard with package statistics
+- Package list with search/filter
+- Drag-and-drop installation
+- System audit with prune
+- Real-time status indicator
+
+### Python GTK GUI
+Lightweight GTK3-based GUI (no npm/electron needed).
+
+```bash
+./gui/run-gui.sh --gtk
+# or: python3 gui/gtk_gui.py
+```
+
+### Python tkinter GUI
+Simple uninstall tool with drag-and-drop support.
+
+```bash
+./gui/run-gui.sh --tkinter
+# or: python3 gui/drag_drop_uninstall.py
+```
+
 ### Konsole (Terminal)
 1. Settings → Configure Konsole → Quick Commands
 2. Add: Name = `Install Package`, Command = `pkgdrop %f`
@@ -164,6 +198,17 @@ Right-click any supported file → Open With → "Install Package"
 
 ### Dolphin
 Right-click → "Install with pkgdrop"
+
+### GUI Quick Reference
+
+| GUI | Command | Dependencies |
+|-----|---------|--------------|
+| Electron | `./run-gui.sh --electron` | Node.js, electron |
+| GTK | `./run-gui.sh --gtk` | Python3, GTK3 |
+| tkinter | `./run-gui.sh --tkinter` | Python3 |
+| CLI | `pkgdrop -l` | None |
+
+Run `./run-gui.sh --help` for all options.
 
 ## Configuration
 
@@ -224,36 +269,34 @@ docker build -t pkgdrop-test . && docker run pkgdrop-test
 
 ```
 pkgdrop/
-├── src/pkgdrop              # Main script (v3.0.0)
+├── src/pkgdrop              # Main CLI script (v3.0.0)
+├── gui/                     # GUI applications
+│   ├── run-gui.sh           # Unified GUI launcher
+│   ├── index.html           # Electron HTML
+│   ├── main.js              # Electron main process
+│   ├── preload.js           # Electron preload (IPC bridge)
+│   ├── app.js               # Electron renderer JS
+│   ├── styles.css           # Electron CSS (dark theme)
+│   ├── package.json         # Electron dependencies
+│   ├── gtk_gui.py           # Python GTK3 GUI (fallback)
+│   ├── drag_drop_uninstall.py  # Python tkinter GUI (fallback)
+│   └── uninstall_gui.sh     # tkinter GUI launcher
 ├── install.sh               # System installer
 ├── uninstall.sh             # System uninstaller
 ├── push-aur.sh              # AUR update helper
 ├── tests/
-│   ├── pkgdrop.bats         # Unit tests
-│   ├── integration.bats     # Integration tests
-│   └── fixtures/            # Test packages
+│   └── pkgdrop.bats         # Unit tests
 ├── completions/
 │   ├── pkgdrop.bash         # Bash completions
 │   └── _pkgdrop             # Zsh completions
 ├── deploy/
-│   ├── PKGBUILD             # AUR package
-│   ├── .SRCINFO             # AUR metadata
 │   ├── pkgdrop.desktop      # Desktop entry
-│   ├── pkgdrop.install      # AUR post-install
 │   └── dolphin/             # Dolphin service menu
 ├── docs/
-│   ├── pkgdrop.1            # Man page
-│   ├── QUICK_START.md       # Beginner guide
-│   └── index.html           # Documentation index
-├── .github/workflows/
-│   ├── ci.yml               # CI pipeline (multi-distro)
-│   ├── release.yml          # Release automation
-│   └── sync-aur.yml         # AUR sync
+│   └── pkgdrop.1            # Man page
 ├── Dockerfile               # Docker testing
 ├── Makefile                 # Build targets
 ├── CHANGELOG.md             # Version history
-├── CONTRIBUTING.md          # Contribution guide
-├── LICENSE                  # MIT License
 └── README.md                # This file
 ```
 
