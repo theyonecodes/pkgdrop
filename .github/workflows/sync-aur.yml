@@ -25,10 +25,11 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
-      - name: Sync to AUR
+- name: Sync to AUR
         if: env.AUR_SSH_KEY != ''
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
         run: |
           set -ex
           git config --global user.name "github-actions[bot]"
@@ -60,8 +61,6 @@ jobs:
             git push origin HEAD
             echo "Successfully pushed to AUR!"
           fi
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
 
       - name: Skip AUR sync (no SSH key)
         if: env.AUR_SSH_KEY == ''
