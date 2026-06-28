@@ -14,6 +14,7 @@ jobs:
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
+        if: ${{ secrets.AUR_SSH_KEY != '' }}
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
@@ -24,28 +25,29 @@ jobs:
           echo "v=$VER" >> $GITHUB_OUTPUT
 
       - name: Sync to AUR
+        if: ${{ secrets.AUR_SSH_KEY != '' }}
         run: |
           set -ex
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           echo "Starting sync for version ${{ steps.ver.outputs.v }}..."
 
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa,ed25519 aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null
-          
+
           GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" git clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur || {
             echo "Clone failed. Trying with StrictHostKeyChecking=no..."
             git -c core.sshCommand="ssh -o StrictHostKeyChecking=no" clone ssh://aur@aur.archlinux.org/pkgdrop.git /tmp/aur
           }
-          
+
           cd /tmp/aur
           echo "Current directory: $(pwd)"
           echo "Remote: $(git remote -v)"
-          
+
           cp "$GITHUB_WORKSPACE/src/pkgdrop" .
           git add -A
-          
+
           if git diff --cached --quiet; then
             echo "No changes to push."
           else
@@ -57,3 +59,9 @@ jobs:
           fi
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
+
+      - name: Skip AUR sync (no SSH key)
+        if: ${{ secrets.AUR_SSH_KEY == '' }}
+        run: |
+          echo "::warning::AUR_SSH_KEY secret not set. Skipping AUR sync."
+          echo "To enable AUR sync, add AUR_SSH_KEY to repository secrets."

@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -20,17 +23,19 @@ jobs:
 
       - name: Generate archive
         run: |
-          git archive --format=tar.gz --prefix=pkgdrop-$GITHUB_REF_NAME/ -o pkgdrop-$GITHUB_REF_NAME.tar.gz HEAD
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          git archive --format=tar.gz --prefix=pkgdrop-${VERSION}/ -o pkgdrop-${VERSION}.tar.gz HEAD
 
       - name: Generate checksums
         run: |
-          sha256sum pkgdrop-$GITHUB_REF_NAME.tar.gz > pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
-          cat pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
+          sha256sum pkgdrop-${VERSION}.tar.gz > pkgdrop-${VERSION}.tar.gz.sha256
+          cat pkgdrop-${VERSION}.tar.gz.sha256
 
       - name: Upload release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b
         with:
           files: |
-            pkgdrop-$GITHUB_REF_NAME.tar.gz
-            pkgdrop-$GITHUB_REF_NAME.tar.gz.sha256
+            pkgdrop-${VERSION}.tar.gz
+            pkgdrop-${VERSION}.tar.gz.sha256
           generate_release_notes: true

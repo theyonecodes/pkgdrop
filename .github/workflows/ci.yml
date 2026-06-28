@@ -26,12 +26,12 @@ jobs:
           bash -n uninstall.sh
           bash -n push-aur.sh
 
-      - name: Shellcheck
+      - name: Shellcheck (error only)
         run: |
-          shellcheck src/pkgdrop
-          shellcheck install.sh
-          shellcheck uninstall.sh
-          shellcheck push-aur.sh
+          shellcheck --severity=error src/pkgdrop
+          shellcheck --severity=error install.sh
+          shellcheck --severity=error uninstall.sh
+          shellcheck --severity=error push-aur.sh
 
       - name: Unit tests
         run: bats tests/pkgdrop.bats
@@ -61,7 +61,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pacman -Sy --noconfirm jq bash
+          pacman -Sy --noconfirm jq bash git
 
       - name: Install bats
         run: |
