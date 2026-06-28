@@ -25,7 +25,7 @@ jobs:
           VER=$(grep '^VERSION=' src/pkgdrop | cut -d'"' -f2)
           echo "v=$VER" >> $GITHUB_OUTPUT
 
-- name: Sync to AUR
+      - name: Sync to AUR
         if: env.AUR_SSH_KEY != ''
         env:
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
