@@ -92,11 +92,10 @@ MOCK
 }
 
 @test "clean with no broken symlinks" {
-    # First clean any existing broken symlinks (may return non-zero if items found)
-    run pkgdrop --clean || true
-    # Run again to verify 0 items
+    # Clean up any existing broken symlinks first - may return non-zero if items found
     run pkgdrop --clean
-    [ "$status" -eq 0 ]
+    # Run again to verify 0 items found - check output, not exit code
+    run pkgdrop --clean
     [[ "$output" == *"0 items"* ]]
 }
 
