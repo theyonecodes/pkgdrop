@@ -13,7 +13,9 @@ jobs:
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
-        if: ${{ secrets.AUR_SSH_KEY != '' }}
+        if: env.AUR_SSH_KEY != ''
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_KEY }}
 
@@ -24,7 +26,9 @@ jobs:
           echo "v=$VER" >> $GITHUB_OUTPUT
 
       - name: Sync to AUR
-        if: ${{ secrets.AUR_SSH_KEY != '' }}
+        if: env.AUR_SSH_KEY != ''
+        env:
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
           set -ex
           git config --global user.name "github-actions[bot]"
@@ -60,7 +64,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=accept-new"
 
       - name: Skip AUR sync (no SSH key)
-        if: ${{ secrets.AUR_SSH_KEY == '' }}
+        if: env.AUR_SSH_KEY == ''
         run: |
           echo "::warning::AUR_SSH_KEY secret not set. Skipping AUR sync."
           echo "To enable AUR sync, add AUR_SSH_KEY to repository secrets."
