@@ -8,11 +8,17 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
-  "keywords": ["pkgdrop", "package", "installer", "appimage", "arch-linux"],
+  "keywords": [
+    "pkgdrop",
+    "package",
+    "installer",
+    "appimage",
+    "arch-linux"
+  ],
   "author": "pkgdrop team",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^28.2.7",
+    "electron": "^42.5.0",
     "electron-builder": "^24.13.3"
   }
 }
