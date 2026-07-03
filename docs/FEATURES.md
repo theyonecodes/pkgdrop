@@ -4,7 +4,7 @@
 
 **pkgdrop** is a universal package installer for Arch Linux that installs and manages `.tar.xz`, `.deb`, `.AppImage`, `.rpm`, and pacman packages with a single unified interface.
 
-Version: **3.0.0**
+Version: **3.0.1**
 
 ---
 

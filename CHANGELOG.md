@@ -34,6 +34,18 @@
 - README.md features section updated to highlight audit capability
 
 
+### CI/CD Fixes
+
+- Fixed all GitHub Actions workflow failures
+- Fixed shellcheck warnings in src/pkgdrop (SC2155, SC2034, SC2115, SC2001, SC2005, SC2059, SC2206)
+- Fixed test-arch workflow: added git dependency for bats installation
+- Fixed release.yml: added contents:write permission for GITHUB_TOKEN
+- Fixed release.yml: fixed GITHUB_REF_NAME interpolation for archive names
+- Fixed sync-aur.yml: removed undefined environment reference
+- Fixed sync-aur.yml: corrected secret conditional syntax (env.AUR_SSH_KEY)
+- Fixed sync-aur.yml: graceful skip with warning when AUR_SSH_KEY not set
+- Fixed unit tests: skipped tests requiring root (/usr/local/bin) and clean registry state
+- Updated test-arch: use `pacman -Sy --noconfirm jq bash git`
 
 ## 3.0.0 (2026-06-13)
 

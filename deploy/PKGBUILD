@@ -1,6 +1,6 @@
 # Maintainer: theyonecodes <theyonecodes@gmail.com>
 pkgname=pkgdrop
-pkgver=3.0.0
+pkgver=3.0.1
 pkgrel=1
 pkgdesc="Universal package installer for Arch Linux - AppImage, tar.xz, deb, rpm, pacman"
 arch=('any')
