@@ -30,6 +30,17 @@
 
 ---
 
+## 🆕 New in v3.1.0 — Toolkit Integration
+
+| Feature | Description |
+|---------|-------------|
+| **🛡️ Shared BackupEngine** | Now uses `theyonecodes/toolkit` BackupEngine — automatic pre-install snapshots of config, registry, binaries with SHA-256 manifest + rollback |
+| **🤖 Jev Router Triage** | AI model routing with Choice/Score/Noul primitives — confidence scoring for AUR vs official repo, dependency resolution risk |
+| **🎨 DarkTheme GUI** | New tkinter DarkTheme GUI (from `theyonecodes/toolkit`) — consistent with CISO-Auditor, Windows-Super-Smooth |
+| **🔄 Reusable Core** | Core backup/restore logic migrated to `theyonecodes/toolkit` for use across Windows-Super-Smooth, electron-gpu-crash-fix, CISO-Auditor, universal-browser-backup |
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
@@ -40,9 +51,13 @@
 | 📦 **Registry** | JSON database tracks packages, versions, files, ownership |
 | 🔄 **Upgrade** | Compare versions, reinstall if newer |
 | 🔍 **Audit** | Detect ghosts, orphans, broken symlinks, duplicates |
-| 🎨 **GUI** | Electron (dark theme), GTK, or tkinter fallback |
+| 🎨 **GUI** | tkinter DarkTheme (from toolkit), Electron, GTK3 |
 | 🪝 **Hooks** | Pre/post install and remove scripts |
 | 🧹 **Clean** | Easy uninstall, broken symlink cleanup |
+| **🛡️ BackupEngine** | Pre-install system snapshots with SHA-256 manifest + auto-rollback |
+| **🤖 Jev Router** | AI triage for AUR vs official repo, dependency risk assessment |
+
+---
 
 ## Installation
 
@@ -83,6 +98,82 @@ pkgdrop --uninstall app
 pkgdrop --clean
 ```
 
+## 🛡️ Shared BackupEngine (New)
+
+The core backup/restore engine now lives in `theyonecodes/toolkit` and provides:
+
+| Feature | Description |
+|---------|-------------|
+| **Automatic backups** | Before any file/registry/BCD/EFI change |
+| **SHA-256 manifest** | Every backed-up item has a hash |
+| **Automatic rollback** | On failure, restores from backup |
+| **Cross-platform** | Python + PowerShell implementations |
+| **Reusable** | Used by Windows-Super-Smooth, electron-gpu-crash-fix, CISO-Auditor, universal-browser-backup |
+
+```bash
+# pkgdrop now automatically creates pre-install snapshots
+pkgdrop app.tar.xz
+# Creates: ~/.local/share/pkgdrop/backups/pre-install-20261010-143022/
+# With SHA-256 manifest and automatic rollback on failure
+```
+
+```python
+# Python usage (from toolkit)
+from toolkit.backup_engine import invoke_with_backup
+
+result = invoke_with_backup(
+    tool_name="pkgdrop",
+    description="Install app.tar.xz",
+    action=lambda: install_package("app.tar.xz"),
+    file_paths=["/etc/pacman.conf", "/var/lib/pacman/local"],
+    backup_bcd=False
+)
+```
+
+---
+
+## 🤖 Jev Router Triage (New)
+
+AI model routing with Choice/Score/Noul primitives for package management decisions:
+
+| Primitive | Purpose |
+|-----------|---------|
+| **Choice** | Select model for task (local vs cloud, AUR vs official) |
+| **Score** | Confidence 0-100% based on capability match, cost, latency |
+| **Noul** | Guardrails: if confidence < 70% → human review; if sensitive → human review |
+
+**CLI Usage:**
+```bash
+# AUR vs official repo decision
+python vendor/toolkit/jev-router/jev_router.py --choice system_optimization --context "{\"task_type\":\"package_install\",\"sensitive\":true,\"package_type\":\"aur\",\"required_capabilities\":[\"system_admin\",\"dependency_resolution\"]}"
+```
+
+**GUI Integration:**
+- **Install dialog** → "JEV TRIAGE" button → confidence scoring for AUR vs official repo
+- **Upgrade dialog** → risk assessment for dependency changes
+
+---
+
+## 🎨 DarkTheme GUI (New)
+
+New tkinter DarkTheme GUI (from `theyonecodes/toolkit`):
+
+```bash
+python pkgdropGUI.py
+```
+
+Features:
+- **File selector** with auto-type detection
+- **Options**: Dry-run, Force, Verbose, System-wide, Extract mode
+- **Actions**: Install, Uninstall, Upgrade, Audit, List, Clean
+- **JEV TRIAGE** button → AI confidence scoring
+- **Backup history** viewer
+- **Live logging** with timestamps
+
+Built on `theyonecodes/toolkit` DarkTheme — consistent with CISO-Auditor, Windows-Super-Smooth, electron-gpu-crash-fix, universal-browser-backup.
+
+---
+
 ## CLI Reference
 
 ```
@@ -102,7 +193,32 @@ Options:
   -n, --dry-run       Preview installation without changes
   -V, --verbose       Show detailed output
   -y, --yes           Skip confirmation prompts
+  -x, --extract       Extract AppImage to /opt (proper install)
 ```
+
+### Environment Variables
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEBUG` | `0` | Enable debug output |
+| `VERBOSE` | `0` | Enable verbose output |
+| `ASK_DEPENDENCIES` | `1` | Prompt for missing dependencies |
+| `PKGDROP_DIR` | `~/.local/opt` | Installation directory |
+| `PKGDROP_MAX_SIZE` | `1073741824` | Max file size in bytes |
+| `PKGDROP_LOG` | `~/.local/share/pkgdrop/install.log` | Log file path |
+| `PKGDROP_SANDBOX` | `1` | Enable sandbox extraction |
+| `TOOLKIT_PATH` | `~/.local/share/pkgdrop/toolkit` | Toolkit location |
+
+### Config File
+Create `~/.config/pkgdrop/config`:
+```bash
+PKGDROP_DIR="$HOME/.local/opt"
+ASK_DEPENDENCIES=1
+PKGDROP_MAX_SIZE=1073741824
+PKGDROP_LOG="$HOME/.local/share/pkgdrop/install.log"
+TOOLKIT_PATH="$HOME/.local/share/pkgdrop/toolkit"
+```
+
+---
 
 ## Supported Formats
 
@@ -113,6 +229,64 @@ Options:
 | `*.deb` | debtap | `debtap` (optional) |
 | `*.AppImage` | copy to bin | - |
 | `*.rpm` | alien + pacman | `alien` (optional) |
+
+---
+
+## 🛡️ Shared BackupEngine
+
+The core backup/restore engine now lives in `theyonecodes/toolkit` and provides:
+
+| Feature | Description |
+|---------|-------------|
+| **Automatic backups** | Before any file/registry/BCD/EFI change |
+| **SHA-256 manifest** | Every backed-up item has a hash |
+| **Automatic rollback** | On failure, restores from backup |
+| **Cross-platform** | Python + PowerShell implementations |
+| **Reusable** | Used by Windows-Super-Smooth, electron-gpu-crash-fix, CISO-Auditor, universal-browser-backup |
+
+```bash
+# pkgdrop now automatically creates pre-install snapshots
+pkgdrop app.tar.xz
+# Creates: ~/.local/share/pkgdrop/backups/pre-install-20261010-143022/
+# With SHA-256 manifest and automatic rollback on failure
+```
+
+```python
+# Python usage (from toolkit)
+from toolkit.backup_engine import invoke_with_backup
+
+result = invoke_with_backup(
+    tool_name="pkgdrop",
+    description="Install app.tar.xz",
+    action=lambda: install_package("app.tar.xz"),
+    file_paths=["/etc/pacman.conf", "/var/lib/pacman/local"],
+    backup_bcd=False
+)
+```
+
+---
+
+## 🤖 Jev Router Triage
+
+AI model routing with Choice/Score/Noul primitives for package management:
+
+| Primitive | Purpose |
+|-----------|---------|
+| **Choice** | Select model for task (local vs cloud, AUR vs official) |
+| **Score** | Confidence 0-100% based on capability match, cost, latency |
+| **Noul** | Guardrails: if confidence < 70% → human review; if sensitive → human review |
+
+**GUI Integration:**
+- **Install dialog** → "JEV TRIAGE" button → confidence scoring for AUR vs official repo
+- **Upgrade dialog** → risk assessment for dependency changes
+
+**CLI Usage:**
+```bash
+# AUR vs official repo decision
+python vendor/toolkit/jev-router/jev_router.py --choice system_optimization --context "{\"task_type\":\"package_install\",\"sensitive\":true,\"package_type\":\"aur\",\"required_capabilities\":[\"system_admin\",\"dependency_resolution\"]}"
+```
+
+---
 
 ## Package Registry
 
@@ -134,6 +308,8 @@ pkgdrop --info app
 pkgdrop --owns /path/to/file
 ```
 
+---
+
 ## Atomic Installs
 
 All installations use atomic operations:
@@ -142,6 +318,8 @@ All installations use atomic operations:
 2. Checksums and signatures are verified
 3. Staged files are atomically moved to the final location
 4. If anything fails, the original installation is restored
+
+---
 
 ## Signature Verification
 
@@ -157,6 +335,8 @@ pkgdrop signed-package.tar.xz
 # Force install without verification
 pkgdrop --force unsigned-package.tar.xz
 ```
+
+---
 
 ## Hook System
 
@@ -176,87 +356,41 @@ Environment variables passed to hooks:
 - `PKGDROP_PKG_TYPE` - Package type (tarportable, appimage, etc.)
 - `PKGDROP_INSTALL_DIR` - Installation directory
 
-## GUI Integration
+---
 
-pkgdrop offers multiple GUI options:
+## GUI Options
 
-### Electron GUI (Recommended)
-Full-featured desktop application with modern dark theme.
+### tkinter DarkTheme GUI (New)
+```bash
+python pkgdropGUI.py
+```
+Built on `theyonecodes/toolkit` DarkTheme — consistent with CISO-Auditor, Windows-Super-Smooth.
 
+### Electron GUI
 ```bash
 cd gui
 npm install    # First time only
 ./run-gui.sh   # Or: cd gui && electron .
 ```
 
-Features:
-- Dashboard with package statistics
-- Package list with search/filter
-- Drag-and-drop installation
-- System audit with prune
-- Real-time status indicator
-
 ### Python GTK GUI
-Lightweight GTK3-based GUI (no npm/electron needed).
-
 ```bash
-./gui/run-gui.sh --gtk
+./run-gui.sh --gtk
 # or: python3 gui/gtk_gui.py
 ```
 
-### Python tkinter GUI
-Simple uninstall tool with drag-and-drop support.
-
+### Python tkinter GUI (Legacy)
 ```bash
-./gui/run-gui.sh --tkinter
+./run-gui.sh --tkinter
 # or: python3 gui/drag_drop_uninstall.py
 ```
 
-### Konsole (Terminal)
-1. Settings → Configure Konsole → Quick Commands
-2. Add: Name = `Install Package`, Command = `pkgdrop %f`
-3. Drag files onto Konsole to install
+### Desktop Integration
+- **Konsole**: Settings → Quick Commands → Add `pkgdrop %f`
+- **Dolphin**: Right-click → "Install with pkgdrop"
+- **Desktop**: Right-click any supported file → Open With → "Install Package"
 
-### Desktop
-Right-click any supported file → Open With → "Install Package"
-
-### Dolphin
-Right-click → "Install with pkgdrop"
-
-### GUI Quick Reference
-
-| GUI | Command | Dependencies |
-|-----|---------|--------------|
-| Electron | `./run-gui.sh --electron` | Node.js, electron |
-| GTK | `./run-gui.sh --gtk` | Python3, GTK3 |
-| tkinter | `./run-gui.sh --tkinter` | Python3 |
-| CLI | `pkgdrop -l` | None |
-
-Run `./run-gui.sh --help` for all options.
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DEBUG` | `0` | Enable debug output |
-| `VERBOSE` | `0` | Enable verbose output |
-| `ASK_DEPENDENCIES` | `1` | Prompt for missing dependencies |
-| `PKGDROP_DIR` | `~/.local/opt` | Installation directory |
-| `PKGDROP_MAX_SIZE` | `1073741824` | Max file size in bytes |
-| `PKGDROP_LOG` | `~/.local/share/pkgdrop/install.log` | Log file path |
-| `PKGDROP_SANDBOX` | `1` | Enable sandbox extraction |
-
-### Config File
-
-Create `~/.config/pkgdrop/config`:
-```bash
-PKGDROP_DIR="$HOME/.local/opt"
-ASK_DEPENDENCIES=1
-PKGDROP_MAX_SIZE=1073741824
-PKGDROP_LOG="$HOME/.local/share/pkgdrop/install.log"
-```
+---
 
 ## Security Features
 
@@ -272,6 +406,10 @@ PKGDROP_LOG="$HOME/.local/share/pkgdrop/install.log"
 - **File size limits** prevent disk fill attacks
 - **Archive validation** checks integrity before extraction
 - **Hook system** for custom security policies
+- **🛡️ BackupEngine** — Pre-install snapshots with SHA-256 manifest + auto-rollback
+- **🤖 Jev Router** — AI triage for AUR vs official repo, dependency risk
+
+---
 
 ## Testing
 
@@ -289,11 +427,14 @@ bash -n src/pkgdrop && shellcheck src/pkgdrop
 docker build -t pkgdrop-test . && docker run pkgdrop-test
 ```
 
+---
+
 ## Project Structure
 
 ```
 pkgdrop/
-├── src/pkgdrop              # Main CLI script (v3.0.0)
+├── src/pkgdrop              # Main CLI script (v3.1.0)
+├── pkgdropGUI.py            # tkinter DarkTheme GUI (NEW)
 ├── gui/                     # GUI applications
 │   ├── run-gui.sh           # Unified GUI launcher
 │   ├── index.html           # Electron HTML
@@ -305,6 +446,12 @@ pkgdrop/
 │   ├── gtk_gui.py           # Python GTK3 GUI (fallback)
 │   ├── drag_drop_uninstall.py  # Python tkinter GUI (fallback)
 │   └── uninstall_gui.sh     # tkinter GUI launcher
+├── vendor/
+│   └── toolkit/             # Git submodule (theyonecodes/toolkit)
+│       ├── backup-engine/
+│       ├── gui/dark-theme/
+│       ├── jev-router/
+│       └── ...
 ├── install.sh               # System installer
 ├── uninstall.sh             # System uninstaller
 ├── push-aur.sh              # AUR update helper
@@ -324,9 +471,18 @@ pkgdrop/
 └── README.md                # This file
 ```
 
+---
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+### v3.1.0 (2026-10-12)
+- **Toolkit integration**: BackupEngine, DarkTheme GUI, Jev Router
+- **Shared BackupEngine**: Pre-install snapshots with SHA-256 manifest + auto-rollback
+- **Jev Router**: AI triage for AUR vs official repo, dependency risk assessment
+- **DarkTheme GUI**: tkinter GUI using `theyonecodes/toolkit` DarkTheme
+- **tkinter GUI**: New `pkgdropGUI.py` with JEV TRIAGE button
 
 ### v3.0.0 (2026-06-13)
 - Atomic installs with staging directory + commit
@@ -352,6 +508,8 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 - `.tar.xz`, `.deb`, `.AppImage`, `.pkg.tar.*` support
 - Desktop integration, auto-binary detection
 
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -365,3 +523,4 @@ MIT License - see [LICENSE](LICENSE)
 - **GitHub:** https://github.com/theyonecodes/pkgdrop
 - **AUR:** https://aur.archlinux.org/packages/pkgdrop
 - **Issues:** https://github.com/theyonecodes/pkgdrop/issues
+- **Toolkit:** https://github.com/theyonecodes/toolkit

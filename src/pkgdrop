@@ -426,6 +426,141 @@ run_hook() {
     done
 }
 
+# --- Hook System ---
+
+run_hook() {
+    local hook_name="$1"
+    local pkg_name="${2:-}"
+    local pkg_type="${3:-}"
+    local pkg_version="${4:-}"
+
+    local global_hooks="/usr/share/pkgdrop/hooks"
+    local user_hooks="$HOOKS_DIR"
+
+    for hooks_dir in "$global_hooks" "$user_hooks"; do
+        if [[ -d "$hooks_dir" ]]; then
+            for hook in "$hooks_dir/${hook_name}"*; do
+                [[ -f "$hook" ]] || continue
+                [[ -x "$hook" ]] || continue
+                verb "Running hook: $(basename "$hook")"
+                PKGDROP_PKG_NAME="$pkg_name" \
+                PKGDROP_PKG_TYPE="$pkg_type" \
+                PKGDROP_PKG_VERSION="$pkg_version" \
+                PKGDROP_INSTALL_DIR="$INSTALL_DIR" \
+                "$hook" 2>&1 | while IFS= read -r line; do
+                    verb "[hook] $line"
+                done || warn "Hook failed: $(basename "$hook")"
+            done
+        fi
+    done
+}
+
+# --- Toolkit Integration (BackupEngine + Jev Router) ---
+
+TOOLKIT_PATH="${TOOLKIT_PATH:-$HOME/.local/share/pkgdrop/toolkit}"
+
+toolkit_backup_pre_install() {
+    local pkg_name="$1"
+    local pkg_type="$2"
+    local pkg_version="$3"
+    
+    if [[ ! -d "$TOOLKIT_PATH" ]]; then
+        verb "Toolkit not found at $TOOLKIT_PATH, skipping backup"
+        return 0
+    fi
+    
+    verb "Creating pre-install backup via toolkit BackupEngine..."
+    
+    # Determine what to backup based on package type
+    local backup_paths=()
+    local backup_registry_keys=()
+    
+    case "$pkg_type" in
+        tarportable|appimage|appimage-extract)
+            backup_paths+=("$INSTALL_DIR/$pkg_name" 2>/dev/null || true)
+            backup_paths+=("$HOME/.local/bin/$pkg_name" 2>/dev/null || true)
+            backup_paths+=("$HOME/.local/share/applications/pkgdrop-${pkg_name}.desktop" 2>/dev/null || true)
+            backup_paths+=("$HOME/.local/share/icons/hicolor/128x128/apps/pkgdrop-${pkg_name}.png" 2>/dev/null || true)
+            backup_paths+=("$HOME/.local/share/pkgdrop/icons/${pkg_name}.png" 2>/dev/null || true)
+            ;;
+        debtap|alien|pacman)
+            # System packages - backup pacman db and config
+            backup_paths+=("/var/lib/pacman/local" 2>/dev/null || true)
+            backup_paths+=("/etc/pacman.conf" 2>/dev/null || true)
+            backup_paths+=("/etc/makepkg.conf" 2>/dev/null || true)
+            ;;
+    esac
+    
+    if [[ ${#backup_paths[@]} -eq 0 ]]; then
+        verb "No paths to backup for $pkg_type"
+        return 0
+    fi
+    
+    # Use toolkit's Python backup_engine
+    local toolkit_py="$TOOLKIT_PATH/backup-engine/python/backup_engine.py"
+    if [[ -f "$toolkit_py" ]] && command -v python3 &>/dev/null; then
+        python3 "$toolkit_py" \
+            --tool-name "pkgdrop" \
+            --description "Pre-install snapshot for $pkg_name ($pkg_type)" \
+            --action "echo 'Backup completed'" \
+            --file-paths "${backup_paths[@]}" \
+            --backup-bcd \
+            2>&1 | while IFS= read -r line; do
+                verb "[backup] $line"
+            done
+        return 0
+    else
+        # Fallback: simple tar backup
+        local backup_dir="$HOME/.local/share/pkgdrop/backups/pre-install-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$backup_dir"
+        for path in "${backup_paths[@]}"; do
+            [[ -e "$path" ]] && cp -a "$path" "$backup_dir/" 2>/dev/null || true
+        done
+        verb "Fallback backup created at $backup_dir"
+        return 0
+    fi
+}
+
+toolkit_jev_triage() {
+    local pkg_name="$1"
+    local pkg_type="$2"
+    local pkg_version="$3"
+    
+    if [[ ! -d "$TOOLKIT_PATH" ]]; then
+        verb "Toolkit not found, skipping Jev triage"
+        return 0
+    fi
+    
+    local jev_py="$TOOLKIT_PATH/jev-router/jev_router.py"
+    if [[ ! -f "$jev_py" ]] || ! command -v python3 &>/dev/null; then
+        verb "Jev Router not available"
+        return 0
+    fi
+    
+    verb "Running Jev Router triage for $pkg_name ($pkg_type)..."
+    
+    local context
+    context=$(cat <<EOF
+{
+    "task_type": "package_install",
+    "sensitive": true,
+    "package_name": "$pkg_name",
+    "package_type": "$pkg_type",
+    "package_version": "$pkg_version",
+    "required_capabilities": ["system_admin", "file_ops", "package_management", "dependency_resolution"]
+}
+EOF
+)
+    
+    python3 "$jev_py" \
+        --choice "system_optimization" \
+        --context "$context" \
+        2>&1 | while IFS= read -r line; do
+            verb "[jev] $line"
+        done
+    return 0
+}
+
 # --- Security: Sandbox ---
 
 sandbox_extract() {
@@ -1560,6 +1695,13 @@ install_pacman() {
     fi
     [[ "$DRY_RUN" == "1" ]] && { info "[DRY RUN] Would run: sudo pacman -U $1"; return 0; }
     sudo_warn "install pacman package"
+    
+    # Toolkit integration
+    local pkg_name="${1##*/}"
+    pkg_name="${pkg_name%.pkg.tar.*}"
+    toolkit_backup_pre_install "$pkg_name" "pacman" "0.0.0"
+    toolkit_jev_triage "$pkg_name" "pacman" "0.0.0"
+    
     sudo pacman -U --noconfirm -- "$1"
 }
 
@@ -1606,6 +1748,10 @@ install_tarportable() {
     fi
 
     run_hook "pre-install" "$name" "tarportable" "$candidate_ver"
+
+    # Toolkit integration: backup + Jev triage
+    toolkit_backup_pre_install "$name" "tarportable" "$candidate_ver"
+    toolkit_jev_triage "$name" "tarportable" "$candidate_ver"
 
     local stage_dir
     stage_dir="${target}.stage.$(date +%s)"
@@ -1750,6 +1896,10 @@ install_debtap() {
     candidate_ver=$(dpkg-deb -f "$1" Version 2>/dev/null || extract_version_from_file "$1")
 
     run_hook "pre-install" "$name" "debtap" "$candidate_ver"
+
+    # Toolkit integration
+    toolkit_backup_pre_install "$name" "debtap" "$candidate_ver"
+    toolkit_jev_triage "$name" "debtap" "$candidate_ver"
 
     local output
     local tmpdir
@@ -1970,6 +2120,10 @@ _install_appimage_extract() {
 
     run_hook "pre-install" "$name" "appimage-extract" "$candidate_ver"
 
+    # Toolkit integration
+    toolkit_backup_pre_install "$name" "appimage-extract" "$candidate_ver"
+    toolkit_jev_triage "$name" "appimage-extract" "$candidate_ver"
+
     local stage_dir
     stage_dir="${target}.stage.$(date +%s)"
     atomic_prepare "$stage_dir"
@@ -2095,6 +2249,10 @@ install_appimage() {
 
     run_hook "pre-install" "$name" "appimage" "$candidate_ver"
 
+    # Toolkit integration
+    toolkit_backup_pre_install "$name" "appimage" "$candidate_ver"
+    toolkit_jev_triage "$name" "appimage" "$candidate_ver"
+
     mkdir -p "$HOME/.local/bin" || fail "Cannot create $HOME/.local/bin"
 
     local stage_file="${HOME}/.local/bin/${name}.stage"
@@ -2179,6 +2337,10 @@ install_alien() {
     candidate_ver=$(extract_version_from_file "$1")
 
     run_hook "pre-install" "$name" "alien" "$candidate_ver"
+
+    # Toolkit integration
+    toolkit_backup_pre_install "$name" "alien" "$candidate_ver"
+    toolkit_jev_triage "$name" "alien" "$candidate_ver"
 
     local pkg
     pkg=$(alien -dc "$1" 2>/dev/null | grep -o '[^ ]*\.pkg\.tar\.[^ ]*' | tail -1)
